@@ -32,7 +32,18 @@ module RedmineApp
 
     config.active_support.remove_deprecated_time_with_zone_name = true
     config.active_support.cache_format_version = 7.0
-    config.active_support.to_time_preserves_timezone = :zone
+
+    # Configure timezone preservation for to_time method
+    # - Rails 8.1+: deprecated (behavior hardcoded to :zone)
+    # - Rails 8.0: use :zone
+    # - Rails 5.0-7.x: use true (preserve UTC offset)
+    # - Rails < 5.0: use false or don't set
+    if Rails::VERSION::MAJOR < 8
+      config.active_support.to_time_preserves_timezone = true
+    elsif Rails::VERSION::MAJOR == 8 && Rails::VERSION::MINOR < 1
+      config.active_support.to_time_preserves_timezone = :zone
+    end
+    # Rails 8.1+: don't set, config is deprecated and behavior is already :zone
 
     config.active_record.store_full_sti_class = true
     config.active_record.default_timezone = :local
