@@ -24,12 +24,28 @@ class WebhooksController < ApplicationController
   before_action :check_enabled
   before_action :authorize
 
-  before_action :find_webhook, only: [:edit, :update, :destroy]
+  before_action :find_webhook, only: [:show, :edit, :update, :destroy]
+
+  accept_api_auth :index, :show, :create, :update, :destroy
 
   require_sudo_mode :create, :update, :destroy
 
   def index
-    @webhooks = webhooks.order(:url)
+    @webhook_count = webhooks.count
+    @offset, @limit = api_offset_and_limit
+    @webhooks = webhooks.order(:url).limit(@limit).offset(@offset)
+
+    respond_to do |format|
+      format.html { @webhooks = webhooks.order(:url) }
+      format.api
+    end
+  end
+
+  def show
+    respond_to do |format|
+      format.html { redirect_to edit_webhook_path(@webhook) }
+      format.api
+    end
   end
 
   def new
@@ -40,32 +56,45 @@ class WebhooksController < ApplicationController
   end
 
   def create
-    @webhook = webhooks.build(webhook_params)
+    @webhook = webhooks.build
+    @webhook.safe_attributes = params[:webhook]
     if @webhook.save
-      redirect_to webhooks_path
+      respond_to do |format|
+        format.html { redirect_to webhooks_path }
+        format.api { render :action => 'show', :status => :created, :location => webhook_url(@webhook) }
+      end
     else
-      render :new
+      respond_to do |format|
+        format.html { render :new }
+        format.api { render_validation_errors(@webhook) }
+      end
     end
   end
 
   def update
-    if @webhook.update(webhook_params)
-      redirect_to webhooks_path
+    @webhook.safe_attributes = params[:webhook]
+    if @webhook.save
+      respond_to do |format|
+        format.html { redirect_to webhooks_path }
+        format.api { render_api_ok }
+      end
     else
-      render :edit
+      respond_to do |format|
+        format.html { render :edit }
+        format.api { render_validation_errors(@webhook) }
+      end
     end
   end
 
   def destroy
     @webhook.destroy
-    redirect_to webhooks_path
+    respond_to do |format|
+      format.html { redirect_to webhooks_path }
+      format.api { render_api_ok }
+    end
   end
 
   private
-
-  def webhook_params
-    params.require(:webhook).permit(:url, :secret, :active, events: [], project_ids: [])
-  end
 
   def find_webhook
     @webhook = webhooks.find(params[:id])

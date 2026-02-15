@@ -1,0 +1,30 @@
+api.webhook do
+  api.id         @webhook.id
+  api.url        @webhook.url
+  api.active     @webhook.active
+  api.array :events do
+    @webhook.events.each do |event|
+      api.event event
+    end
+  end
+  api.created_at @webhook.created_at
+  api.updated_at @webhook.updated_at
+
+  api.array :projects do
+    @webhook.projects.each do |project|
+      api.project :id => project.id, :name => project.name, :identifier => project.identifier
+    end
+  end if include_in_api_response?('projects')
+
+  api.array :setable_events do
+    @webhook.setable_event_names.each do |event|
+      api.event event
+    end
+  end if include_in_api_response?('setable_events')
+
+  api.array :setable_projects do
+    @webhook.setable_projects.each do |project|
+      api.project :id => project.id, :name => project.name, :identifier => project.identifier
+    end
+  end if include_in_api_response?('setable_projects')
+end

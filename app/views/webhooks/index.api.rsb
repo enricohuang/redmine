@@ -1,0 +1,22 @@
+api.array :webhooks, api_meta(:total_count => @webhook_count, :offset => @offset, :limit => @limit) do
+  @webhooks.each do |webhook|
+    api.webhook do
+      api.id         webhook.id
+      api.url        webhook.url
+      api.active     webhook.active
+      api.array :events do
+        webhook.events.each do |event|
+          api.event event
+        end
+      end
+      api.created_at webhook.created_at
+      api.updated_at webhook.updated_at
+
+      api.array :projects do
+        webhook.projects.each do |project|
+          api.project :id => project.id, :name => project.name, :identifier => project.identifier
+        end
+      end if include_in_api_response?('projects')
+    end
+  end
+end

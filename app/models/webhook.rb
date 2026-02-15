@@ -20,6 +20,10 @@
 require 'rest-client'
 
 class Webhook < ApplicationRecord
+  include Redmine::SafeAttributes
+
+  safe_attributes 'url', 'secret', 'active', 'events', 'project_ids'
+
   Executor = Struct.new(:url, :payload, :secret) do
     # @return [RestClient::Response] if the POST request was successful
     # @raise [RestClient::Exception, Exception] a `RestClient::Exception` if an
