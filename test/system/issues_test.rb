@@ -548,8 +548,9 @@ class IssuesSystemTest < ApplicationSystemTestCase
         click_link 'Apply'
       end
       # Check that Totals are not present in the reloaded page
-      assert !page.has_css?('p.query-totals')
-      assert !page.has_css?('span.total-for-estimated-hours')
+      # Use has_no_css? which waits for element to disappear (vs has_css? which checks immediately)
+      assert page.has_no_css?('p.query-totals')
+      assert page.has_no_css?('span.total-for-estimated-hours')
     end
   end
 
