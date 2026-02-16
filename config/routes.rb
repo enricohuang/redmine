@@ -59,13 +59,18 @@ Rails.application.routes.draw do
 
   # Misc issue routes. TODO: move into resources
   match '/issues/context_menu', :to => 'context_menus#issues', :as => 'issues_context_menu', :via => [:get, :post]
-  match '/issues/changes', :to => 'journals#index', :as => 'issue_changes', :via => :get
+  match '/issues/changes', :to => 'journals#atom_index', :as => 'issue_changes', :via => :get
   match '/issues/:id/quoted', :to => 'journals#new', :id => /\d+/, :via => :post, :as => 'quoted_issue'
 
-  resources :journals, :only => [:edit, :update] do
+  resources :journals, :only => [:show, :edit, :update] do
     member do
       get 'diff'
     end
+  end
+
+  # Nested journals under issues for API
+  resources :issues, :only => [] do
+    resources :journals, :only => [:index, :create]
   end
 
   resources :reactions, only: [:create, :destroy]
