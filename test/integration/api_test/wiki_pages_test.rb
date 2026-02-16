@@ -265,4 +265,220 @@ class Redmine::ApiTest::WikiPagesTest < Redmine::ApiTest::Base
 
     assert_nil WikiPage.find_by_id(1)
   end
+
+  # ==========================================
+  # Index with pagination tests
+  # ==========================================
+
+  test "GET /projects/:project_id/wiki/index.json should return wiki pages with pagination metadata" do
+    get '/projects/ecookbook/wiki/index.json'
+    assert_response :ok
+    assert_equal 'application/json', response.media_type
+    json = ActiveSupport::JSON.decode(response.body)
+    assert json['wiki_pages'].is_a?(Array)
+    assert_not_nil json['total_count']
+    assert_not_nil json['offset']
+    assert_not_nil json['limit']
+  end
+
+  test "GET /projects/:project_id/wiki/index.json with limit and offset" do
+    get '/projects/ecookbook/wiki/index.json?limit=2&offset=1'
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 2, json['limit']
+    assert_equal 1, json['offset']
+    assert json['wiki_pages'].size <= 2
+  end
+
+  test "GET /projects/:project_id/wiki/index.json should include protected attribute" do
+    get '/projects/ecookbook/wiki/index.json'
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert json['wiki_pages'].all? { |p| p.key?('protected') }
+  end
+
+  # ==========================================
+  # Show with protected attribute tests
+  # ==========================================
+
+  test "GET /projects/:project_id/wiki/:title.json should include protected attribute" do
+    # Reset protected status for this test
+    WikiPage.find(1).update_attribute(:protected, false)
+
+    get '/projects/ecookbook/wiki/CookBook_documentation.json'
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert json['wiki_page'].key?('protected')
+    assert_equal false, json['wiki_page']['protected']
+  end
+
+  # ==========================================
+  # History endpoint tests
+  # ==========================================
+
+  test "GET /projects/:project_id/wiki/:title/history.json should return version history" do
+    get '/projects/ecookbook/wiki/CookBook_documentation/history.json', :headers => credentials('jsmith')
+    assert_response :ok
+    assert_equal 'application/json', response.media_type
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_not_nil json['wiki_page']
+    assert_equal 'CookBook_documentation', json['wiki_page']['title']
+    assert json['wiki_page']['versions'].is_a?(Array)
+    assert_not_nil json['wiki_page']['total_count']
+    assert_not_nil json['wiki_page']['offset']
+    assert_not_nil json['wiki_page']['limit']
+  end
+
+  test "GET /projects/:project_id/wiki/:title/history.json should include version details" do
+    get '/projects/ecookbook/wiki/CookBook_documentation/history.json', :headers => credentials('jsmith')
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    versions = json['wiki_page']['versions']
+    assert versions.size > 0
+    version = versions.first
+    assert_not_nil version['version_number']
+    assert_not_nil version['updated_on']
+  end
+
+  test "GET /projects/:project_id/wiki/:title/history.json with pagination" do
+    get '/projects/ecookbook/wiki/CookBook_documentation/history.json?limit=1&offset=0', :headers => credentials('jsmith')
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 1, json['wiki_page']['limit']
+    assert_equal 0, json['wiki_page']['offset']
+    assert json['wiki_page']['versions'].size <= 1
+  end
+
+  test "GET /projects/:project_id/wiki/:title/history.xml should return version history" do
+    get '/projects/ecookbook/wiki/CookBook_documentation/history.xml', :headers => credentials('jsmith')
+    assert_response :ok
+    assert_equal 'application/xml', response.media_type
+    assert_select 'wiki_page' do
+      assert_select 'title', :text => 'CookBook_documentation'
+      assert_select 'versions[type=array]' do
+        assert_select 'version'
+      end
+    end
+  end
+
+  test "GET /projects/:project_id/wiki/:title/history.json without permission should be denied" do
+    Role.anonymous.remove_permission! :view_wiki_edits
+
+    get '/projects/ecookbook/wiki/CookBook_documentation/history.json'
+    assert_response :unauthorized
+  end
+
+  # ==========================================
+  # Rename endpoint tests
+  # ==========================================
+
+  test "POST /projects/:project_id/wiki/:title/rename.json should rename page" do
+    post(
+      '/projects/ecookbook/wiki/CookBook_documentation/rename.json',
+      :params => {
+        :wiki_page => {
+          :title => 'Renamed_CookBook_documentation',
+          :redirect_existing_links => '1'
+        }
+      },
+      :headers => credentials('jsmith')
+    )
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 'Renamed_CookBook_documentation', json['wiki_page']['title']
+
+    # Verify page was renamed
+    assert_nil WikiPage.find_by(wiki_id: 1, title: 'CookBook_documentation')
+    assert_not_nil WikiPage.find_by(wiki_id: 1, title: 'Renamed_CookBook_documentation')
+  end
+
+  test "POST /projects/:project_id/wiki/:title/rename.json with invalid title should return errors" do
+    post(
+      '/projects/ecookbook/wiki/CookBook_documentation/rename.json',
+      :params => {
+        :wiki_page => {
+          :title => ''
+        }
+      },
+      :headers => credentials('jsmith')
+    )
+    assert_response :unprocessable_entity
+    json = ActiveSupport::JSON.decode(response.body)
+    assert json['errors'].present?
+  end
+
+  test "POST /projects/:project_id/wiki/:title/rename.json without permission should not change title" do
+    Role.find(1).remove_permission! :rename_wiki_pages
+
+    post(
+      '/projects/ecookbook/wiki/CookBook_documentation/rename.json',
+      :params => {
+        :wiki_page => {
+          :title => 'New_Title'
+        }
+      },
+      :headers => credentials('jsmith')
+    )
+    # Without rename permission, title change is ignored via safe_attributes
+    # The request succeeds but the title remains unchanged
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 'CookBook_documentation', json['wiki_page']['title']
+
+    # Verify page was not renamed
+    assert_not_nil WikiPage.find_by(wiki_id: 1, title: 'CookBook_documentation')
+    assert_nil WikiPage.find_by(wiki_id: 1, title: 'New_Title')
+  end
+
+  # ==========================================
+  # Protect endpoint tests
+  # ==========================================
+
+  test "POST /projects/:project_id/wiki/:title/protect.json should protect page" do
+    page = WikiPage.find(1)
+    # Reset protected status for this test
+    page.update_attribute(:protected, false)
+    assert_equal false, page.protected?
+
+    post(
+      '/projects/ecookbook/wiki/CookBook_documentation/protect.json',
+      :params => { :protected => '1' },
+      :headers => credentials('admin')
+    )
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal true, json['wiki_page']['protected']
+
+    page.reload
+    assert_equal true, page.protected?
+  end
+
+  test "POST /projects/:project_id/wiki/:title/protect.json should unprotect page" do
+    page = WikiPage.find(1)
+    page.update_attribute(:protected, true)
+    assert_equal true, page.protected?
+
+    post(
+      '/projects/ecookbook/wiki/CookBook_documentation/protect.json',
+      :params => { :protected => '0' },
+      :headers => credentials('admin')
+    )
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal false, json['wiki_page']['protected']
+
+    page.reload
+    assert_equal false, page.protected?
+  end
+
+  test "POST /projects/:project_id/wiki/:title/protect.json without permission should be denied" do
+    Role.find(1).remove_permission! :protect_wiki_pages
+
+    post(
+      '/projects/ecookbook/wiki/CookBook_documentation/protect.json',
+      :params => { :protected => '1' },
+      :headers => credentials('jsmith')
+    )
+    assert_response :forbidden
+  end
 end

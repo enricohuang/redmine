@@ -37,7 +37,7 @@ class WikiController < ApplicationController
   before_action :find_existing_or_new_page, :only => [:show, :edit]
   before_action :find_existing_page, :only => [:rename, :protect, :history, :diff, :annotate, :add_attachment, :destroy, :destroy_version]
   before_action :find_attachments, :only => [:preview]
-  accept_api_auth :index, :show, :update, :destroy
+  accept_api_auth :index, :show, :update, :destroy, :history, :rename, :protect
 
   helper :attachments
   include AttachmentsHelper
@@ -52,7 +52,11 @@ class WikiController < ApplicationController
       format.html do
         @pages_by_parent_id = @pages.group_by(&:parent_id)
       end
-      format.api
+      format.api do
+        @page_count = @pages.size
+        @offset, @limit = api_offset_and_limit
+        @pages = @pages.drop(@offset).first(@limit)
+      end
     end
   end
 
@@ -222,31 +226,66 @@ class WikiController < ApplicationController
     # used to display the *original* title if some AR validation errors occur
     @original_title = @page.pretty_title
     @page.safe_attributes = params[:wiki_page]
-    if request.post? && @page.save
-      flash[:notice] = l(:notice_successful_update)
-      redirect_to project_wiki_page_path(@page.project, @page.title)
+    if request.post?
+      if @page.save
+        respond_to do |format|
+          format.html do
+            flash[:notice] = l(:notice_successful_update)
+            redirect_to project_wiki_page_path(@page.project, @page.title)
+          end
+          format.api do
+            @content = @page.content
+            render :action => 'show', :status => :ok, :location => project_wiki_page_path(@page.project, @page.title)
+          end
+        end
+      else
+        respond_to do |format|
+          format.html
+          format.api { render_validation_errors(@page) }
+        end
+      end
     end
   end
 
   def protect
     @page.update_attribute :protected, params[:protected]
-    redirect_to project_wiki_page_path(@project, @page.title)
+    respond_to do |format|
+      format.html { redirect_to project_wiki_page_path(@project, @page.title) }
+      format.api do
+        @content = @page.content
+        render :action => 'show', :status => :ok
+      end
+    end
   end
 
   # show page history
   def history
     @version_count = @page.content.versions.count
-    @version_pages = Paginator.new @version_count, per_page_option, params['page']
-    # don't load text
-    @versions = @page.content.versions.
-      select("id, author_id, comments, updated_on, version").
-      preload(:author).
-      reorder('version DESC').
-      limit(@version_pages.per_page + 1).
-      offset(@version_pages.offset).
-      to_a
 
-    render :layout => false if request.xhr?
+    respond_to do |format|
+      format.html do
+        @version_pages = Paginator.new @version_count, per_page_option, params['page']
+        # don't load text
+        @versions = @page.content.versions.
+          select("id, author_id, comments, updated_on, version").
+          preload(:author).
+          reorder('version DESC').
+          limit(@version_pages.per_page + 1).
+          offset(@version_pages.offset).
+          to_a
+        render :layout => false if request.xhr?
+      end
+      format.api do
+        @offset, @limit = api_offset_and_limit
+        @versions = @page.content.versions.
+          select("id, author_id, comments, updated_on, version").
+          preload(:author).
+          reorder('version DESC').
+          limit(@limit).
+          offset(@offset).
+          to_a
+      end
+    end
   end
 
   def diff

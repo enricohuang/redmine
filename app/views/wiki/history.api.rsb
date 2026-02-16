@@ -1,0 +1,14 @@
+api.wiki_page do
+  api.title @page.title
+
+  api.array :versions, api_meta(:total_count => @version_count, :offset => @offset, :limit => @limit) do
+    @versions.each do |version|
+      api.version do
+        api.version_number version.version
+        api.author(:id => version.author_id, :name => version.author.name) unless version.author.nil?
+        api.comments version.comments
+        api.updated_on version.updated_on
+      end
+    end
+  end
+end

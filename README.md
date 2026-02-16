@@ -25,6 +25,16 @@ Dedicated API endpoints for managing issue comments/journals directly.
 - Update comments with proper response data
 - Private notes support
 
+### Wiki REST API
+
+Enhanced Wiki API with new endpoints for advanced wiki management.
+
+- Page history listing with pagination
+- Page rename with redirect support
+- Page protection toggle
+- Protected status in API responses
+- Index pagination for large wikis
+
 ### Rails 8.1+ Compatibility
 
 Fixed deprecated timezone configuration for Rails 8.1+ compatibility while maintaining backward compatibility with earlier Rails versions.
@@ -36,6 +46,7 @@ For detailed documentation, see the [Wiki](https://github.com/enricohuang/redmin
 - [Webhooks REST API Reference](https://github.com/enricohuang/redmine/wiki/Webhooks-REST-API) - Complete API documentation
 - [Webhooks Use Cases](https://github.com/enricohuang/redmine/wiki/Webhooks-Use-Cases) - Integration examples and design rationale
 - [Journals REST API Reference](https://github.com/enricohuang/redmine/wiki/Journals-REST-API) - Comment management API
+- [Wiki REST API Reference](https://github.com/enricohuang/redmine/wiki/Wiki-REST-API) - Wiki page management API
 
 ## Fork Information
 
