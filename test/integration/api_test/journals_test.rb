@@ -22,7 +22,7 @@ class Redmine::ApiTest::JournalsTest < Redmine::ApiTest::Base
     json = ActiveSupport::JSON.decode(response.body)
     assert json.key?('journals')
     assert_kind_of Array, json['journals']
-    assert json['journals'].size > 0
+    assert_not json['journals'].empty?
 
     first_journal = json['journals'].first
     assert first_journal.key?('id')
@@ -71,7 +71,7 @@ class Redmine::ApiTest::JournalsTest < Redmine::ApiTest::Base
     assert_response :success
 
     json = ActiveSupport::JSON.decode(response.body)
-    journal_ids = json['journals'].map { |j| j['id'] }
+    journal_ids = json['journals'].pluck('id')
     assert_not_includes journal_ids, journal.id
   end
 

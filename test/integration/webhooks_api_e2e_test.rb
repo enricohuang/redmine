@@ -200,7 +200,7 @@ class WebhooksApiE2eTest < Redmine::ApiTest::Base
     # Verify setable_projects contains accessible projects
     setable_projects = json['webhook']['setable_projects']
     assert setable_projects.any?
-    project_ids = setable_projects.map { |p| p['id'] }
+    project_ids = setable_projects.pluck('id')
     assert_includes project_ids, @project.id
   end
 end

@@ -334,7 +334,7 @@ class Redmine::ApiTest::WikiPagesTest < Redmine::ApiTest::Base
     assert_response :ok
     json = ActiveSupport::JSON.decode(response.body)
     versions = json['wiki_page']['versions']
-    assert versions.size > 0
+    assert_not versions.empty?
     version = versions.first
     assert_not_nil version['version_number']
     assert_not_nil version['updated_on']
