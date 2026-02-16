@@ -15,6 +15,16 @@ Full CRUD REST API for managing webhooks programmatically, enabling CI/CD integr
 - HMAC-SHA256 signature verification for secure payload delivery
 - Support for multiple event types (issues, wiki pages, time entries, news, versions)
 
+### Journals REST API
+
+Dedicated API endpoints for managing issue comments/journals directly.
+
+- List journals for an issue with pagination
+- Get single journal details
+- Create comments directly via API (no need to update issue)
+- Update comments with proper response data
+- Private notes support
+
 ### Rails 8.1+ Compatibility
 
 Fixed deprecated timezone configuration for Rails 8.1+ compatibility while maintaining backward compatibility with earlier Rails versions.
@@ -25,6 +35,7 @@ For detailed documentation, see the [Wiki](https://github.com/enricohuang/redmin
 
 - [Webhooks REST API Reference](https://github.com/enricohuang/redmine/wiki/Webhooks-REST-API) - Complete API documentation
 - [Webhooks Use Cases](https://github.com/enricohuang/redmine/wiki/Webhooks-Use-Cases) - Integration examples and design rationale
+- [Journals REST API Reference](https://github.com/enricohuang/redmine/wiki/Journals-REST-API) - Comment management API
 
 ## Fork Information
 
