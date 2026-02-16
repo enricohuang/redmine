@@ -19,14 +19,14 @@
 
 class JournalsController < ApplicationController
   before_action :find_journal, :only => [:show, :edit, :update, :diff]
-  before_action :find_issue, :only => [:new, :index, :create]
-  before_action :find_optional_project, :only => [:atom_index]
-  before_action :require_login, :only => [:index, :show, :create]
+  before_action :find_issue, :only => [:new, :issue_journals, :create]
+  before_action :find_optional_project, :only => [:index]
+  before_action :require_login, :only => [:issue_journals, :show, :create]
   before_action :authorize, :only => [:new, :edit, :update, :diff]
   before_action :authorize_create, :only => [:create]
-  before_action :authorize_view, :only => [:index, :show]
-  accept_atom_auth :atom_index
-  accept_api_auth :index, :show, :create, :update
+  before_action :authorize_view, :only => [:issue_journals, :show]
+  accept_atom_auth :index
+  accept_api_auth :issue_journals, :show, :create, :update
   menu_item :issues
 
   helper :issues
@@ -34,9 +34,10 @@ class JournalsController < ApplicationController
   helper :queries
   helper :attachments
   include QueriesHelper
+  include Redmine::QuoteReply::Builder
 
-  # Atom feed for issue changes (existing functionality)
-  def atom_index
+  # Atom feed for issue changes (original functionality)
+  def index
     retrieve_query
     if @query.valid?
       @journals = @query.journals(:order => "#{Journal.table_name}.created_on DESC",
@@ -48,8 +49,9 @@ class JournalsController < ApplicationController
     render_404
   end
 
-  # GET /issues/:issue_id/journals
-  def index
+  # GET /issues/:issue_id/journals.json
+  # API endpoint for listing journals of an issue
+  def issue_journals
     @journal_count = visible_journals.count
     @offset, @limit = api_offset_and_limit
     @journals = visible_journals.
@@ -61,18 +63,18 @@ class JournalsController < ApplicationController
       offset(@offset)
 
     respond_to do |format|
-      format.api
+      format.api { render :action => 'index' }
     end
   end
 
-  # GET /journals/:id
+  # GET /journals/:id.json
   def show
     respond_to do |format|
       format.api
     end
   end
 
-  # POST /issues/:issue_id/journals
+  # POST /issues/:issue_id/journals.json
   def create
     @journal = @issue.init_journal(User.current)
     @journal.notify = params[:journal][:notify] != 'false' if params[:journal]&.key?(:notify)
@@ -151,8 +153,6 @@ class JournalsController < ApplicationController
 
   private
 
-  include Redmine::QuoteReply::Builder
-
   def find_journal
     @journal = Journal.visible.find(params[:id])
     @project = @journal.journalized.project
@@ -162,7 +162,7 @@ class JournalsController < ApplicationController
   end
 
   def find_issue
-    @issue = Issue.find(params[:issue_id])
+    @issue = Issue.find(params[:issue_id] || params[:id])
     @project = @issue.project
   rescue ActiveRecord::RecordNotFound
     render_404
