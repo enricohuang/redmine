@@ -87,7 +87,7 @@ Rails.application.routes.draw do
     post 'journals', :to => 'journals#create'
   end
 
-  resources :reactions, only: [:create, :destroy]
+  resources :reactions, only: [:index, :create, :destroy]
 
   get '/projects/:project_id/issues/gantt', :to => 'gantts#show', :as => 'project_gantt'
   get '/issues/gantt', :to => 'gantts#show'

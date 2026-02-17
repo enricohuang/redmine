@@ -1,0 +1,7 @@
+api.reaction do
+  api.id @reaction.id
+  api.user(:id => @reaction.user.id, :name => @reaction.user.name)
+  api.object_type @object.class.name
+  api.object_id @object.id
+  api.created_on @reaction.created_at
+end

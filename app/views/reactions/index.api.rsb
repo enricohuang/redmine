@@ -1,0 +1,9 @@
+api.array :reactions, api_meta(:total_count => @reaction_count, :object_type => params[:object_type], :object_id => params[:object_id].to_i) do
+  @reactions.each do |reaction|
+    api.reaction do
+      api.id reaction.id
+      api.user(:id => reaction.user.id, :name => reaction.user.name)
+      api.created_on reaction.created_at
+    end
+  end
+end
