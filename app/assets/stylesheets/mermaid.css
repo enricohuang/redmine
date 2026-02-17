@@ -1,0 +1,51 @@
+/**
+ * Mermaid Diagram Styles
+ *
+ * Styles for rendered Mermaid.js diagrams. Mermaid converts fenced code blocks
+ * with language="mermaid" into SVG diagrams.
+ */
+
+/* Container styling */
+pre.mermaid {
+  background: transparent;
+  border: none;
+  text-align: center;
+  padding: 1em 0;
+  overflow-x: auto;
+}
+
+/* Ensure SVG is responsive */
+pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* After mermaid processes the element */
+pre.mermaid[data-processed="true"] {
+  background: transparent;
+}
+
+/* Error styling */
+pre.mermaid .error-icon,
+pre.mermaid .error-text {
+  color: #cc0000;
+}
+
+/* Print styles */
+@media print {
+  pre.mermaid {
+    page-break-inside: avoid;
+  }
+
+  pre.mermaid svg {
+    max-width: 100% !important;
+  }
+}
+
+/* Dark mode support - if Redmine adds dark mode in future */
+@media (prefers-color-scheme: dark) {
+  pre.mermaid {
+    /* Mermaid handles its own dark theme, this is just container */
+    background: transparent;
+  }
+}

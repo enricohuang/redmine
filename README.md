@@ -46,6 +46,25 @@ Built-in label/tag system for issues with colored badges.
 - CSV export support
 - REST API for label management
 
+### Mermaid Diagrams
+
+Built-in support for rendering Mermaid.js diagrams in Markdown content.
+
+- Write diagrams in fenced code blocks with `mermaid` language tag
+- Automatic rendering in issues, wiki pages, and comments
+- Supports all Mermaid.js v11 diagram types:
+  - Flowcharts
+  - Sequence diagrams
+  - Class diagrams
+  - State diagrams
+  - Entity relationship diagrams
+  - Pie charts
+  - Gantt charts
+  - Git graphs
+  - And more...
+- Lazy loading - only downloads Mermaid.js when diagrams are present
+- No additional plugins required
+
 ### Rails 8.1+ Compatibility
 
 Fixed deprecated timezone configuration for Rails 8.1+ compatibility while maintaining backward compatibility with earlier Rails versions.
@@ -56,6 +75,7 @@ For detailed documentation, see the [Wiki](https://github.com/enricohuang/redmin
 
 - [Labels Feature Overview](https://github.com/enricohuang/redmine/wiki/Labels) - Labels documentation and usage guide
 - [Labels REST API Reference](https://github.com/enricohuang/redmine/wiki/Labels-REST-API) - Label management API
+- [Mermaid Diagrams](https://github.com/enricohuang/redmine/wiki/Mermaid-Diagrams) - Diagram syntax and examples
 - [Webhooks REST API Reference](https://github.com/enricohuang/redmine/wiki/Webhooks-REST-API) - Complete API documentation
 - [Webhooks Use Cases](https://github.com/enricohuang/redmine/wiki/Webhooks-Use-Cases) - Integration examples and design rationale
 - [Journals REST API Reference](https://github.com/enricohuang/redmine/wiki/Journals-REST-API) - Comment management API
