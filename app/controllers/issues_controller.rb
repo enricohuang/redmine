@@ -26,7 +26,7 @@ class IssuesController < ApplicationController
   before_action :find_optional_project, :only => [:index, :new, :create]
   before_action :build_new_issue_from_params, :only => [:new, :create]
   accept_atom_auth :index, :show
-  accept_api_auth :index, :show, :create, :update, :destroy
+  accept_api_auth :index, :show, :create, :update, :destroy, :bulk_update
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
   rescue_from Query::QueryError, :with => :query_error
@@ -409,22 +409,36 @@ class IssuesController < ApplicationController
     end
 
     if unsaved_issues.empty?
-      flash[:notice] = l(:notice_successful_update) unless saved_issues.empty?
-      if params[:follow]
-        if @issues.size == 1 && saved_issues.size == 1
-          redirect_to issue_path(saved_issues.first)
-        elsif saved_issues.map(&:project).uniq.size == 1
-          redirect_to project_issues_path(saved_issues.map(&:project).first)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_update) unless saved_issues.empty?
+          if params[:follow]
+            if @issues.size == 1 && saved_issues.size == 1
+              redirect_to issue_path(saved_issues.first)
+            elsif saved_issues.map(&:project).uniq.size == 1
+              redirect_to project_issues_path(saved_issues.map(&:project).first)
+            end
+          else
+            redirect_back_or_default _project_issues_path(@project)
+          end
         end
-      else
-        redirect_back_or_default _project_issues_path(@project)
+        format.api { render_api_ok }
       end
     else
-      @saved_issues = @issues
-      @unsaved_issues = unsaved_issues
-      @issues = Issue.visible.where(:id => @unsaved_issues.map(&:id)).to_a
-      bulk_edit
-      render :action => 'bulk_edit'
+      respond_to do |format|
+        format.html do
+          @saved_issues = @issues
+          @unsaved_issues = unsaved_issues
+          @issues = Issue.visible.where(:id => @unsaved_issues.map(&:id)).to_a
+          bulk_edit
+          render :action => 'bulk_edit'
+        end
+        format.api do
+          @saved_issues = saved_issues
+          @unsaved_issues = unsaved_issues
+          render :template => 'issues/bulk_update', :status => :unprocessable_entity
+        end
+      end
     end
   end
 

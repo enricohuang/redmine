@@ -1,0 +1,14 @@
+api.bulk_update do
+  api.total @saved_issues.size + @unsaved_issues.size
+  api.succeeded @saved_issues.size
+  api.failed @unsaved_issues.size
+
+  api.array :errors do
+    @unsaved_issues.each do |issue|
+      api.issue do
+        api.id issue.id
+        api.errors issue.errors.full_messages
+      end
+    end
+  end if @unsaved_issues.any?
+end
