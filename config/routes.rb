@@ -53,6 +53,14 @@ Rails.application.routes.draw do
   post 'boards/:board_id/topics/:id/edit', :to => 'messages#edit'
   post 'boards/:board_id/topics/:id/destroy', :to => 'messages#destroy'
 
+  # Messages API routes
+  get 'boards/:board_id/messages', :to => 'messages#index', :as => 'board_messages'
+  post 'boards/:board_id/messages', :to => 'messages#create'
+  get 'messages/:id', :to => 'messages#show', :as => 'message'
+  put 'messages/:id', :to => 'messages#update'
+  delete 'messages/:id', :to => 'messages#destroy', :as => 'destroy_message'
+  post 'messages/:id/replies', :to => 'messages#reply', :as => 'message_replies'
+
   # Auto complete routes
   match '/issues/auto_complete', :to => 'auto_completes#issues', :via => :get, :as => 'auto_complete_issues'
   match '/wiki_pages/auto_complete', :to => 'auto_completes#wiki_pages', :via => :get, :as => 'auto_complete_wiki_pages'

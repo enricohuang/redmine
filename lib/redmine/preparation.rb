@@ -145,10 +145,10 @@ module Redmine
         end
 
         map.project_module :boards do |map|
-          map.permission :view_messages, {:boards => [:index, :show], :messages => [:show]}, :read => true
-          map.permission :add_messages, {:messages => [:new, :reply, :quote], :attachments => :upload}
-          map.permission :edit_messages, {:messages => :edit, :attachments => :upload}, :require => :member
-          map.permission :edit_own_messages, {:messages => :edit, :attachments => :upload}, :require => :loggedin
+          map.permission :view_messages, {:boards => [:index, :show], :messages => [:index, :show]}, :read => true
+          map.permission :add_messages, {:messages => [:new, :create, :reply, :quote], :attachments => :upload}
+          map.permission :edit_messages, {:messages => [:edit, :update], :attachments => :upload}, :require => :member
+          map.permission :edit_own_messages, {:messages => [:edit, :update], :attachments => :upload}, :require => :loggedin
           map.permission :delete_messages, {:messages => :destroy}, :require => :member
           map.permission :delete_own_messages, {:messages => :destroy}, :require => :loggedin
           map.permission :view_message_watchers, {}, :read => true

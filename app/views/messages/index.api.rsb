@@ -1,0 +1,24 @@
+api.array :messages, api_meta(:total_count => @topic_count, :offset => @offset, :limit => @limit) do
+  @topics.each do |message|
+    api.message do
+      api.id message.id
+      api.board(:id => message.board_id, :name => message.board.name)
+      api.author(:id => message.author_id, :name => message.author.name) if message.author
+      api.subject message.subject
+      api.content message.content
+      api.created_on message.created_on
+      api.updated_on message.updated_on
+      api.sticky message.sticky?
+      api.locked message.locked?
+      api.replies_count message.replies_count
+
+      if message.last_reply
+        api.last_reply do
+          api.id message.last_reply.id
+          api.author(:id => message.last_reply.author_id, :name => message.last_reply.author.name) if message.last_reply.author
+          api.created_on message.last_reply.created_on
+        end
+      end
+    end
+  end
+end

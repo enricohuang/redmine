@@ -1,0 +1,42 @@
+api.message do
+  api.id @message.id
+  api.board(:id => @message.board_id, :name => @message.board.name)
+  api.parent(:id => @message.parent_id) if @message.parent_id
+  api.author(:id => @message.author_id, :name => @message.author.name) if @message.author
+  api.subject @message.subject
+  api.content @message.content
+  api.created_on @message.created_on
+  api.updated_on @message.updated_on
+  api.sticky @message.sticky?
+  api.locked @message.locked?
+  api.replies_count @message.replies_count
+
+  api.array :attachments do
+    @message.attachments.each do |attachment|
+      render_api_attachment(attachment, api)
+    end
+  end if @message.attachments.any?
+
+  if include_in_api_response?('replies')
+    replies = @message.root.children.includes(:author, :attachments).
+      reorder("#{Message.table_name}.created_on ASC, #{Message.table_name}.id ASC").to_a
+    api.array :replies do
+      replies.each do |reply|
+        api.reply do
+          api.id reply.id
+          api.author(:id => reply.author_id, :name => reply.author.name) if reply.author
+          api.subject reply.subject
+          api.content reply.content
+          api.created_on reply.created_on
+          api.updated_on reply.updated_on
+
+          api.array :attachments do
+            reply.attachments.each do |attachment|
+              render_api_attachment(attachment, api)
+            end
+          end if reply.attachments.any?
+        end
+      end
+    end
+  end
+end
