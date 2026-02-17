@@ -1,0 +1,38 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'labels', media: 'all' %>
+<% end %>
+<p><%= link_to l(:label_label_new), new_project_label_path(@project), :class => 'icon icon-add' if User.current.allowed_to?(:manage_labels, @project) %></p>
+
+<% if @project.labels.any? %>
+<table class="list labels">
+  <thead>
+    <tr>
+      <th><%= l(:field_name) %></th>
+      <th><%= l(:field_color) %></th>
+      <th><%= l(:label_issue_plural) %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @project.labels.order(:name).each do |label| %>
+      <tr class="<%= cycle('odd', 'even') %>">
+        <td class="name">
+          <span class="label-badge" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
+            <%= label.name %>
+          </span>
+        </td>
+        <td><%= label.color %></td>
+        <td><%= label.issues.count %></td>
+        <td class="buttons">
+          <% if User.current.allowed_to?(:manage_labels, @project) %>
+            <%= link_to l(:button_edit), edit_label_path(label), :class => 'icon icon-edit' %>
+            <%= delete_link label_path(label) %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% else %>
+<p class="nodata"><%= l(:label_no_labels_for_project) %></p>
+<% end %>

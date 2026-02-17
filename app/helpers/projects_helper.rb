@@ -34,6 +34,8 @@ module ProjectsHelper
         {:name => 'categories', :action => :manage_categories,
          :partial => 'projects/settings/issue_categories',
          :label => :label_issue_category_plural},
+        {:name => 'labels', :action => :manage_labels, :module => :issue_tracking,
+         :partial => 'projects/settings/labels', :label => :label_label_plural},
         {:name => 'repositories', :action => :manage_repository,
          :partial => 'projects/settings/repositories', :label => :label_repository_plural},
         {:name => 'boards', :action => :manage_boards,

@@ -83,6 +83,8 @@ module Redmine
           map.permission :import_issues, {}
           # Issue categories
           map.permission :manage_categories, {:projects => :settings, :issue_categories => [:index, :show, :new, :create, :edit, :update, :destroy]}, :require => :member
+          # Labels
+          map.permission :manage_labels, {:projects => :settings, :labels => [:index, :show, :new, :create, :edit, :update, :destroy, :create_inline]}, :require => :member
         end
 
         map.project_module :time_tracking do |map|

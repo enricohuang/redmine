@@ -75,7 +75,8 @@ class IssueQuery < Query
     QueryColumn.new(:relations, :caption => :label_related_issues),
     QueryColumn.new(:attachments, :caption => :label_attachment_plural),
     QueryColumn.new(:description, :inline => false),
-    QueryColumn.new(:last_notes, :caption => :label_last_notes, :inline => false)
+    QueryColumn.new(:last_notes, :caption => :label_last_notes, :inline => false),
+    QueryColumn.new(:labels, :caption => :field_labels)
   ]
 
   has_many :projects, foreign_key: 'default_issue_query_id', dependent: :nullify, inverse_of: 'default_issue_query'
@@ -216,6 +217,12 @@ class IssueQuery < Query
       "category_id",
       :type => :list_optional_with_history,
       :values => lambda {project.issue_categories.pluck(:name, :id).map {|name, id| [name, id.to_s]}}
+    ) if project
+    add_available_filter(
+      "label_id",
+      :type => :list_optional,
+      :name => l(:field_labels),
+      :values => lambda {project.labels.order(:name).pluck(:name, :id).map {|name, id| [name, id.to_s]}}
     ) if project
     add_available_filter "subject", :type => :text
     add_available_filter "description", :type => :text
@@ -447,6 +454,9 @@ class IssueQuery < Query
     end
     if has_column?(:last_notes)
       Issue.load_visible_last_notes(issues)
+    end
+    if has_column?(:labels)
+      Issue.load_labels(issues)
     end
     issues
   rescue ::ActiveRecord::StatementInvalid => e
@@ -851,6 +861,19 @@ class IssueQuery < Query
 
   def sql_for_project_status_field(field, operator, value, options={})
     sql_for_field(field, operator, value, Project.table_name, "status")
+  end
+
+  def sql_for_label_id_field(field, operator, value)
+    case operator
+    when "=", "!"
+      ids = value.map(&:to_i).join(",")
+      sql = "#{Issue.table_name}.id IN (SELECT #{IssueLabel.table_name}.issue_id FROM #{IssueLabel.table_name} WHERE #{IssueLabel.table_name}.label_id IN (#{ids}))"
+      operator == "!" ? "NOT (#{sql})" : sql
+    when "*"
+      "#{Issue.table_name}.id IN (SELECT #{IssueLabel.table_name}.issue_id FROM #{IssueLabel.table_name})"
+    when "!*"
+      "#{Issue.table_name}.id NOT IN (SELECT #{IssueLabel.table_name}.issue_id FROM #{IssueLabel.table_name})"
+    end
   end
 
   def sql_for_any_searchable_field(field, operator, value)

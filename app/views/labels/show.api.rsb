@@ -1,0 +1,9 @@
+api.label do
+  api.id @label.id
+  api.name @label.name
+  api.color @label.color
+  api.text_color @label.text_color
+  api.project(:id => @label.project_id, :name => @label.project.name)
+  api.created_on @label.created_on
+  api.updated_on @label.updated_on
+end

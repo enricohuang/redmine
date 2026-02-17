@@ -1,0 +1,13 @@
+api.array :labels, api_meta(:total_count => @labels.size) do
+  @labels.each do |label|
+    api.label do
+      api.id label.id
+      api.name label.name
+      api.color label.color
+      api.text_color label.text_color
+      api.project_id label.project_id
+      api.created_on label.created_on
+      api.updated_on label.updated_on
+    end
+  end
+end

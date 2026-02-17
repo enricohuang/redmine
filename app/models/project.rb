@@ -49,6 +49,7 @@ class Project < ApplicationRecord
   has_many :documents, :dependent => :destroy
   has_many :news, lambda {includes(:author)}, :dependent => :destroy
   has_many :issue_categories, lambda {order(:name)}, :dependent => :delete_all
+  has_many :labels, :dependent => :destroy
   has_many :boards, lambda {order(:position)}, :inverse_of => :project, :dependent => :destroy
   has_one :repository, lambda {where(:is_default => true)}
   has_many :repositories, :dependent => :destroy

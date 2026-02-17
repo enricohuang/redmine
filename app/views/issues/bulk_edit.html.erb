@@ -95,6 +95,8 @@
 </p>
 <% end %>
 
+<%= render :partial => 'issues/bulk_edit_labels' %>
+
 <% if @copy && Setting.link_copied_issue == 'ask' %>
 <p>
   <label for='link_copy'><%= l(:label_link_copied_issue) %></label>

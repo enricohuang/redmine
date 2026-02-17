@@ -1,3 +1,6 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'labels', media: 'all' %>
+<% end %>
 <%= render :partial => 'action_menu' %>
 
 <h2 class="inline-block"><%= issue_heading(@issue) %></h2><%= issue_status_type_badge(@issue.status) %>
@@ -88,6 +91,22 @@
 end %>
 <%= render_half_width_custom_fields_rows(@issue) %>
 <%= call_hook(:view_issues_show_details_bottom, :issue => @issue) %>
+<% if @issue.labels.any? %>
+<div class="issue-labels-display splitcontent">
+  <div class="splitcontentleft">
+    <div class="attribute">
+      <span class="label"><%= l(:field_labels) %>:</span>
+      <span class="value" id="issue-labels">
+        <% @issue.labels.order(:name).each do |label| %>
+          <span class="label-badge" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
+            <%= label.name %>
+          </span>
+        <% end %>
+      </span>
+    </div>
+  </div>
+</div>
+<% end %>
 </div>
 
 <% if @issue.description? %>

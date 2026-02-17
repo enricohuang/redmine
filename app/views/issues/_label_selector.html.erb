@@ -1,0 +1,49 @@
+<%# Label selector for issue form %>
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'labels', media: 'all' %>
+  <%= javascript_include_tag 'labels' %>
+<% end %>
+<% if @issue.safe_attribute?('label_ids') %>
+<%
+  project_labels = @issue.project.labels.order(:name)
+  assigned_labels = @issue.labels.to_a
+  can_create = User.current.allowed_to?(:edit_issues, @issue.project) || User.current.allowed_to?(:manage_labels, @issue.project)
+  create_url = can_create ? create_inline_project_labels_path(@issue.project) : ''
+%>
+<% if project_labels.any? || can_create %>
+<p class="issue-label-field">
+  <label class="issue-label-heading"><%= l(:field_labels) %></label>
+
+  <span class="tag-input-container"
+        id="label-tag-input"
+        data-labels="<%= project_labels.map { |l| { id: l.id, name: l.name, color: l.color, textColor: l.text_color } }.to_json %>"
+        data-assigned="<%= assigned_labels.map(&:id).to_json %>"
+        data-create-url="<%= create_url %>"
+        data-allow-create="<%= can_create %>"
+        data-placeholder="<%= l(:label_tag_input_placeholder) %>"
+        data-create-text="<%= l(:label_tag_input_create) %>"
+        data-no-results-text="<%= l(:label_tag_input_no_results) %>">
+
+    <span class="tag-input-badges">
+      <% assigned_labels.each do |label| %>
+        <span class="label-badge label-badge-tag" data-label-id="<%= label.id %>"
+              style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
+          <%= label.name %>
+          <span class="tag-remove" title="<%= l(:button_remove) %>">&times;</span>
+        </span>
+      <% end %>
+    </span>
+
+    <input type="text" class="tag-input-field" autocomplete="off"
+           placeholder="<%= l(:label_tag_input_placeholder) %>" />
+
+    <span class="tag-input-hidden-fields">
+      <%= hidden_field_tag 'issue[label_ids][]', '' %>
+      <% assigned_labels.each do |label| %>
+        <input type="hidden" name="issue[label_ids][]" value="<%= label.id %>" data-label-id="<%= label.id %>" />
+      <% end %>
+    </span>
+  </span>
+</p>
+<% end %>
+<% end %>

@@ -44,6 +44,9 @@ class Issue < ApplicationRecord
   has_many :relations_from, :class_name => 'IssueRelation', :foreign_key => 'issue_from_id', :dependent => :delete_all
   has_many :relations_to, :class_name => 'IssueRelation', :foreign_key => 'issue_to_id', :dependent => :delete_all
 
+  has_many :issue_labels, :dependent => :destroy
+  has_many :labels, :through => :issue_labels
+
   acts_as_attachable :after_add => :attachment_added, :after_remove => :attachment_removed
   acts_as_customizable
   acts_as_watchable
@@ -539,6 +542,9 @@ class Issue < ApplicationRecord
   safe_attributes(
     'deleted_attachment_ids',
     :if => lambda {|issue, user| issue.attachments_deletable?(user)})
+  safe_attributes(
+    'label_ids',
+    :if => lambda {|issue, user| issue.new_record? || issue.attributes_editable?(user)})
 
   def safe_attribute_names(user=nil)
     names = super
@@ -1216,6 +1222,19 @@ class Issue < ApplicationRecord
     @last_notes || journals.visible.where.not(notes: '').reorder(:id => :desc).first.try(:notes)
   end
 
+  # Returns preloaded labels or loads them from the database
+  def preloaded_labels
+    if instance_variable_defined?(:@preloaded_labels)
+      @preloaded_labels
+    else
+      labels.to_a
+    end
+  end
+
+  def preloaded_labels=(val)
+    @preloaded_labels = val
+  end
+
   # Preloads relations for a collection of issues
   def self.load_relations(issues)
     if issues.any?
@@ -1322,6 +1341,20 @@ class Issue < ApplicationRecord
         journal = journals.detect {|j| j.journalized_id == issue.id}
         issue.instance_variable_set(:@last_notes, journal.try(:notes) || '')
       end
+    end
+  end
+
+  # Preloads labels for a collection of issues
+  def self.load_labels(issues)
+    return if issues.empty?
+
+    issue_ids = issues.map(&:id)
+    labels_by_issue = {}
+    IssueLabel.where(issue_id: issue_ids).includes(:label).each do |il|
+      (labels_by_issue[il.issue_id] ||= []) << il.label
+    end
+    issues.each do |issue|
+      issue.preloaded_labels = labels_by_issue[issue.id] || []
     end
   end
 

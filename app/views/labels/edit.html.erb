@@ -1,0 +1,7 @@
+<%= title l(:label_label_edit) %>
+
+<%= labelled_form_for @label, :url => label_path(@label), :method => :put do |f| %>
+  <%= render :partial => 'form', :locals => {:f => f} %>
+  <%= submit_tag l(:button_save) %>
+  <%= link_to l(:button_cancel), settings_project_path(@project, :tab => 'labels') %>
+<% end %>

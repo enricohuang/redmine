@@ -283,6 +283,13 @@ module QueriesHelper
         value.to_a.map {|a| format_object(a)}.join(" ").html_safe
       when :watcher_users
         content_tag('ul', value.to_a.map {|user| content_tag('li', format_object(user))}.join.html_safe)
+      when :labels
+        labels = item.respond_to?(:preloaded_labels) ? item.preloaded_labels : item.labels.to_a
+        labels.map do |label|
+          content_tag(:span, label.name,
+            class: 'label-badge label-badge-small',
+            style: "background-color: #{label.color}; color: #{label.text_color};")
+        end.join(' ').html_safe
       else
         format_object(value)
       end
@@ -308,6 +315,9 @@ module QueriesHelper
       value.to_a.map {|a| a.filename}.join("\n")
     when :watcher_users
       value.to_a.join("\n")
+    when :labels
+      labels = object.respond_to?(:preloaded_labels) ? object.preloaded_labels : object.labels.to_a
+      labels.map(&:name).join(', ')
     else
       format_object(value, html: false) do |value|
         case value.class.name

@@ -196,6 +196,13 @@ Rails.application.routes.draw do
     shallow do
       resources :issue_categories
     end
+    shallow do
+      resources :labels, except: [:show] do
+        collection do
+          post :create_inline
+        end
+      end
+    end
     resources :documents, :except => [:show, :edit, :update, :destroy]
     resources :boards
     shallow do
@@ -376,6 +383,8 @@ Rails.application.routes.draw do
   end
   resources :enumerations, :except => :show
   match 'enumerations/:type', :to => 'enumerations#index', :via => :get
+
+  resources :labels, :only => [:show, :update, :destroy]
 
   get '(projects/:id)/search', :controller => 'search', :action => 'index', :as => 'search'
 

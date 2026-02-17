@@ -320,6 +320,8 @@ en:
   field_assigned_to: Assignee
   field_priority: Priority
   field_fixed_version: Target version
+  field_labels: Labels
+  field_color: Color
   field_user: User
   field_principal: User or Group
   field_role: Role
@@ -547,6 +549,7 @@ en:
   permission_manage_project_activities: Manage project activities
   permission_manage_versions: Manage versions
   permission_manage_categories: Manage issue categories
+  permission_manage_labels: Manage issue labels
   permission_view_issues: View Issues
   permission_add_issues: Add issues
   permission_edit_issues: Edit issues
@@ -678,6 +681,14 @@ en:
   label_issue_category: Issue category
   label_issue_category_plural: Issue categories
   label_issue_category_new: New category
+  label_label: Label
+  label_label_plural: Labels
+  label_label_new: New label
+  label_label_edit: Edit label
+  label_no_labels_for_project: No labels defined for this project
+  label_tag_input_placeholder: Search or add labels...
+  label_tag_input_create: "Create '%{name}'"
+  label_tag_input_no_results: No matching labels
   label_custom_field: Custom field
   label_custom_field_plural: Custom fields
   label_custom_field_new: New custom field
