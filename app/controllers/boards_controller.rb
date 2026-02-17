@@ -19,7 +19,7 @@
 
 class BoardsController < ApplicationController
   default_search_scope :messages
-  before_action :find_project_by_project_id, :find_board_if_available, :authorize
+  before_action :find_project_and_board, :authorize
   accept_atom_auth :index, :show
   accept_api_auth :index, :show, :create, :update, :destroy
 
@@ -151,8 +151,18 @@ class BoardsController < ApplicationController
     redirect_to settings_project_path(@project, :tab => 'boards')
   end
 
-  def find_board_if_available
-    @board = @project.boards.find(params[:id]) if params[:id]
+  def find_project_and_board
+    if params[:project_id]
+      # Nested route: /projects/:project_id/boards[/:id]
+      @project = Project.find(params[:project_id])
+      @board = @project.boards.find(params[:id]) if params[:id]
+    elsif params[:id]
+      # Standalone route: /boards/:id (for API show/update/destroy)
+      @board = Board.find(params[:id])
+      @project = @board.project
+    else
+      render_404
+    end
   rescue ActiveRecord::RecordNotFound
     render_404
   end

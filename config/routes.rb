@@ -53,6 +53,11 @@ Rails.application.routes.draw do
   post 'boards/:board_id/topics/:id/edit', :to => 'messages#edit'
   post 'boards/:board_id/topics/:id/destroy', :to => 'messages#destroy'
 
+  # Boards API routes (standalone access)
+  get 'boards/:id', :to => 'boards#show', :as => 'board'
+  put 'boards/:id', :to => 'boards#update'
+  delete 'boards/:id', :to => 'boards#destroy'
+
   # Messages API routes
   get 'boards/:board_id/messages', :to => 'messages#index', :as => 'board_messages'
   post 'boards/:board_id/messages', :to => 'messages#create'
