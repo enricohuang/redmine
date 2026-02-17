@@ -1,0 +1,18 @@
+api.array :activities, api_meta(:total_count => @event_count, :offset => @offset, :limit => @limit) do
+  @events.each do |event|
+    api.activity do
+      api.id event.id
+      api.type event.event_type
+      api.title event.event_title
+      api.description event.event_description
+      api.datetime event.event_datetime
+      if event.respond_to?(:event_author) && event.event_author
+        api.author(:id => event.event_author.id, :name => event.event_author.name)
+      end
+      if event.project
+        api.project(:id => event.project.id, :name => event.project.name)
+      end
+      api.url url_for(event.event_url.merge(:only_path => false))
+    end
+  end
+end

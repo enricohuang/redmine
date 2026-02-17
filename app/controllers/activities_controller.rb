@@ -21,6 +21,7 @@ class ActivitiesController < ApplicationController
   menu_item :activity
   before_action :find_optional_project_by_id, :authorize_global
   accept_atom_auth :index
+  accept_api_auth :index
 
   def index
     @days = Setting.activity_days_default.to_i
@@ -55,17 +56,23 @@ class ActivitiesController < ApplicationController
       end
     end
 
-    events =
+    @events =
       if params[:format] == 'atom'
         @activity.events(nil, nil, :limit => Setting.feeds_limit.to_i)
+      elsif api_request?
+        # For API requests, use limit/offset pagination
+        @offset, @limit = api_offset_and_limit
+        all_events = @activity.events(@date_from, @date_to)
+        @event_count = all_events.size
+        all_events.slice(@offset, @limit) || []
       else
         @activity.events(@date_from, @date_to)
       end
 
-    if events.empty? || stale?(:etag => [@activity.scope, @date_to, @date_from, @with_subprojects, @author, events.first, events.size, User.current, current_language])
+    if @events.empty? || stale?(:etag => [@activity.scope, @date_to, @date_from, @with_subprojects, @author, @events.first, @events.size, User.current, current_language])
       respond_to do |format|
         format.html do
-          @events_by_day = events.group_by {|event| User.current.time_to_date(event.event_datetime)}
+          @events_by_day = @events.group_by {|event| User.current.time_to_date(event.event_datetime)}
           render :layout => false if request.xhr?
         end
         format.atom do
@@ -75,8 +82,9 @@ class ActivitiesController < ApplicationController
           elsif @activity.scope.size == 1
             title = l("label_#{@activity.scope.first.singularize}_plural")
           end
-          render_feed(events, :title => "#{@project || Setting.app_title}: #{title}")
+          render_feed(@events, :title => "#{@project || Setting.app_title}: #{title}")
         end
+        format.api
       end
     end
 
