@@ -68,16 +68,13 @@ class SearchController < ApplicationController
     @scope = @object_types.select {|t| params[t].present?}
     @scope = @object_types if @scope.empty?
 
-    fetcher = Redmine::Search::Fetcher.new(
-      @question, User.current, @scope, projects_to_search,
-      :all_words => @all_words, :titles_only => @titles_only, :attachments => @search_attachments, :open_issues => @open_issues,
-      :cache => params[:page].present?, :params => params.to_unsafe_hash
-    )
+    fetcher = build_search_fetcher(projects_to_search)
 
     if fetcher.tokens.present?
       @result_count = fetcher.result_count
       @result_count_by_type = fetcher.result_count_by_type
       @tokens = fetcher.tokens
+      @using_elasticsearch = elasticsearch_enabled?
 
       @result_pages = Paginator.new @result_count, @limit, params['page']
       @offset ||= @result_pages.offset
@@ -92,5 +89,34 @@ class SearchController < ApplicationController
         render :layout => false
       end
     end
+  end
+
+  private
+
+  def build_search_fetcher(projects_to_search)
+    search_options = {
+      all_words: @all_words,
+      titles_only: @titles_only,
+      attachments: @search_attachments,
+      open_issues: @open_issues,
+      cache: params[:page].present?,
+      params: params.to_unsafe_hash
+    }
+
+    if elasticsearch_enabled?
+      Elasticsearch::SearchAdapter.new(
+        @question, User.current, @scope, projects_to_search, search_options
+      )
+    else
+      Redmine::Search::Fetcher.new(
+        @question, User.current, @scope, projects_to_search, search_options
+      )
+    end
+  end
+
+  def elasticsearch_enabled?
+    RedmineElasticsearch.available?
+  rescue
+    false
   end
 end

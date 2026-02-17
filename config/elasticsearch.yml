@@ -1,0 +1,33 @@
+# Elasticsearch Configuration for Redmine
+#
+# This file configures the connection to Elasticsearch for full-text search.
+# Elasticsearch search is optional - if disabled or unavailable, Redmine will
+# fall back to the standard database search.
+
+default: &default
+  hosts: localhost:9200
+  request_timeout: 30
+  retry_on_failure: 3
+  log: false
+  highlight:
+    enabled: true
+    fragment_size: 150
+    number_of_fragments: 3
+
+development:
+  <<: *default
+  index_prefix: redmine_development
+  log: false
+
+test:
+  <<: *default
+  index_prefix: redmine_test
+  # Disable ES in test environment by default
+  # Tests will use database search unless explicitly testing ES
+  hosts: null
+
+production:
+  <<: *default
+  index_prefix: redmine_production
+  hosts: <%= ENV.fetch('ELASTICSEARCH_URL', 'localhost:9200') %>
+  log: false

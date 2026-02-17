@@ -65,6 +65,22 @@ Built-in support for rendering Mermaid.js diagrams in Markdown content.
 - Lazy loading - only downloads Mermaid.js when diagrams are present
 - No additional plugins required
 
+### Elasticsearch Search (Optional)
+
+Full-text search powered by Elasticsearch for faster, more powerful search capabilities.
+
+- **Transparent integration** - Uses existing search UI, no changes for users
+- **All searchable content** - Issues, wiki pages, news, messages, changesets, documents, projects
+- **Permission-aware** - Respects all Redmine permissions (private issues, project membership, etc.)
+- **Highlighted results** - Search terms highlighted in results
+- **Fallback support** - Falls back to database search if Elasticsearch unavailable
+- **Easy setup** - Configure connection in `config/elasticsearch.yml`
+
+To enable:
+1. Install Elasticsearch 8.x
+2. Run `bundle exec rake redmine:elasticsearch:create_index`
+3. Run `bundle exec rake redmine:elasticsearch:reindex_all`
+
 ### Rails 8.1+ Compatibility
 
 Fixed deprecated timezone configuration for Rails 8.1+ compatibility while maintaining backward compatibility with earlier Rails versions.
@@ -80,6 +96,7 @@ For detailed documentation, see the [Wiki](https://github.com/enricohuang/redmin
 - [Webhooks Use Cases](https://github.com/enricohuang/redmine/wiki/Webhooks-Use-Cases) - Integration examples and design rationale
 - [Journals REST API Reference](https://github.com/enricohuang/redmine/wiki/Journals-REST-API) - Comment management API
 - [Wiki REST API Reference](https://github.com/enricohuang/redmine/wiki/Wiki-REST-API) - Wiki page management API
+- [Elasticsearch Search](https://github.com/enricohuang/redmine/wiki/Elasticsearch-Search) - Setup, configuration, and limitations
 
 ## Fork Information
 

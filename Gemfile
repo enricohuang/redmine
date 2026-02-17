@@ -49,6 +49,11 @@ group :ldap do
   gem 'net-ldap', '~> 0.17.0'
 end
 
+# Optional gem for Elasticsearch full-text search
+group :elasticsearch do
+  gem 'elasticsearch', '~> 8.0'
+end
+
 # Optional gem for exporting the gantt to a PNG file
 group :minimagick do
   gem 'mini_magick', '~> 5.2.0'
