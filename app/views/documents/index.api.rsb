@@ -1,0 +1,18 @@
+api.array :documents, api_meta(:total_count => @document_count, :offset => @offset, :limit => @limit) do
+  @documents.each do |document|
+    api.document do
+      api.id document.id
+      api.project(:id => document.project_id, :name => document.project.name)
+      api.category(:id => document.category_id, :name => document.category.name) if document.category
+      api.title document.title
+      api.description document.description
+      api.created_on document.created_on
+
+      api.array :attachments do
+        document.attachments.each do |attachment|
+          render_api_attachment(attachment, api)
+        end
+      end if document.attachments.any?
+    end
+  end
+end
