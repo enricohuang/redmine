@@ -237,6 +237,7 @@ en:
   error_no_projects_with_tracker_allowed_for_new_issue: "There are no projects with trackers for which you can create an issue"
   error_move_of_child_not_possible: "Subtask %{child} could not be moved to the new project: %{errors}"
   error_cannot_reassign_time_entries_to_an_issue_about_to_be_deleted: "Spent time cannot be reassigned to an issue that is about to be deleted"
+  error_elasticsearch_not_available: "Elasticsearch search is not available. Please check the configuration or use the standard search."
   warning_fields_cleared_on_bulk_edit: "Changes will result in the automatic deletion of values from one or more fields on the selected objects"
   error_exceeds_maximum_hours_per_day: "Cannot log more than %{max_hours} hours on the same day (%{logged_hours} hours have already been logged)"
   error_can_not_delete_auth_source: "This authentication mode is in use and cannot be deleted."
@@ -1110,6 +1111,24 @@ en:
   label_search_attachments_no: Do not search attachments
   label_search_attachments_only: Search attachments only
   label_search_open_issues_only: Open issues only
+  label_advanced_search: Advanced Search
+  label_search_placeholder: Enter search terms...
+  label_search_options: Search Options
+  label_search_in: Search in
+  label_search_in_all: All fields
+  label_search_in_title: Title only
+  label_search_in_content: Content only
+  label_content_types: Content types
+  label_date_range: Date range
+  label_sort_by: Sort by
+  label_sort_relevance: Relevance
+  label_sort_date_desc: Newest first
+  label_sort_date_asc: Oldest first
+  label_sort_updated_desc: Recently updated
+  label_include_closed_issues: Include closed issues
+  label_search_results: Search Results
+  label_relevance_score: Relevance score
+  text_select_multiple_hint: Hold Ctrl to select multiple
   label_email_address_plural: Emails
   label_email_address_add: Add email address
   label_enable_notifications: Enable notifications

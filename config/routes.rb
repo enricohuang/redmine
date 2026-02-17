@@ -400,6 +400,7 @@ Rails.application.routes.draw do
   resources :labels, :only => [:show, :update, :destroy]
 
   get '(projects/:id)/search', :controller => 'search', :action => 'index', :as => 'search'
+  get 'elasticsearch_search', :to => 'elasticsearch_search#index', :as => 'elasticsearch_search'
 
   get  'mail_handler', :to => 'mail_handler#new'
   post 'mail_handler', :to => 'mail_handler#index'

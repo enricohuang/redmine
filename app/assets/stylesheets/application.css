@@ -937,6 +937,26 @@ div#search-results-counts  li {
   margin-inline-start: 1em;
 }
 
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-block-end: 10px;
+}
+.search-header h2 { margin: 0; }
+.search-header .advanced-search-link a {
+  font-size: 12px;
+  color: #628db6;
+  padding: 4px 10px;
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+.search-header .advanced-search-link a:hover {
+  background: #e8e8e8;
+  text-decoration: none;
+}
+
 div#roadmap .related-issues { margin-block-end: 1em; }
 div#roadmap .related-issues td.checkbox { display: none; }
 div#roadmap .related-issues td.assigned_to { inline-size: 1px; white-space: nowrap; padding: 0; }

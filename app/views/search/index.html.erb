@@ -1,4 +1,11 @@
-<h2><%= l(:label_search) %></h2>
+<div class="search-header">
+  <h2><%= l(:label_search) %></h2>
+  <% if defined?(RedmineElasticsearch) && RedmineElasticsearch.available? %>
+    <span class="advanced-search-link">
+      <%= link_to l(:label_advanced_search), elasticsearch_search_path(q: @question), class: 'icon icon-search' %>
+    </span>
+  <% end %>
+</div>
 
 <%= form_tag({}, :method => :get, :id => 'search-form') do %>
 <div class="box">

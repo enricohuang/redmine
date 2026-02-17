@@ -1,0 +1,179 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'elasticsearch_search' %>
+<% end %>
+
+<h2><%= l(:label_advanced_search) %></h2>
+
+<%= form_tag(elasticsearch_search_path, method: :get, id: 'es-search-form') do %>
+  <div class="es-search-box">
+    <div class="es-search-input">
+      <%= text_field_tag 'q', @question, size: 60, placeholder: l(:label_search_placeholder) %>
+      <%= submit_tag l(:button_search), name: nil, class: 'es-search-button' %>
+    </div>
+
+    <div class="es-search-options">
+      <fieldset class="collapsible collapsed">
+        <legend onclick="toggleFieldset(this);"><%= l(:label_search_options) %></legend>
+        <div style="display: none;">
+          <div class="es-option-group">
+            <label><%= l(:label_search_in) %>:</label>
+            <label class="es-radio">
+              <%= radio_button_tag 'search_in', 'all', @search_in == 'all' %>
+              <%= l(:label_search_in_all) %>
+            </label>
+            <label class="es-radio">
+              <%= radio_button_tag 'search_in', 'title', @search_in == 'title' %>
+              <%= l(:label_search_in_title) %>
+            </label>
+            <label class="es-radio">
+              <%= radio_button_tag 'search_in', 'content', @search_in == 'content' %>
+              <%= l(:label_search_in_content) %>
+            </label>
+          </div>
+
+          <div class="es-option-group">
+            <label><%= l(:label_content_types) %>:</label>
+            <div class="es-type-checkboxes">
+              <% available_types = %w[issue wiki_page news message document changeset project] %>
+              <% available_types.each do |type| %>
+                <label class="es-checkbox">
+                  <%= check_box_tag 'types[]', type, @types.include?(type), id: "type_#{type}" %>
+                  <%= l("label_#{type}", default: type.humanize) %>
+                </label>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="es-option-group">
+            <label><%= l(:label_date_range) %>:</label>
+            <span class="es-date-range">
+              <%= text_field_tag 'date_from', @date_from, size: 10, class: 'date-input', placeholder: 'YYYY-MM-DD' %>
+              <span>-</span>
+              <%= text_field_tag 'date_to', @date_to, size: 10, class: 'date-input', placeholder: 'YYYY-MM-DD' %>
+            </span>
+          </div>
+
+          <div class="es-option-group">
+            <label><%= l(:label_sort_by) %>:</label>
+            <%= select_tag 'sort_by', options_for_select([
+              [l(:label_sort_relevance), 'relevance'],
+              [l(:label_sort_date_desc), 'date_desc'],
+              [l(:label_sort_date_asc), 'date_asc'],
+              [l(:label_sort_updated_desc), 'updated_desc']
+            ], @sort_by) %>
+          </div>
+
+          <div class="es-option-group">
+            <label class="es-checkbox">
+              <%= check_box_tag 'include_closed', '1', @include_closed %>
+              <%= l(:label_include_closed_issues) %>
+            </label>
+          </div>
+
+          <% if @available_projects.any? %>
+            <div class="es-option-group">
+              <label><%= l(:label_project_plural) %>:</label>
+              <%= select_tag 'project_ids[]',
+                  options_from_collection_for_select(@available_projects, :id, :name, @project_ids.map(&:to_i)),
+                  multiple: true, size: 5, class: 'es-project-select' %>
+              <span class="es-hint"><%= l(:text_select_multiple_hint) %></span>
+            </div>
+          <% end %>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+<% end %>
+
+<% if @question.present? && @results %>
+  <div class="es-results-container">
+    <div class="es-results-main">
+      <div class="es-results-header">
+        <h3><%= l(:label_search_results) %> (<%= @result_count %>)</h3>
+      </div>
+
+      <% if @results.any? %>
+        <div class="es-results-list">
+          <% @results.each do |result| %>
+            <div class="es-result-item es-result-<%= result[:type] %>">
+              <div class="es-result-icon">
+                <%= content_tag(:span, '', class: "icon icon-#{result[:type].dasherize}") %>
+              </div>
+              <div class="es-result-content">
+                <div class="es-result-title">
+                  <%= link_to result[:title].html_safe, es_result_url(result) %>
+                  <span class="es-result-type"><%= l("label_#{result[:type]}", default: result[:type].humanize) %></span>
+                </div>
+                <% if result[:content].present? %>
+                  <div class="es-result-snippet">
+                    <%= result[:content].html_safe %>
+                  </div>
+                <% end %>
+                <div class="es-result-meta">
+                  <% if result[:project_id] %>
+                    <% project = Project.find_by(id: result[:project_id]) %>
+                    <% if project %>
+                      <span class="es-meta-project"><%= link_to project.name, project_path(project) %></span>
+                    <% end %>
+                  <% end %>
+                  <% if result[:created_on] %>
+                    <span class="es-meta-date"><%= format_time(Time.parse(result[:created_on])) %></span>
+                  <% end %>
+                  <% if result[:score] %>
+                    <span class="es-meta-score" title="<%= l(:label_relevance_score) %>">
+                      <%= number_with_precision(result[:score], precision: 2) %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="es-pagination">
+          <%= pagination_links_full @result_pages, @result_count %>
+        </div>
+      <% else %>
+        <p class="nodata"><%= l(:label_no_data) %></p>
+      <% end %>
+    </div>
+
+    <% if @aggregations.present? %>
+      <div class="es-results-sidebar">
+        <% if @aggregations[:by_type]&.any? %>
+          <div class="es-facet">
+            <h4><%= l(:label_content_types) %></h4>
+            <ul>
+              <% @aggregations[:by_type].each do |agg| %>
+                <li>
+                  <%= link_to elasticsearch_search_path(q: @question, types: [agg[:key]], search_in: @search_in) do %>
+                    <span class="es-facet-label"><%= agg[:label] %></span>
+                    <span class="es-facet-count"><%= agg[:count] %></span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <% if @aggregations[:by_project]&.any? %>
+          <div class="es-facet">
+            <h4><%= l(:label_project_plural) %></h4>
+            <ul>
+              <% @aggregations[:by_project].first(10).each do |agg| %>
+                <li>
+                  <%= link_to elasticsearch_search_path(q: @question, project_ids: [agg[:key]], search_in: @search_in) do %>
+                    <span class="es-facet-label"><%= agg[:label] %></span>
+                    <span class="es-facet-count"><%= agg[:count] %></span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% elsif @question.present? %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
