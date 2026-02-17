@@ -1,0 +1,26 @@
+api.array :boards, api_meta(:total_count => @board_count, :offset => @offset, :limit => @limit) do
+  @boards.each do |board|
+    api.board do
+      api.id board.id
+      api.project(:id => board.project_id, :name => board.project.name) unless board.project.nil?
+      api.name board.name
+      api.description board.description
+      api.position board.position
+      api.topics_count board.topics_count
+      api.messages_count board.messages_count
+
+      if board.parent
+        api.parent(:id => board.parent_id, :name => board.parent.name)
+      end
+
+      if board.last_message
+        api.last_message do
+          api.id board.last_message.id
+          api.subject board.last_message.subject
+          api.created_on board.last_message.created_on
+          api.author(:id => board.last_message.author_id, :name => board.last_message.author.name) if board.last_message.author
+        end
+      end
+    end
+  end
+end

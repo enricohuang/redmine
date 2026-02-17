@@ -21,17 +21,31 @@ class BoardsController < ApplicationController
   default_search_scope :messages
   before_action :find_project_by_project_id, :find_board_if_available, :authorize
   accept_atom_auth :index, :show
+  accept_api_auth :index, :show, :create, :update, :destroy
 
   helper :sort
   include SortHelper
   helper :watchers
 
   def index
-    @boards = @project.boards.preload(:last_message => :author).to_a
-    # show the board if there is only one
-    if @boards.size == 1
-      @board = @boards.first
-      show
+    respond_to do |format|
+      format.html do
+        @boards = @project.boards.preload(:last_message => :author).to_a
+        # show the board if there is only one
+        if @boards.size == 1
+          @board = @boards.first
+          show
+        end
+      end
+      format.api do
+        @offset, @limit = api_offset_and_limit
+        @board_count = @project.boards.count
+        @boards = @project.boards.
+          preload(:last_message => :author).
+          limit(@limit).
+          offset(@offset).
+          to_a
+      end
     end
   end
 
@@ -63,6 +77,7 @@ class BoardsController < ApplicationController
           to_a
         render_feed(messages, :title => "#{@project}: #{@board}")
       end
+      format.api
     end
   end
 
@@ -75,10 +90,18 @@ class BoardsController < ApplicationController
     @board = @project.boards.build
     @board.safe_attributes = params[:board]
     if @board.save
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to_settings_in_projects
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          redirect_to_settings_in_projects
+        end
+        format.api { render_api_ok }
+      end
     else
-      render :action => 'new'
+      respond_to do |format|
+        format.html { render :action => 'new' }
+        format.api { render_validation_errors(@board) }
+      end
     end
   end
 
@@ -93,21 +116,33 @@ class BoardsController < ApplicationController
           flash[:notice] = l(:notice_successful_update)
           redirect_to_settings_in_projects
         end
-        format.js {head :ok}
+        format.js { head :ok }
+        format.api { render_api_ok }
       end
     else
       respond_to do |format|
-        format.html {render :action => 'edit'}
-        format.js {head :unprocessable_content}
+        format.html { render :action => 'edit' }
+        format.js { head :unprocessable_content }
+        format.api { render_validation_errors(@board) }
       end
     end
   end
 
   def destroy
     if @board.destroy
-      flash[:notice] = l(:notice_successful_delete)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_delete)
+          redirect_to_settings_in_projects
+        end
+        format.api { render_api_ok }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to_settings_in_projects }
+        format.api { render_api_errors(@board.errors.full_messages) }
+      end
     end
-    redirect_to_settings_in_projects
   end
 
   private
