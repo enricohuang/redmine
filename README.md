@@ -70,6 +70,11 @@ Built-in support for rendering Mermaid.js diagrams in Markdown content.
 Full-text search powered by Elasticsearch for faster, more powerful search capabilities.
 
 - **Transparent integration** - Uses existing search UI, no changes for users
+- **Advanced Search page** - Dedicated search page with more options when ES is enabled:
+  - Search in all fields, titles only, or content only
+  - Filter by content types, date range, and projects
+  - Sort by relevance, date, or last updated
+  - Faceted results showing counts by type and project
 - **All searchable content** - Issues, wiki pages, news, messages, changesets, documents, projects
 - **Permission-aware** - Respects all Redmine permissions (private issues, project membership, etc.)
 - **Highlighted results** - Search terms highlighted in results
