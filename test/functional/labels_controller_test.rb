@@ -100,7 +100,6 @@ class LabelsControllerTest < Redmine::ControllerTest
     assert_select '#errorExplanation'
   end
 
-
   def test_create_requires_permission
     @request.session[:user_id] = 7
     assert_no_difference 'Label.count' do

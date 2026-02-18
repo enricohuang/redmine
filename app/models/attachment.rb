@@ -582,6 +582,7 @@ class Attachment < ApplicationRecord
   def fulltext_indexable_type?
     return true if content_type.present? && FULLTEXT_INDEXABLE_CONTENT_TYPES.include?(content_type)
     return true if filename.present? && extension_in?(FULLTEXT_INDEXABLE_EXTENSIONS)
+
     false
   end
 

@@ -23,7 +23,7 @@ class AttachmentFulltextContent < ApplicationRecord
   # Valid statuses for fulltext content
   STATUSES = %w[pending indexed failed skipped].freeze
 
-  validates :attachment_id, presence: true, uniqueness: true
+  validates :attachment_id, uniqueness: true
   validates :status, presence: true, inclusion: { in: STATUSES }
 
   # Scopes for filtering by status
@@ -34,7 +34,7 @@ class AttachmentFulltextContent < ApplicationRecord
   scope :needs_reindex, -> { where(status: %w[pending failed]) }
 
   # Scope to find records indexed before a certain time (for re-indexing)
-  scope :indexed_before, ->(time) { where('indexed_at < ?', time) }
+  scope :indexed_before, ->(time) { where(indexed_at: ...time) }
 
   # Scope to find records by extractor version
   scope :with_extractor_version, ->(version) { where(extractor_version: version) }

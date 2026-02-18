@@ -91,7 +91,7 @@ module ElasticsearchSearchHelper
     end
 
     # Author (from record if available)
-    if record&.respond_to?(:author) && record.author
+    if record.respond_to?(:author) && record.author
       parts << content_tag(:span, record.author.name, class: 'search-meta-author')
     end
 
@@ -103,7 +103,7 @@ module ElasticsearchSearchHelper
     end
 
     # Attachment count (from record if available)
-    if record&.respond_to?(:attachments) && record.attachments.count > 0
+    if record.respond_to?(:attachments) && record.attachments.count > 0
       parts << attachment_indicator(record)
     end
 

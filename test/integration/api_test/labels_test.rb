@@ -36,10 +36,10 @@ class Redmine::ApiTest::LabelsTest < Redmine::ApiTest::Base
   test "GET /projects/:project_id/labels.json should return labels" do
     get "/projects/#{@project.identifier}/labels.json", headers: credentials('jsmith')
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert json['labels'].is_a?(Array)
-    assert json['labels'].length > 0
+    assert !json['labels'].empty?
 
     label = json['labels'].first
     assert label['id'].present?
@@ -50,9 +50,9 @@ class Redmine::ApiTest::LabelsTest < Redmine::ApiTest::Base
   test "GET /projects/:project_id/labels.json should return labels ordered by name" do
     get "/projects/#{@project.identifier}/labels.json", headers: credentials('jsmith')
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
-    names = json['labels'].map { |l| l['name'] }
+    names = json['labels'].pluck('name')
     assert_equal names, names.sort
   end
 
@@ -73,7 +73,7 @@ class Redmine::ApiTest::LabelsTest < Redmine::ApiTest::Base
     label = labels(:label_one)
     get "/labels/#{label.id}.json", headers: credentials('jsmith')
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal label.id, json['label']['id']
     assert_equal label.name, json['label']['name']
@@ -96,7 +96,7 @@ class Redmine::ApiTest::LabelsTest < Redmine::ApiTest::Base
     end
     assert_response :created
 
-    json = JSON.parse(response.body)
+    json = response.parsed_body
     assert_equal 'API Test Label', json['label']['name']
     assert_equal '#FF5733', json['label']['color']
 
@@ -113,7 +113,7 @@ class Redmine::ApiTest::LabelsTest < Redmine::ApiTest::Base
     end
     assert_response :unprocessable_entity
 
-    json = JSON.parse(response.body)
+    json = response.parsed_body
     assert json['errors'].present?
   end
 
@@ -236,7 +236,7 @@ class Redmine::ApiTest::LabelsTest < Redmine::ApiTest::Base
     get "/issues/#{issue.id}.json?include=labels", headers: credentials('jsmith')
     assert_response :success
 
-    json = JSON.parse(response.body)
+    json = response.parsed_body
     # Labels may or may not be included depending on whether the API supports include=labels
     # This test verifies the API endpoint works; label inclusion is optional
     assert json['issue'].present?

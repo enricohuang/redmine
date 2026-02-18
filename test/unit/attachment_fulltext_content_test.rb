@@ -25,6 +25,8 @@ class AttachmentFulltextContentTest < ActiveSupport::TestCase
   def setup
     User.current = nil
     set_tmp_attachments_directory
+    # Clean up any existing fulltext content to avoid uniqueness violations
+    AttachmentFulltextContent.delete_all
   end
 
   def test_create_with_valid_status

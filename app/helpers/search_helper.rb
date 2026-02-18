@@ -256,7 +256,7 @@ module SearchHelper
 
     excerpt = text[start_pos...end_pos]
     excerpt = '...' + excerpt if start_pos > 0
-    excerpt = excerpt + '...' if end_pos < text.length
+    excerpt += '...' if end_pos < text.length
 
     excerpt
   end

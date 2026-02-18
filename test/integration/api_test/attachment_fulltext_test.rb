@@ -27,6 +27,8 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
   def setup
     super
     set_fixtures_attachments_directory
+    # Clean up any existing fulltext content to avoid uniqueness violations
+    AttachmentFulltextContent.delete_all
     # Enable the indexer API and set the key
     Setting.attachment_indexer_api_enabled = '1'
     Setting.attachment_indexer_api_key = INDEXER_API_KEY
@@ -49,7 +51,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
     Setting.attachment_indexer_api_enabled = '0'
     get '/attachments/fulltext.json', headers: indexer_headers
     assert_response :service_unavailable
-    json = JSON.parse(response.body)
+    json = response.parsed_body
     assert_includes json['error'], 'disabled'
   end
 
@@ -57,14 +59,14 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
     Setting.attachment_indexer_api_key = ''
     get '/attachments/fulltext.json', headers: indexer_headers
     assert_response :service_unavailable
-    json = JSON.parse(response.body)
+    json = response.parsed_body
     assert_includes json['error'], 'not configured'
   end
 
   test "GET /attachments/fulltext.json should return 401 with invalid API key" do
     get '/attachments/fulltext.json', headers: { 'X-Redmine-Indexer-Key' => 'wrong_key' }
     assert_response :unauthorized
-    json = JSON.parse(response.body)
+    json = response.parsed_body
     assert_includes json['error'], 'Invalid'
   end
 
@@ -78,7 +80,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
   test "GET /attachments/fulltext.json should return pending attachments by default" do
     get '/attachments/fulltext.json', headers: indexer_headers
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
     assert json.key?('total_count')
     assert json.key?('attachments')
     assert json['attachments'].is_a?(Array)
@@ -96,7 +98,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
 
     get '/attachments/fulltext.json', params: { status: 'indexed' }, headers: indexer_headers
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     indexed_attachment = json['attachments'].find { |a| a['id'] == attachment.id }
     assert_not_nil indexed_attachment
@@ -113,7 +115,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
 
     get '/attachments/fulltext.json', params: { status: 'failed' }, headers: indexer_headers
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert json['attachments'].all? { |a| a['fulltext']['status'] == 'failed' }
   end
@@ -121,7 +123,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
   test "GET /attachments/fulltext.json should support pagination" do
     get '/attachments/fulltext.json', params: { limit: 2, offset: 1 }, headers: indexer_headers
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal 2, json['limit']
     assert_equal 1, json['offset']
@@ -131,7 +133,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
   test "GET /attachments/fulltext.json should filter by content_type" do
     get '/attachments/fulltext.json', params: { content_type: 'application/pdf' }, headers: indexer_headers
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     json['attachments'].each do |att|
       assert_equal 'application/pdf', att['content_type']
@@ -162,7 +164,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
 
     get "/attachments/#{attachment.id}/fulltext.json", headers: indexer_headers
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal attachment.id, json['attachment']['id']
     assert_equal attachment.filename, json['attachment']['filename']
@@ -176,7 +178,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
 
     get "/attachments/#{attachment.id}/fulltext.json", headers: indexer_headers
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal 'pending', json['attachment']['fulltext']['status']
   end
@@ -204,7 +206,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
       headers: indexer_headers
     )
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal 'indexed', json['attachment']['fulltext']['status']
     assert_equal 'Extracted text from document', json['attachment']['fulltext']['content']
@@ -230,7 +232,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
       headers: indexer_headers
     )
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal 'failed', json['attachment']['fulltext']['status']
     assert_equal 'Password protected PDF', json['attachment']['fulltext']['error_message']
@@ -306,7 +308,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
       headers: indexer_headers
     )
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal 2, json['success'].length
     assert_equal 0, json['errors'].length
@@ -334,7 +336,7 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
       headers: indexer_headers
     )
     assert_response :success
-    json = JSON.parse(response.body)
+    json = response.parsed_body
 
     assert_equal 1, json['success'].length
     assert_equal 1, json['errors'].length

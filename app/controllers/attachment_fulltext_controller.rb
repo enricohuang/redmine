@@ -75,7 +75,7 @@ class AttachmentFulltextController < ApplicationController
     end
 
     # Pagination
-    limit = [[params[:limit].to_i, 1].max, 1000].min
+    limit = params[:limit].to_i.clamp(1, 1000)
     limit = 100 if params[:limit].blank?
     offset = [params[:offset].to_i, 0].max
 
@@ -112,7 +112,7 @@ class AttachmentFulltextController < ApplicationController
   #   }
   # }
   def update
-    fulltext_params = params.require(:fulltext).permit(:content, :status, :error_message, :extractor_version)
+    fulltext_params = params.expect(fulltext: [:content, :status, :error_message, :extractor_version])
 
     fulltext_content = @attachment.fulltext_content || @attachment.build_fulltext_content
 
