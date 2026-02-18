@@ -102,20 +102,20 @@ module Elasticsearch
       {
         bool: {
           should: [
-            # Exact phrase match (highest boost)
+            # Exact phrase match (highest boost) - non-nested fields only
             {
               multi_match: {
                 query: query,
-                fields: ['title^3', 'content', 'attachments.filename', 'attachments.description', 'attachments.fulltext_content'],
+                fields: ['title^3', 'content'],
                 type: 'phrase',
                 boost: 2
               }
             },
-            # Individual terms match
+            # Individual terms match - non-nested fields only
             {
               multi_match: {
                 query: query,
-                fields: ['title^3', 'content', 'custom_fields.value', 'attachments.filename', 'attachments.fulltext_content'],
+                fields: ['title^3', 'content'],
                 type: 'best_fields',
                 operator: options[:all_words] ? 'and' : 'or',
                 fuzziness: 'AUTO'
@@ -135,6 +135,51 @@ module Elasticsearch
                 },
                 score_mode: 'max'
               }
+            },
+            # Nested custom_fields search
+            {
+              nested: {
+                path: 'custom_fields',
+                query: {
+                  match: {
+                    'custom_fields.value': {
+                      query: query,
+                      operator: options[:all_words] ? 'and' : 'or'
+                    }
+                  }
+                },
+                score_mode: 'max'
+              }
+            },
+            # Nested attachments search - filename
+            {
+              nested: {
+                path: 'attachments',
+                query: {
+                  match: {
+                    'attachments.filename': {
+                      query: query,
+                      operator: options[:all_words] ? 'and' : 'or'
+                    }
+                  }
+                },
+                score_mode: 'max'
+              }
+            },
+            # Nested attachments search - fulltext content
+            {
+              nested: {
+                path: 'attachments',
+                query: {
+                  match: {
+                    'attachments.fulltext_content': {
+                      query: query,
+                      operator: options[:all_words] ? 'and' : 'or'
+                    }
+                  }
+                },
+                score_mode: 'max'
+              }
             }
           ],
           minimum_should_match: 1
@@ -145,10 +190,12 @@ module Elasticsearch
     def build_filter
       filters = []
 
+      # Convert plural scope names to singular (e.g., 'issues' -> 'issue')
+      singular_scope = options[:scope].present? ? Array(options[:scope]).map { |s| s.to_s.singularize } : nil
+
       # Document type filter
-      if options[:scope].present?
-        types = Array(options[:scope]).map(&:to_s)
-        filters << { terms: { type: types } }
+      if singular_scope.present?
+        filters << { terms: { type: singular_scope } }
       end
 
       # Project filter
@@ -157,8 +204,8 @@ module Elasticsearch
         filters << { terms: { project_id: project_ids } }
       end
 
-      # Permission filter
-      permission_filter = PermissionFilter.new(@user).build(options[:scope])
+      # Permission filter (pass singularized scope)
+      permission_filter = PermissionFilter.new(@user).build(singular_scope)
       filters << permission_filter if permission_filter
 
       # Open issues only
