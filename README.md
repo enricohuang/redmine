@@ -65,6 +65,29 @@ Built-in support for rendering Mermaid.js diagrams in Markdown content.
 - Lazy loading - only downloads Mermaid.js when diagrams are present
 - No additional plugins required
 
+### Attachment Fulltext Indexing API
+
+REST API for external indexers to extract and store fulltext content from attachments (PDFs, Word docs, etc.), enabling search within file contents.
+
+- **Dedicated API** - Separate API key for indexer access (`attachment_indexer_api_key`)
+- **List pending attachments** - `GET /attachments/fulltext.json?status=pending`
+- **Get fulltext status** - `GET /attachments/:id/fulltext.json`
+- **Update fulltext content** - `PATCH /attachments/:id/fulltext.json`
+- **Batch updates** - `POST /attachments/fulltext/batch.json`
+- **Search integration** - Fulltext content searchable via standard Redmine search
+- **Elasticsearch support** - Fulltext content included in ES documents
+
+Supported file types for indexing:
+- PDF, Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)
+- OpenDocument formats (.odt, .ods, .odp)
+- Text files (.txt, .md, .csv, .xml, .json, .html, .rtf)
+
+To enable:
+1. Go to Administration > Settings > API
+2. Enable "Attachment fulltext indexer API"
+3. Set "Attachment fulltext indexer API key"
+4. Use the key in `X-Redmine-Indexer-Key` header
+
 ### Elasticsearch Search (Optional)
 
 Full-text search powered by Elasticsearch for faster, more powerful search capabilities.
@@ -102,6 +125,7 @@ For detailed documentation, see the [Wiki](https://github.com/enricohuang/redmin
 - [Journals REST API Reference](https://github.com/enricohuang/redmine/wiki/Journals-REST-API) - Comment management API
 - [Wiki REST API Reference](https://github.com/enricohuang/redmine/wiki/Wiki-REST-API) - Wiki page management API
 - [Elasticsearch Search](https://github.com/enricohuang/redmine/wiki/Elasticsearch-Search) - Setup, configuration, and limitations
+- [Attachment Fulltext Indexing API](https://github.com/enricohuang/redmine/wiki/Attachment-Fulltext-Indexing-API) - External indexer integration
 
 ## Fork Information
 
