@@ -20,10 +20,10 @@
 class ReactionsController < ApplicationController
   accept_api_auth :index, :create, :destroy
 
+  before_action :require_login_for_reactions, :except => [:index]
   before_action :check_enabled
   before_action :set_object
   before_action :authorize_viewable, :only => [:index]
-  before_action :require_login_for_reactions, :except => [:index]
   before_action :authorize_reactable, :except => [:index]
 
   def index
@@ -37,10 +37,15 @@ class ReactionsController < ApplicationController
   end
 
   def create
-    @reaction = @object.reactions.find_or_create_by!(user: User.current)
     respond_to do |format|
-      format.js
-      format.api { render :action => 'show', :status => :created }
+      format.js do
+        @reaction = @object.reactions.find_or_create_by!(user: User.current)
+      end
+      format.api do
+        @reaction = @object.reactions.find_or_create_by!(user: User.current)
+        render :action => 'show', :status => :created
+      end
+      format.any { head :not_found }
     end
   end
 
@@ -59,6 +64,7 @@ class ReactionsController < ApplicationController
           render_api_errors(['Reaction not found'])
         end
       end
+      format.any { head :not_found }
     end
   end
 
