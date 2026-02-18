@@ -833,6 +833,10 @@ class AttachmentTest < ActiveSupport::TestCase
     attachment1 = Attachment.find(1)
     attachment2 = Attachment.find(2)
 
+    # Clean up any existing records
+    attachment1.fulltext_content&.destroy
+    attachment2.fulltext_content&.destroy
+
     # Make attachment1 indexable
     attachment1.update!(content_type: 'application/pdf', fulltext_indexable: true)
     # Make attachment2 indexed
