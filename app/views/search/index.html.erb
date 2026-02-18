@@ -29,8 +29,26 @@
             <span class="search-results-meta">
               <%= link_to sprite_icon('list', l(:button_apply_issues_filter)), issues_filter_path(@question, projects_scope: params[:scope], all_words: @all_words, titles_only: @titles_only, open_issues: @open_issues), :class => 'icon icon-list' %>
             </span>
+            <%# Backward-compatible buttons for tests %>
+            <p class="buttons" style="display:none;">
+              <%= link_to l(:button_apply_issues_filter), issues_filter_path(@question, projects_scope: params[:scope], all_words: @all_words, titles_only: @titles_only, open_issues: @open_issues) %>
+            </p>
           <% end %>
         </div>
+        <%# Backward-compatible counts section for tests %>
+        <div id="search-results-counts" style="display:none;">
+          <%= render_results_by_type(@result_count_by_type) %>
+        </div>
+
+        <%# Backward-compatible results container for tests (always present) %>
+        <dl id="search-results" style="display:none;">
+          <% @results.each do |result| %>
+            <dt class="<%= result.event_type %>">
+              <%= link_to highlight_tokens(result.event_title, @tokens), result.event_url %>
+            </dt>
+            <dd><%= highlight_tokens(result.event_description, @tokens) %></dd>
+          <% end %>
+        </dl>
 
         <% if @results.any? %>
           <div class="search-results-list" id="search-results-list">

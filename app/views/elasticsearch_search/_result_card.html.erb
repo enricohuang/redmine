@@ -1,0 +1,38 @@
+<%# ES Search result card - uses hash with :type, :id, :title, :content, :project_id, :created_on, :score %>
+<%
+  result_type = result[:type].to_s
+  record = load_es_record(result)
+%>
+<article class="search-result-card search-result-<%= result_type %>"
+         data-result-url="<%= es_result_url(result) %>" tabindex="0">
+  <div class="search-result-header">
+    <div class="search-result-icon">
+      <%= sprite_icon(result_type) %>
+    </div>
+    <div class="search-result-title-row">
+      <%= es_type_badge(result, record) %>
+      <%= link_to result[:title].to_s.html_safe, es_result_url(result), class: 'search-result-title' %>
+      <% if record.is_a?(Issue) %>
+        <%= issue_status_pill(record) %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="search-result-body">
+    <% if result[:content].present? %>
+      <p class="search-result-snippet">
+        <%= result[:content].html_safe %>
+      </p>
+    <% end %>
+
+    <% if record.is_a?(Issue) && record.respond_to?(:labels) && record.labels.any? %>
+      <div class="search-result-labels">
+        <%= issue_labels_tag(record) %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="search-result-footer">
+    <%= es_result_meta(result, record) %>
+  </div>
+</article>

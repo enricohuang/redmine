@@ -985,6 +985,7 @@ en:
   label_search_titles_only: Search titles only
   label_filter_by_type: Filter by Type
   label_show_all_types: Show all types
+  label_sorted_by: Sorted by
   text_no_search_results: No results found. Try different search terms.
   label_user_mail_option_all: "For any event on all my projects"
   label_user_mail_option_selected: "For any event on the selected projects only..."
