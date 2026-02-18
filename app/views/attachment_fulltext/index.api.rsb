@@ -1,0 +1,20 @@
+api.array :attachments, api_meta(:total_count => @total_count, :offset => @offset, :limit => @limit) do
+  @attachments.each do |attachment|
+    api.attachment do
+      api.id attachment.id
+      api.filename attachment.filename
+      api.content_type attachment.content_type
+      api.filesize attachment.filesize
+      api.created_on attachment.created_on
+      api.content_url download_named_attachment_url(attachment, attachment.filename)
+
+      fc = attachment.fulltext_content
+      api.fulltext do
+        api.status fc&.status || 'pending'
+        api.indexed_at fc&.indexed_at
+        api.extractor_version fc&.extractor_version
+        api.error_message fc&.error_message
+      end
+    end
+  end
+end

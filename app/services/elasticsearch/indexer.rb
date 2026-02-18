@@ -55,7 +55,8 @@ module Elasticsearch
           properties: {
             id: { type: 'integer' },
             filename: { type: 'text' },
-            description: { type: 'text' }
+            description: { type: 'text' },
+            fulltext_content: { type: 'text', analyzer: 'redmine_analyzer' }
           }
         },
         # Message-specific

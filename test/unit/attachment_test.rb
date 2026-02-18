@@ -662,4 +662,212 @@ class AttachmentTest < ActiveSupport::TestCase
       assert_equal expected, attachment.is_text?, attachment.inspect
     end
   end
+
+  # Fulltext indexing tests
+
+  def test_fulltext_content_association
+    attachment = Attachment.find(1)
+    attachment.fulltext_content&.destroy
+    attachment.reload
+
+    assert_nil attachment.fulltext_content
+
+    fulltext = AttachmentFulltextContent.create!(
+      attachment: attachment,
+      status: 'indexed',
+      content: 'Test fulltext content'
+    )
+
+    attachment.reload
+    assert_equal fulltext, attachment.fulltext_content
+    assert_equal 'Test fulltext content', attachment.fulltext_content.content
+  end
+
+  def test_fulltext_content_destroyed_with_attachment
+    # Create a new attachment that we can safely destroy
+    attachment = Attachment.create!(
+      container: Issue.find(1),
+      file: mock_file(filename: 'test_for_destroy.txt'),
+      author: User.find(1)
+    )
+
+    AttachmentFulltextContent.create!(
+      attachment: attachment,
+      status: 'indexed',
+      content: 'Test content'
+    )
+
+    assert_difference 'AttachmentFulltextContent.count', -1 do
+      attachment.destroy
+    end
+  end
+
+  def test_fulltext_indexable_type_for_pdf
+    attachment = Attachment.new(content_type: 'application/pdf', filename: 'test.pdf')
+    assert attachment.fulltext_indexable_type?
+  end
+
+  def test_fulltext_indexable_type_for_word
+    attachment = Attachment.new(
+      content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      filename: 'test.docx'
+    )
+    assert attachment.fulltext_indexable_type?
+  end
+
+  def test_fulltext_indexable_type_for_text
+    attachment = Attachment.new(content_type: 'text/plain', filename: 'test.txt')
+    assert attachment.fulltext_indexable_type?
+  end
+
+  def test_fulltext_indexable_type_for_image_should_be_false
+    attachment = Attachment.new(content_type: 'image/png', filename: 'test.png')
+    assert_not attachment.fulltext_indexable_type?
+  end
+
+  def test_fulltext_indexable_type_by_extension_fallback
+    # No content type, but indexable extension
+    attachment = Attachment.new(content_type: nil, filename: 'document.pdf')
+    assert attachment.fulltext_indexable_type?
+  end
+
+  def test_can_fulltext_index
+    attachment = Attachment.new(
+      content_type: 'application/pdf',
+      filename: 'test.pdf',
+      fulltext_indexable: true
+    )
+    assert attachment.can_fulltext_index?
+  end
+
+  def test_can_fulltext_index_when_disabled
+    attachment = Attachment.new(
+      content_type: 'application/pdf',
+      filename: 'test.pdf',
+      fulltext_indexable: false
+    )
+    assert_not attachment.can_fulltext_index?
+  end
+
+  def test_fulltext_status_when_no_content
+    attachment = Attachment.find(1)
+    attachment.fulltext_content&.destroy
+    attachment.reload
+    assert_equal 'pending', attachment.fulltext_status
+  end
+
+  def test_fulltext_status_when_indexed
+    attachment = Attachment.find(1)
+    attachment.fulltext_content&.destroy
+
+    AttachmentFulltextContent.create!(
+      attachment: attachment,
+      status: 'indexed',
+      content: 'test'
+    )
+    attachment.reload
+    assert_equal 'indexed', attachment.fulltext_status
+  end
+
+  def test_fulltext_searchable_content
+    attachment = Attachment.find(1)
+    attachment.fulltext_content&.destroy
+
+    AttachmentFulltextContent.create!(
+      attachment: attachment,
+      status: 'indexed',
+      content: 'Searchable text content'
+    )
+    attachment.reload
+    assert_equal 'Searchable text content', attachment.fulltext_searchable_content
+  end
+
+  def test_fulltext_searchable_content_when_not_indexed
+    attachment = Attachment.find(1)
+    attachment.fulltext_content&.destroy
+
+    AttachmentFulltextContent.create!(
+      attachment: attachment,
+      status: 'pending'
+    )
+    attachment.reload
+    assert_nil attachment.fulltext_searchable_content
+  end
+
+  def test_find_or_create_fulltext_content
+    attachment = Attachment.find(1)
+    attachment.fulltext_content&.destroy
+    attachment.reload
+
+    fulltext = attachment.find_or_create_fulltext_content
+    assert_not_nil fulltext
+    assert fulltext.persisted?
+    assert fulltext.pending?
+
+    # Should return existing record on subsequent calls
+    same_fulltext = attachment.find_or_create_fulltext_content
+    assert_equal fulltext.id, same_fulltext.id
+  end
+
+  def test_scope_fulltext_indexable
+    # Create attachments with indexable types
+    pdf_attachment = Attachment.create!(
+      container: Issue.find(1),
+      file: mock_file(filename: 'document.pdf'),
+      content_type: 'application/pdf',
+      author: User.find(1)
+    )
+    image_attachment = Attachment.create!(
+      container: Issue.find(1),
+      file: mock_file(filename: 'image.png'),
+      content_type: 'image/png',
+      author: User.find(1)
+    )
+
+    indexable = Attachment.fulltext_indexable
+    assert_includes indexable, pdf_attachment
+    assert_not_includes indexable, image_attachment
+  end
+
+  def test_scope_fulltext_pending
+    attachment1 = Attachment.find(1)
+    attachment2 = Attachment.find(2)
+
+    # Make attachment1 indexable
+    attachment1.update!(content_type: 'application/pdf', fulltext_indexable: true)
+    # Make attachment2 indexed
+    attachment2.update!(content_type: 'application/pdf', fulltext_indexable: true)
+    AttachmentFulltextContent.create!(
+      attachment: attachment2,
+      status: 'indexed',
+      content: 'test'
+    )
+
+    pending = Attachment.fulltext_pending
+    assert_includes pending, attachment1
+    assert_not_includes pending, attachment2
+  end
+
+  def test_scope_fulltext_indexed
+    attachment1 = Attachment.find(1)
+    attachment2 = Attachment.find(2)
+
+    # Clean up any existing records
+    attachment1.fulltext_content&.destroy
+    attachment2.fulltext_content&.destroy
+
+    AttachmentFulltextContent.create!(
+      attachment: attachment1,
+      status: 'indexed',
+      content: 'test'
+    )
+    AttachmentFulltextContent.create!(
+      attachment: attachment2,
+      status: 'pending'
+    )
+
+    indexed = Attachment.fulltext_indexed
+    assert_includes indexed, attachment1
+    assert_not_includes indexed, attachment2
+  end
 end

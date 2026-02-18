@@ -140,10 +140,23 @@ module Redmine
             end
 
             if searchable_options[:search_attachments] && (options[:titles_only] ? options[:attachments] == 'only' : options[:attachments] != '0')
+              # Search attachment filename and description
               r |= fetch_ranks_and_ids(
                 search_scope(user, projects, options).
                 joins(:attachments).
                 where(search_tokens_condition(["#{Attachment.table_name}.filename", "#{Attachment.table_name}.description"], tokens, options[:all_words])),
+                options[:limit]
+              )
+              queries += 1
+
+              # Also search attachment fulltext content (if indexed)
+              r |= fetch_ranks_and_ids(
+                search_scope(user, projects, options).
+                joins(:attachments).
+                joins("INNER JOIN #{AttachmentFulltextContent.table_name} " \
+                      "ON #{AttachmentFulltextContent.table_name}.attachment_id = #{Attachment.table_name}.id " \
+                      "AND #{AttachmentFulltextContent.table_name}.status = 'indexed'").
+                where(search_tokens_condition(["#{AttachmentFulltextContent.table_name}.content"], tokens, options[:all_words])),
                 options[:limit]
               )
               queries += 1

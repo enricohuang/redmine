@@ -106,7 +106,7 @@ module Elasticsearch
             {
               multi_match: {
                 query: query,
-                fields: ['title^3', 'content', 'attachments.filename', 'attachments.description'],
+                fields: ['title^3', 'content', 'attachments.filename', 'attachments.description', 'attachments.fulltext_content'],
                 type: 'phrase',
                 boost: 2
               }
@@ -115,7 +115,7 @@ module Elasticsearch
             {
               multi_match: {
                 query: query,
-                fields: ['title^3', 'content', 'custom_fields.value', 'attachments.filename'],
+                fields: ['title^3', 'content', 'custom_fields.value', 'attachments.filename', 'attachments.fulltext_content'],
                 type: 'best_fields',
                 operator: options[:all_words] ? 'and' : 'or',
                 fuzziness: 'AUTO'

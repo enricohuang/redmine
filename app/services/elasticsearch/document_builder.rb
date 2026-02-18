@@ -180,12 +180,17 @@ module Elasticsearch
       def build_attachments(record)
         return [] unless record.respond_to?(:attachments)
 
-        record.attachments.map do |attachment|
-          {
+        record.attachments.includes(:fulltext_content).map do |attachment|
+          attachment_doc = {
             id: attachment.id,
             filename: attachment.filename,
             description: attachment.description
           }
+          # Include fulltext content if indexed
+          if attachment.fulltext_content&.indexed?
+            attachment_doc[:fulltext_content] = attachment.fulltext_content.content
+          end
+          attachment_doc
         end
       end
     end

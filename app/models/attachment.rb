@@ -25,6 +25,40 @@ class Attachment < ApplicationRecord
   include Redmine::SafeAttributes
   belongs_to :container, :polymorphic => true
   belongs_to :author, :class_name => "User"
+  has_one :fulltext_content, :class_name => 'AttachmentFulltextContent', :dependent => :destroy
+
+  # Content types that can be indexed for fulltext search
+  FULLTEXT_INDEXABLE_CONTENT_TYPES = [
+    # PDF
+    'application/pdf',
+    # Microsoft Office
+    'application/msword',                                                           # .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',      # .docx
+    'application/vnd.ms-excel',                                                      # .xls
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',            # .xlsx
+    'application/vnd.ms-powerpoint',                                                 # .ppt
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',    # .pptx
+    # OpenDocument
+    'application/vnd.oasis.opendocument.text',                                       # .odt
+    'application/vnd.oasis.opendocument.spreadsheet',                                # .ods
+    'application/vnd.oasis.opendocument.presentation',                               # .odp
+    # Text files
+    'text/plain',
+    'text/html',
+    'text/markdown',
+    'text/csv',
+    'text/xml',
+    'application/xml',
+    'application/json',
+    'application/rtf',
+    'text/rtf'
+  ].freeze
+
+  # Extensions that map to indexable content types (fallback when content_type is missing)
+  FULLTEXT_INDEXABLE_EXTENSIONS = %w[
+    pdf doc docx xls xlsx ppt pptx odt ods odp
+    txt text md markdown csv xml json rtf html htm
+  ].freeze
 
   validates_presence_of :filename, :author
   validates_length_of :filename, :maximum => 255
@@ -490,6 +524,85 @@ class Attachment < ApplicationRecord
   # returns either MD5 or SHA256 depending on the way self.digest was computed
   def digest_type
     digest.size < 64 ? "MD5" : "SHA256" if digest.present?
+  end
+
+  # ============================================================================
+  # Fulltext indexing support
+  # ============================================================================
+
+  # Scope: Attachments that can be fulltext indexed (enabled and supported type)
+  scope :fulltext_indexable, -> {
+    where(fulltext_indexable: true).where(
+      "#{table_name}.content_type IN (?) OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.pdf' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.doc' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.docx' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.xls' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.xlsx' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.ppt' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.pptx' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.odt' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.ods' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.odp' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.txt' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.md' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.csv' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.xml' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.json' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.rtf' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.html' OR " \
+      "LOWER(#{table_name}.filename) LIKE '%.htm'",
+      FULLTEXT_INDEXABLE_CONTENT_TYPES
+    )
+  }
+
+  # Scope: Attachments that need fulltext indexing (no fulltext_content record or status is pending)
+  scope :fulltext_pending, -> {
+    fulltext_indexable.
+      left_joins(:fulltext_content).
+      where(
+        "#{AttachmentFulltextContent.table_name}.id IS NULL OR " \
+        "#{AttachmentFulltextContent.table_name}.status = 'pending'"
+      )
+  }
+
+  # Scope: Attachments that have been indexed
+  scope :fulltext_indexed, -> {
+    joins(:fulltext_content).
+      where(attachment_fulltext_contents: { status: 'indexed' })
+  }
+
+  # Scope: Attachments that failed indexing
+  scope :fulltext_failed, -> {
+    joins(:fulltext_content).
+      where(attachment_fulltext_contents: { status: 'failed' })
+  }
+
+  # Returns true if this attachment's content type is supported for fulltext indexing
+  def fulltext_indexable_type?
+    return true if content_type.present? && FULLTEXT_INDEXABLE_CONTENT_TYPES.include?(content_type)
+    return true if filename.present? && extension_in?(FULLTEXT_INDEXABLE_EXTENSIONS)
+    false
+  end
+
+  # Returns true if this attachment can be fulltext indexed
+  def can_fulltext_index?
+    fulltext_indexable? && fulltext_indexable_type?
+  end
+
+  # Returns the fulltext status for this attachment
+  def fulltext_status
+    fulltext_content&.status || 'pending'
+  end
+
+  # Returns the searchable fulltext content (if indexed)
+  def fulltext_searchable_content
+    fulltext_content&.content if fulltext_content&.indexed?
+  end
+
+  # Creates or returns the fulltext content record for this attachment
+  def find_or_create_fulltext_content
+    fulltext_content || create_fulltext_content(status: 'pending')
   end
 
   private

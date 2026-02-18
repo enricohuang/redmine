@@ -349,11 +349,18 @@ Rails.application.routes.draw do
   get 'projects/:id/repository/:repository_id', :to => 'repositories#show', :path => nil
   get 'projects/:id/repository', :to => 'repositories#show', :path => nil
 
+  # Attachment fulltext indexing API (must be before attachment routes that use wildcard patterns)
+  get 'attachments/fulltext', :to => 'attachment_fulltext#index', :as => 'attachment_fulltext_index'
+  post 'attachments/fulltext/batch', :to => 'attachment_fulltext#batch_update', :as => 'attachment_fulltext_batch'
+  get 'attachments/:id/fulltext', :to => 'attachment_fulltext#show', :as => 'attachment_fulltext', :id => /\d+/
+  match 'attachments/:id/fulltext', :to => 'attachment_fulltext#update', :via => [:put, :patch], :id => /\d+/
+
   # additional routes for having the file name at the end of url
   get 'attachments/:id/:filename', :to => 'attachments#show', :id => /\d+/, :filename => /.*/, :as => 'named_attachment', :format => 'html'
   get 'attachments/download/:id/:filename', :to => 'attachments#download', :id => /\d+/, :filename => /.*/, :as => 'download_named_attachment', :format => 'html'
   get 'attachments/download/:id', :to => 'attachments#download', :id => /\d+/
   get 'attachments/thumbnail/:id(/:size)', :to => 'attachments#thumbnail', :id => /\d+/, :size => /\d+/, :as => 'thumbnail'
+
   resources :attachments, :only => [:show, :update, :destroy]
 
   # register plugin object types with ObjectTypeConstraint.register_object_type(PluginModel.name.underscore.pluralize')
