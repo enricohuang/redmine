@@ -1,0 +1,16 @@
+# IssueLabels fixture for testing
+
+issue_one_label_one:
+  id: 1
+  issue_id: 1
+  label_id: 1
+
+issue_one_label_two:
+  id: 2
+  issue_id: 1
+  label_id: 2
+
+issue_two_label_one:
+  id: 3
+  issue_id: 2
+  label_id: 1

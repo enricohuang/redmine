@@ -4,6 +4,6 @@ api.label do
   api.color @label.color
   api.text_color @label.text_color
   api.project(:id => @label.project_id, :name => @label.project.name)
-  api.created_on @label.created_on
-  api.updated_on @label.updated_on
+  api.created_on @label.created_at
+  api.updated_on @label.updated_at
 end

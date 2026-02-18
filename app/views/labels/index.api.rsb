@@ -6,8 +6,8 @@ api.array :labels, api_meta(:total_count => @labels.size) do
       api.color label.color
       api.text_color label.text_color
       api.project_id label.project_id
-      api.created_on label.created_on
-      api.updated_on label.updated_on
+      api.created_on label.created_at
+      api.updated_on label.updated_at
     end
   end
 end
