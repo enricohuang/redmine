@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class CreateAttachmentFulltextContents < ActiveRecord::Migration[7.2]
-  def change
+  def up
     create_table :attachment_fulltext_contents do |t|
-      t.references :attachment, null: false, foreign_key: true, index: { unique: true }
+      t.references :attachment, null: false, type: :integer, index: { unique: true }
       t.text :content
       t.string :status, null: false, default: 'pending'
       t.string :error_message
@@ -15,5 +15,10 @@ class CreateAttachmentFulltextContents < ActiveRecord::Migration[7.2]
 
     add_index :attachment_fulltext_contents, :status
     add_index :attachment_fulltext_contents, :indexed_at
+    add_foreign_key :attachment_fulltext_contents, :attachments, on_delete: :cascade
+  end
+
+  def down
+    drop_table :attachment_fulltext_contents
   end
 end

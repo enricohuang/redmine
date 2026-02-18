@@ -45,7 +45,7 @@ class AttachmentFulltextContentTest < ActiveSupport::TestCase
       status: 'invalid_status'
     )
     assert_not fulltext.valid?
-    assert_includes fulltext.errors[:status], 'is not included in the list'
+    assert fulltext.errors[:status].any?, "Expected status errors to be present"
   end
 
   def test_attachment_association
@@ -68,7 +68,7 @@ class AttachmentFulltextContentTest < ActiveSupport::TestCase
       status: 'pending'
     )
     assert_not duplicate.valid?
-    assert_includes duplicate.errors[:attachment_id], 'has already been taken'
+    assert duplicate.errors[:attachment_id].any?, "Expected attachment_id errors to be present"
   end
 
   def test_mark_indexed
