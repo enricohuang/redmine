@@ -83,10 +83,12 @@ class Redmine::ApiTest::ActivitiesTest < Redmine::ApiTest::Base
     json = ActiveSupport::JSON.decode(response.body)
 
     assert json['activities'].is_a?(Array)
+    # ecookbook (1) and its subprojects (3, 4, 5)
+    valid_project_ids = [1, 3, 4, 5]
     json['activities'].each do |activity|
       if activity['project']
         # Activities should be from ecookbook or its subprojects
-        assert [1, 3, 4, 5].include?(activity['project']['id'])
+        assert valid_project_ids.include?(activity['project']['id'])
       end
     end
   end

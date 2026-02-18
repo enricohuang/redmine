@@ -149,7 +149,7 @@ module Elasticsearch
       end
 
       def build_journals(issue)
-        issue.journals.map do |journal|
+        issue.journals.filter_map do |journal|
           next if journal.notes.blank?
 
           {
@@ -159,13 +159,13 @@ module Elasticsearch
             user_id: journal.user_id,
             created_on: journal.created_on&.iso8601
           }
-        end.compact
+        end
       end
 
       def build_custom_fields(record)
         return [] unless record.respond_to?(:custom_field_values)
 
-        record.custom_field_values.map do |cfv|
+        record.custom_field_values.filter_map do |cfv|
           next if cfv.value.blank?
           next unless cfv.custom_field&.searchable?
 
@@ -174,7 +174,7 @@ module Elasticsearch
             name: cfv.custom_field.name,
             value: cfv.value.is_a?(Array) ? cfv.value.join(' ') : cfv.value.to_s
           }
-        end.compact
+        end
       end
 
       def build_attachments(record)

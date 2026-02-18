@@ -119,7 +119,15 @@ class MessagesController < ApplicationController
     @reply.safe_attributes = params[:reply] || params[:message]
     @reply.save_attachments(params[:attachments] || (params[:message] && params[:message][:uploads]))
     @topic.children << @reply
-    unless @reply.new_record?
+    if @reply.new_record?
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_update)
+          redirect_to board_message_path(@board, @topic, :r => @reply)
+        end
+        format.api { render_validation_errors(@reply) }
+      end
+    else
       call_hook(:controller_messages_reply_after_save, {:params => params, :message => @reply})
       respond_to do |format|
         format.html do
@@ -128,14 +136,6 @@ class MessagesController < ApplicationController
           redirect_to board_message_path(@board, @topic, :r => @reply)
         end
         format.api { render_api_ok }
-      end
-    else
-      respond_to do |format|
-        format.html do
-          flash[:notice] = l(:notice_successful_update)
-          redirect_to board_message_path(@board, @topic, :r => @reply)
-        end
-        format.api { render_validation_errors(@reply) }
       end
     end
   end
@@ -217,6 +217,7 @@ class MessagesController < ApplicationController
   def find_message
     if params[:board_id]
       return unless find_board
+
       @message = @board.messages.includes(:parent).find(params[:id])
     else
       # When accessing messages directly via /messages/:id

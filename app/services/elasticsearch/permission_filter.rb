@@ -14,7 +14,7 @@ module Elasticsearch
 
       {
         bool: {
-          should: types.map { |type| filter_for_type(type) }.compact,
+          should: types.filter_map { |type| filter_for_type(type) },
           minimum_should_match: 1
         }
       }
@@ -258,15 +258,13 @@ module Elasticsearch
     # Get project IDs where user has the specified permission
     def projects_with_permission(permission)
       @permission_cache ||= {}
-      @permission_cache[permission] ||= begin
-        if @user.admin?
-          Project.active.pluck(:id)
-        else
-          Project.where(
-            Project.allowed_to_condition(@user, permission)
-          ).pluck(:id)
-        end
-      end
+      @permission_cache[permission] ||= if @user.admin?
+                                          Project.active.pluck(:id)
+                                        else
+                                          Project.where(
+                                            Project.allowed_to_condition(@user, permission)
+                                          ).pluck(:id)
+                                        end
     end
   end
 end

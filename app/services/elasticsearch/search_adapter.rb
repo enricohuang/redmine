@@ -16,24 +16,11 @@ module Elasticsearch
     end
 
     def result_count
-      @result_count ||= begin
-        return 0 if @tokens.blank?
-
-        searcher.count(@question)
-      end
+      @result_count ||= @tokens.blank? ? 0 : searcher.count(@question)
     end
 
     def result_count_by_type
-      @result_count_by_type ||= begin
-        return {} if @tokens.blank?
-
-        counts = {}
-        @scope.each do |type|
-          type_searcher = Searcher.new(@user, @projects, search_options.merge(scope: [type]))
-          counts[type] = type_searcher.count(@question)
-        end
-        counts
-      end
+      @result_count_by_type ||= compute_result_count_by_type
     end
 
     def results(offset, limit)
@@ -42,12 +29,23 @@ module Elasticsearch
       es_results = searcher.search(@question, offset: offset, limit: limit)
 
       # Convert ES results to Redmine objects
-      es_results.map do |result|
+      es_results.filter_map do |result|
         load_record(result)
-      end.compact
+      end
     end
 
     private
+
+    def compute_result_count_by_type
+      return {} if @tokens.blank?
+
+      counts = {}
+      @scope.each do |type|
+        type_searcher = Searcher.new(@user, @projects, search_options.merge(scope: [type]))
+        counts[type] = type_searcher.count(@question)
+      end
+      counts
+    end
 
     def searcher
       @searcher ||= Searcher.new(@user, @projects, search_options)

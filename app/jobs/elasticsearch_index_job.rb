@@ -18,11 +18,11 @@ class ElasticsearchIndexJob < ApplicationJob
       record = model_class.constantize.find_by(id: record_id)
       if record
         indexer.index(record)
-        Rails.logger.debug "Elasticsearch: Indexed #{model_class}##{record_id}"
+        Rails.logger.debug { "Elasticsearch: Indexed #{model_class}##{record_id}" }
       end
     when :delete
       indexer.delete(model_class, record_id)
-      Rails.logger.debug "Elasticsearch: Deleted #{model_class}##{record_id}"
+      Rails.logger.debug { "Elasticsearch: Deleted #{model_class}##{record_id}" }
     end
   rescue => e
     Rails.logger.error "ElasticsearchIndexJob failed: #{e.message}"

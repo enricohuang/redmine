@@ -73,6 +73,7 @@ class ReactionsController < ApplicationController
 
     unless Redmine::Reaction::REACTABLE_TYPES.include?(object_type)
       render_api_errors(['Invalid object type']) and return if api_request?
+
       render_403
       return
     end

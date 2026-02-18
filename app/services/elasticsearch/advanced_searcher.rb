@@ -207,16 +207,16 @@ module Elasticsearch
       return {} unless aggs
 
       {
-        by_type: (aggs.dig('by_type', 'buckets') || []).map { |b|
+        by_type: (aggs.dig('by_type', 'buckets') || []).map do |b|
           { key: b['key'], count: b['doc_count'], label: type_label(b['key']) }
-        },
-        by_project: (aggs.dig('by_project', 'buckets') || []).map { |b|
+        end,
+        by_project: (aggs.dig('by_project', 'buckets') || []).map do |b|
           project = Project.find_by(id: b['key'])
           { key: b['key'], count: b['doc_count'], label: project&.name || "Project ##{b['key']}" }
-        },
-        by_date: (aggs.dig('by_date', 'buckets') || []).map { |b|
+        end,
+        by_date: (aggs.dig('by_date', 'buckets') || []).map do |b|
           { key: b['key_as_string'], count: b['doc_count'] }
-        }
+        end
       }
     end
 
