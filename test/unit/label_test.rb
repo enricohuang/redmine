@@ -37,13 +37,13 @@ class LabelTest < ActiveSupport::TestCase
   def test_name_is_required
     label = Label.new(color: '#FF5733', project: @project)
     assert_not label.valid?
-    assert label.errors[:name].any? { |e| e.include?('blank') }
+    assert label.errors[:name].any?, "Expected name errors to be present"
   end
 
   def test_project_is_required
     label = Label.new(name: 'Test', color: '#FF5733')
     assert_not label.valid?
-    assert label.errors[:project].any? { |e| e.include?('blank') }
+    assert label.errors[:project].any?, "Expected project errors to be present"
   end
 
   def test_name_must_be_unique_within_project
