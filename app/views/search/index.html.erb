@@ -1,86 +1,172 @@
-<div class="search-header">
-  <h2><%= l(:label_search) %></h2>
-  <% if defined?(RedmineElasticsearch) && RedmineElasticsearch.available? %>
-    <span class="advanced-search-link">
-      <%= link_to l(:label_advanced_search), elasticsearch_search_path(q: @question), class: 'icon icon-search' %>
-    </span>
-  <% end %>
-</div>
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'search_results' %>
+<% end %>
+
+<h2><%= l(:label_search) %></h2>
 
 <%= form_tag({}, :method => :get, :id => 'search-form') do %>
-<div class="box">
-<%= label_tag "search-input", l(:description_search), :class => "hidden-for-sighted" %>
-<p><%= text_field_tag 'q', @question, :size => 60, :id => 'search-input',
-                      :data => {
-                          :auto_complete => true
-                      }.merge(list_autofill_data_attributes) %>
-<%= project_select_tag %>
-<%= hidden_field_tag 'all_words', '', :id => nil %>
-<label><%= check_box_tag 'all_words', 1, @all_words %> <%= l(:label_all_words) %></label>
-<%= hidden_field_tag 'titles_only', '', :id => nil %>
-<label><%= check_box_tag 'titles_only', 1, @titles_only %> <%= l(:label_search_titles_only) %></label>
-</p>
-
-<fieldset class="box">
-  <legend><%= toggle_checkboxes_link('p#search-types input') %></legend>
-  <p id="search-types">
-  <% @object_types.each do |t| %>
-  <label><%= check_box_tag t, 1, @scope.include?(t) %> <%= link_to type_label(t), "#" %></label>
-  <% end %>
-  </p>
-</fieldset>
-
-<fieldset class="collapsible collapsed">
-  <legend onclick="toggleFieldset(this);" class="icon icon-collapsed">
-    <%= sprite_icon("angle-right", rtl: true) %>
-    <%= l(:label_options) %>
-  </legend>
-  <div id="options-content" style="display:none;">
-    <p><label><%= check_box_tag 'open_issues', 1, @open_issues %> <%= l(:label_search_open_issues_only) %></label></p>
-    <p>
-      <label><%= radio_button_tag 'attachments', '0', @search_attachments == '0' %> <%= l(:label_search_attachments_no) %></label>
-      <label><%= radio_button_tag 'attachments', '1', @search_attachments == '1' %> <%= l(:label_search_attachments_yes) %></label>
-      <label><%= radio_button_tag 'attachments', 'only', @search_attachments == 'only' %> <%= l(:label_search_attachments_only) %></label>
-    </p>
-    <%= call_hook(:view_search_index_options_content_bottom) %>
-  </div>
-</fieldset>
-<%= hidden_field_tag 'options', '', :id => 'show-options' %>
-
-</div>
-<p><%= submit_tag l(:label_search) %></p>
-<% end %>
-
-<% if @results %>
-    <div id="search-results-counts">
-      <%= render_results_by_type(@result_count_by_type) unless @scope.size == 1 %>
+  <div class="search-form-modern">
+    <div class="search-input-row">
+      <%= label_tag "search-input", l(:description_search), :class => "hidden-for-sighted" %>
+      <%= text_field_tag 'q', @question, :size => 60, :id => 'search-input',
+                        :placeholder => l(:label_search_placeholder, :default => 'Search...'),
+                        :data => {
+                            :auto_complete => true
+                        }.merge(list_autofill_data_attributes) %>
+      <%= project_select_tag %>
+      <%= submit_tag l(:label_search), :class => 'search-submit-btn' %>
     </div>
-    <h3><%= l(:label_result_plural) %> (<%= @result_count %>)</h3>
-    <% if @result_count_by_type['issues'].to_i > 0 && @search_attachments == '0' %>
-      <p class="buttons">
-        <%= link_to sprite_icon('list', l(:button_apply_issues_filter)), issues_filter_path(@question, projects_scope: params[:scope], all_words: @all_words, titles_only: @titles_only, open_issues: @open_issues), :class => 'icon icon-list' %>
-      </p>
-    <% end %>
-    <dl id="search-results">
-      <% @results.each do |e| %>
-        <dt class="<%= e.event_type %> icon icon-<%= e.event_type %>">
-          <%= sprite_icon(e.event_type) %>
-          <%= content_tag('span', e.project, :class => 'project') unless @project == e.project %>
-          <%= link_to(highlight_tokens(e.event_title.truncate(255), @tokens), e.event_url) %>
-        </dt>
-        <dd><span class="description"><%= highlight_tokens(e.event_description, @tokens) %></span>
-        <span class="author"><%= format_time(e.event_datetime) %></span></dd>
-      <% end %>
-    </dl>
-<% end %>
+  </div>
 
-<% if @result_pages %>
-<span class="pagination"><%= pagination_links_full @result_pages, @result_count, :per_page_links => false %></span>
+  <% if @results %>
+    <div class="search-container">
+      <%= render 'search/sidebar' %>
+
+      <main class="search-results-main">
+        <div class="search-results-header">
+          <h3><%= l(:label_result_plural) %> (<%= @result_count %>)</h3>
+          <% if @result_count_by_type['issues'].to_i > 0 && @search_attachments == '0' %>
+            <span class="search-results-meta">
+              <%= link_to sprite_icon('list', l(:button_apply_issues_filter)), issues_filter_path(@question, projects_scope: params[:scope], all_words: @all_words, titles_only: @titles_only, open_issues: @open_issues), :class => 'icon icon-list' %>
+            </span>
+          <% end %>
+        </div>
+
+        <% if @results.any? %>
+          <div class="search-results-list" id="search-results-list">
+            <% @results.each do |result| %>
+              <%= render partial: 'search/result_card', locals: { result: result } %>
+            <% end %>
+          </div>
+
+          <% if @result_pages %>
+            <div class="search-pagination">
+              <span class="pagination"><%= pagination_links_full @result_pages, @result_count, :per_page_links => false %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="search-no-results">
+            <%= sprite_icon('search') %>
+            <h4><%= l(:label_no_data) %></h4>
+            <p><%= l(:text_no_search_results, :default => 'No results found. Try different search terms.') %></p>
+          </div>
+        <% end %>
+      </main>
+    </div>
+  <% else %>
+    <!-- Show type selection when no search yet -->
+    <div class="search-form-modern" style="margin-top: 16px;">
+      <fieldset class="box">
+        <legend><%= toggle_checkboxes_link('p#search-types input') %></legend>
+        <p id="search-types">
+        <% @object_types.each do |t| %>
+          <label><%= check_box_tag t, 1, @scope.include?(t) %> <%= link_to type_label(t), "#" %></label>
+        <% end %>
+        </p>
+      </fieldset>
+    </div>
+  <% end %>
+
+  <!-- Hidden fields to preserve state -->
+  <%= hidden_field_tag 'all_words', @all_words ? '1' : '', :id => 'hidden_all_words' %>
+  <%= hidden_field_tag 'titles_only', @titles_only ? '1' : '', :id => 'hidden_titles_only' %>
+  <%= hidden_field_tag 'open_issues', @open_issues ? '1' : '', :id => 'hidden_open_issues' %>
+  <%= hidden_field_tag 'attachments', @search_attachments, :id => 'hidden_attachments' %>
 <% end %>
 
 <% html_title(l(:label_search)) -%>
 
 <%= javascript_tag do %>
+// Keyboard navigation for search results
+(function() {
+  const resultsList = document.getElementById('search-results-list');
+  if (!resultsList) return;
+
+  const results = resultsList.querySelectorAll('.search-result-card');
+  let currentIndex = -1;
+  let helpVisible = false;
+
+  function navigateResult(direction) {
+    if (results.length === 0) return;
+
+    // Remove focus from current
+    if (currentIndex >= 0 && currentIndex < results.length) {
+      results[currentIndex].classList.remove('keyboard-focus');
+    }
+
+    // Calculate new index
+    currentIndex = currentIndex + direction;
+    if (currentIndex < 0) currentIndex = 0;
+    if (currentIndex >= results.length) currentIndex = results.length - 1;
+
+    // Add focus to new
+    results[currentIndex].classList.add('keyboard-focus');
+    results[currentIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function openCurrentResult() {
+    if (currentIndex >= 0 && currentIndex < results.length) {
+      const link = results[currentIndex].querySelector('.search-result-title');
+      if (link) link.click();
+    }
+  }
+
+  function toggleHelp() {
+    const help = document.getElementById('keyboard-help');
+    if (help) {
+      helpVisible = !helpVisible;
+      help.classList.toggle('visible', helpVisible);
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    // Skip if typing in input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+      return;
+    }
+
+    switch(e.key) {
+      case 'j':
+        e.preventDefault();
+        navigateResult(1);
+        break;
+      case 'k':
+        e.preventDefault();
+        navigateResult(-1);
+        break;
+      case 'Enter':
+        if (currentIndex >= 0) {
+          e.preventDefault();
+          openCurrentResult();
+        }
+        break;
+      case '/':
+        e.preventDefault();
+        document.getElementById('search-input').focus();
+        break;
+      case '?':
+        e.preventDefault();
+        toggleHelp();
+        break;
+    }
+  });
+
+  // Click on result card to select it
+  results.forEach(function(card, index) {
+    card.addEventListener('click', function(e) {
+      // Only if clicking on card itself, not a link
+      if (e.target.tagName !== 'A') {
+        if (currentIndex >= 0) {
+          results[currentIndex].classList.remove('keyboard-focus');
+        }
+        currentIndex = index;
+        card.classList.add('keyboard-focus');
+      }
+    });
+  });
+})();
+
+// Type filter clicks (single type selection)
 $("#search-types a").click(function(e){
   e.preventDefault();
   $("#search-types input[type=checkbox]").prop('checked', false);
@@ -90,11 +176,16 @@ $("#search-types a").click(function(e){
   }
 });
 
-$("#search-form").submit(function(){
-  $("#show-options").val($("#options-content").is(":visible") ? '1' : '0');
+// Sync sidebar checkboxes with hidden fields
+$('.search-filter-options input[type=checkbox]').change(function() {
+  var name = $(this).attr('name');
+  var checked = $(this).is(':checked');
+  $('#hidden_' + name).val(checked ? '1' : '');
 });
 
-<% if params[:options] == '1' %>
-toggleFieldset($("#options-content"));
-<% end %>
+$('.search-filter-options input[type=radio]').change(function() {
+  var name = $(this).attr('name');
+  var value = $(this).val();
+  $('#hidden_' + name).val(value);
+});
 <% end %>

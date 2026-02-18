@@ -1,0 +1,47 @@
+<article class="search-result-card search-result-<%= result.event_type.to_s.gsub('-closed', '') %>"
+         data-result-url="<%= url_for(result.event_url) %>" tabindex="0">
+  <div class="search-result-header">
+    <div class="search-result-icon">
+      <%= sprite_icon(result.event_type.to_s.gsub('-closed', '')) %>
+    </div>
+    <div class="search-result-title-row">
+      <%= search_type_badge(result) %>
+      <%= link_to highlight_tokens(result.event_title.to_s.truncate(255), @tokens),
+                  result.event_url, class: 'search-result-title' %>
+      <% if result.is_a?(Issue) %>
+        <%= issue_status_pill(result) %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="search-result-body">
+    <% if result.event_description.present? %>
+      <p class="search-result-snippet">
+        <%= highlight_tokens(result.event_description, @tokens) %>
+      </p>
+    <% end %>
+
+    <% if result.is_a?(Issue) && result.respond_to?(:labels) && result.labels.any? %>
+      <div class="search-result-labels">
+        <%= issue_labels_tag(result) %>
+      </div>
+    <% end %>
+
+    <% if result.respond_to?(:attachments) && result.attachments.any? && @search_attachments != '0' %>
+      <% matched_attachment = find_matched_attachment(result, @tokens) %>
+      <% if matched_attachment %>
+        <div class="search-attachment-match">
+          <%= sprite_icon('attachment') %>
+          <span class="attachment-filename"><%= matched_attachment[:filename] %></span>
+          <% if matched_attachment[:excerpt] %>
+            <span class="attachment-excerpt">"<%= highlight_tokens(matched_attachment[:excerpt], @tokens) %>"</span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="search-result-footer">
+    <%= search_result_meta(result) %>
+  </div>
+</article>

@@ -1,0 +1,74 @@
+<aside class="search-sidebar">
+  <div class="search-filter-panel">
+    <h4><%= l(:label_filter_by_type) %></h4>
+    <ul class="search-type-filters">
+      <% @object_types.each do |t| %>
+        <% count = @result_count_by_type[t] || 0 %>
+        <% is_active = @scope.size == 1 && @scope.include?(t) %>
+        <li class="<%= 'active' if is_active %>">
+          <%= link_to search_path(q: @question, scope: params[:scope], all_words: @all_words, t => 1) do %>
+            <span class="filter-icon"><%= sprite_icon(t.singularize) %></span>
+            <span class="filter-label"><%= type_label(t) %></span>
+            <span class="filter-count"><%= count %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+    <% if @scope.size == 1 %>
+      <p style="margin: 12px 0 0; text-align: center;">
+        <%= link_to l(:label_show_all_types), search_path(q: @question, scope: params[:scope], all_words: @all_words), style: 'font-size: 12px; color: #666;' %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="search-filter-panel">
+    <h4><%= l(:label_options) %></h4>
+    <div class="search-filter-options">
+      <label>
+        <%= check_box_tag 'all_words', 1, @all_words, id: 'filter_all_words', onchange: 'this.form.submit()' %>
+        <%= l(:label_all_words) %>
+      </label>
+      <label>
+        <%= check_box_tag 'titles_only', 1, @titles_only, id: 'filter_titles_only', onchange: 'this.form.submit()' %>
+        <%= l(:label_search_titles_only) %>
+      </label>
+      <label>
+        <%= check_box_tag 'open_issues', 1, @open_issues, id: 'filter_open_issues', onchange: 'this.form.submit()' %>
+        <%= l(:label_search_open_issues_only) %>
+      </label>
+    </div>
+  </div>
+
+  <div class="search-filter-panel">
+    <h4><%= l(:label_attachment_plural) %></h4>
+    <div class="search-filter-options">
+      <label>
+        <%= radio_button_tag 'attachments', '0', @search_attachments == '0', onchange: 'this.form.submit()' %>
+        <%= l(:label_search_attachments_no) %>
+      </label>
+      <label>
+        <%= radio_button_tag 'attachments', '1', @search_attachments == '1', onchange: 'this.form.submit()' %>
+        <%= l(:label_search_attachments_yes) %>
+      </label>
+      <label>
+        <%= radio_button_tag 'attachments', 'only', @search_attachments == 'only', onchange: 'this.form.submit()' %>
+        <%= l(:label_search_attachments_only) %>
+      </label>
+    </div>
+  </div>
+
+  <% if defined?(RedmineElasticsearch) && RedmineElasticsearch.available? %>
+    <div class="search-filter-panel">
+      <p style="margin: 0; text-align: center;">
+        <%= link_to l(:label_advanced_search), elasticsearch_search_path(q: @question), class: 'icon icon-search', style: 'font-size: 12px;' %>
+      </p>
+    </div>
+  <% end %>
+
+  <div class="search-keyboard-help" id="keyboard-help">
+    <div><kbd>j</kbd> / <kbd>k</kbd> Navigate results</div>
+    <div><kbd>Enter</kbd> Open result</div>
+    <div><kbd>/</kbd> Focus search</div>
+    <div><kbd>?</kbd> Toggle this help</div>
+  </div>
+</aside>
