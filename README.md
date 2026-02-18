@@ -88,19 +88,38 @@ To enable:
 3. Set "Attachment fulltext indexer API key"
 4. Use the key in `X-Redmine-Indexer-Key` header
 
+### Modern Search UI
+
+Redesigned search results with a modern card-based layout for improved visual hierarchy and usability.
+
+- **Card-based results** - Each result displayed as a clean card with hover effects
+- **Type badges** - Color-coded badges for content types:
+  - Issues: Blue (Bug: Red, Feature: Green, Support: Orange)
+  - Wiki pages: Orange
+  - News: Purple
+  - Documents: Teal
+  - Changesets: Gray
+  - Projects: Amber
+- **Status pills** - For issues: New (green), In Progress (blue), Resolved (purple), Closed (gray)
+- **Relative timestamps** - "about 2 hours ago", "1 day ago" with full date on hover
+- **Attachment indicators** - Icon with count for results with attachments
+- **Sidebar filters** - Filter by type, search options, attachment settings in collapsible panels
+- **Keyboard navigation** - Press `j`/`k` to navigate results, `Enter` to open, `/` to focus search
+- **Responsive design** - Adapts to mobile screens with collapsible sidebar
+
 ### Elasticsearch Search (Optional)
 
 Full-text search powered by Elasticsearch for faster, more powerful search capabilities.
 
-- **Transparent integration** - Uses existing search UI, no changes for users
 - **Advanced Search page** - Dedicated search page with more options when ES is enabled:
   - Search in all fields, titles only, or content only
   - Filter by content types, date range, and projects
   - Sort by relevance, date, or last updated
   - Faceted results showing counts by type and project
+  - Relevance scores displayed for each result
 - **All searchable content** - Issues, wiki pages, news, messages, changesets, documents, projects
 - **Permission-aware** - Respects all Redmine permissions (private issues, project membership, etc.)
-- **Highlighted results** - Search terms highlighted in results
+- **Highlighted results** - Search terms highlighted in yellow
 - **Fallback support** - Falls back to database search if Elasticsearch unavailable
 - **Easy setup** - Configure connection in `config/elasticsearch.yml`
 
@@ -125,6 +144,7 @@ For detailed documentation, see the [Wiki](https://github.com/enricohuang/redmin
 - [Journals REST API Reference](https://github.com/enricohuang/redmine/wiki/Journals-REST-API) - Comment management API
 - [Wiki REST API Reference](https://github.com/enricohuang/redmine/wiki/Wiki-REST-API) - Wiki page management API
 - [Elasticsearch Search](https://github.com/enricohuang/redmine/wiki/Elasticsearch-Search) - Setup, configuration, and limitations
+- [Search User Guide](https://github.com/enricohuang/redmine/wiki/User-Guide-Search) - Search features and keyboard shortcuts
 - [Attachment Fulltext Indexing API](https://github.com/enricohuang/redmine/wiki/Attachment-Fulltext-Indexing-API) - External indexer integration
 
 ## Fork Information
