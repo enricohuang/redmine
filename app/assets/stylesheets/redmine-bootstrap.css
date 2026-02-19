@@ -1791,3 +1791,32 @@ table.list.issues th.id {
   width: auto;
   white-space: nowrap;
 }
+
+/* Actions/buttons column - compact width */
+table.list.issues th.buttons,
+table.list.issues td.buttons {
+  width: 40px;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+table.list.issues td.buttons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--rm-radius-sm);
+  color: var(--rm-gray-500);
+  transition: all 0.15s ease;
+}
+
+table.list.issues td.buttons a:hover {
+  background: var(--rm-gray-100);
+  color: var(--rm-gray-700);
+}
+
+table.list.issues td.buttons a svg.icon-svg {
+  stroke: currentColor;
+}
