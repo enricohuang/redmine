@@ -1,37 +1,63 @@
-<h2><%=l(:label_register)%></h2>
+<h2 class="mb-4"><%=l(:label_register)%></h2>
 
-<%= labelled_form_for @user, :url => register_path do |f| %>
+<%= labelled_form_for @user, :url => register_path, :html => {:class => 'card card-body'} do |f| %>
 <%= error_messages_for 'user' %>
 
-<div class="box tabular">
+<div class="row">
 <% if @user.auth_source_id.nil? %>
-  <p><%= f.text_field :login, :size => 25, :required => true %></p>
+  <div class="col-md-6 mb-3">
+    <%= f.text_field :login, :size => 25, :required => true, :class => 'form-control' %>
+  </div>
 
-  <p><%= f.password_field :password, :size => 25, :required => true %>
-  <em class="info"><%= l(:text_caracters_minimum, :count => Setting.password_min_length) %></em>
-  <% if Setting.password_required_char_classes.any? %>
-    <em class="info"><%= l(:text_characters_must_contain, :character_classes => Setting.password_required_char_classes.collect{|c| l("label_password_char_class_#{c}")}.join(", ")) %></em>
-  <% end %>
-  </p>
-  <p><%= f.password_field :password_confirmation, :size => 25, :required => true %></p>
+  <div class="col-md-6 mb-3">
+    <%= f.password_field :password, :size => 25, :required => true, :class => 'form-control' %>
+    <div class="form-text">
+      <%= l(:text_caracters_minimum, :count => Setting.password_min_length) %>
+      <% if Setting.password_required_char_classes.any? %>
+        <br><%= l(:text_characters_must_contain, :character_classes => Setting.password_required_char_classes.collect{|c| l("label_password_char_class_#{c}")}.join(", ")) %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="col-md-6 mb-3">
+    <%= f.password_field :password_confirmation, :size => 25, :required => true, :class => 'form-control' %>
+  </div>
 <% end %>
 
-<p><%= f.text_field :firstname, :required => true %></p>
-<p><%= f.text_field :lastname, :required => true %></p>
-<p><%= f.text_field :mail, :required => true %></p>
+<div class="col-md-6 mb-3">
+  <%= f.text_field :firstname, :required => true, :class => 'form-control' %>
+</div>
+
+<div class="col-md-6 mb-3">
+  <%= f.text_field :lastname, :required => true, :class => 'form-control' %>
+</div>
+
+<div class="col-md-6 mb-3">
+  <%= f.text_field :mail, :required => true, :class => 'form-control' %>
+</div>
+
 <%= labelled_fields_for :pref, @user.pref do |pref_fields| %>
-<p><%= pref_fields.check_box :hide_mail %></p>
+<div class="col-12 mb-3">
+  <div class="form-check">
+    <%= pref_fields.check_box :hide_mail, :class => 'form-check-input' %>
+  </div>
+</div>
 <% end %>
-
 
 <% unless @user.force_default_language? %>
-<p><%= f.select :language, lang_options_for_select %></p>
+<div class="col-md-6 mb-3">
+  <%= f.select :language, lang_options_for_select, {}, :class => 'form-select' %>
+</div>
 <% end %>
 
 <% @user.custom_field_values.select {|v| (Setting.show_custom_fields_on_registration? && v.editable?) || v.required?}.each do |value| %>
-  <p><%= custom_field_tag_with_label :user, value %></p>
+  <div class="col-md-6 mb-3">
+    <%= custom_field_tag_with_label :user, value %>
+  </div>
 <% end %>
 </div>
 
-<%= submit_tag l(:button_submit) %>
+<div class="d-grid d-md-block">
+  <%= submit_tag l(:button_submit), :class => 'btn btn-primary' %>
+</div>
 <% end %>

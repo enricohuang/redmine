@@ -1,23 +1,35 @@
 <%= call_hook :view_account_login_top %>
 
-<div id="login-form">
-  <%= form_tag(signin_path, onsubmit: 'return keepAnchorOnSignIn(this);') do %>
+<div id="login-form" class="card card-body mx-auto" style="max-width: 400px;">
+  <h3 class="card-title text-center mb-4"><%= l(:label_login) %></h3>
+  <%= form_tag(signin_path, onsubmit: 'return keepAnchorOnSignIn(this);', class: 'needs-validation') do %>
   <%= back_url_hidden_field_tag %>
-  
-  <label for="username"><%=l(:field_login)%></label>
-  <%= text_field_tag 'username', params[:username], :tabindex => '1', :autocomplete => 'username', :autofocus => params[:username].blank? %>
-  
-  <label for="password">
-    <%=l(:field_password)%>
-    <%= link_to l(:label_password_lost), lost_password_path, :class => "lost_password" if Setting.lost_password? %>
-  </label>
-  <%= password_field_tag 'password', nil, :tabindex => '2', :autocomplete => 'current-password', :autofocus => params[:username].present? %>
-  
+
+  <div class="mb-3">
+    <label for="username" class="form-label"><%=l(:field_login)%></label>
+    <%= text_field_tag 'username', params[:username], :tabindex => '1', :autocomplete => 'username', :autofocus => params[:username].blank?, :class => 'form-control' %>
+  </div>
+
+  <div class="mb-3">
+    <label for="password" class="form-label d-flex justify-content-between align-items-center">
+      <span><%=l(:field_password)%></span>
+      <% if Setting.lost_password? %>
+        <%= link_to l(:label_password_lost), lost_password_path, :class => "lost_password small" %>
+      <% end %>
+    </label>
+    <%= password_field_tag 'password', nil, :tabindex => '2', :autocomplete => 'current-password', :autofocus => params[:username].present?, :class => 'form-control' %>
+  </div>
+
   <% if Setting.autologin? %>
-    <label for="autologin"><%= check_box_tag 'autologin', 1, false, :tabindex => 4 %> <%= l(:label_stay_logged_in) %></label>
+    <div class="mb-3 form-check">
+      <%= check_box_tag 'autologin', 1, false, :tabindex => 4, :class => 'form-check-input' %>
+      <label for="autologin" class="form-check-label"><%= l(:label_stay_logged_in) %></label>
+    </div>
   <% end %>
-  
-  <input type="submit" name="login" value="<%=l(:button_login)%>" tabindex="5" id="login-submit" />
+
+  <div class="d-grid">
+    <input type="submit" name="login" value="<%=l(:button_login)%>" tabindex="5" id="login-submit" class="btn btn-primary btn-lg" />
+  </div>
   <% end %>
 </div>
 
