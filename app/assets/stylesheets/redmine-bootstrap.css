@@ -227,6 +227,7 @@ h4 { font-size: 1.125rem; }
 #quick-search #q {
   inline-size: 220px;
   block-size: 24px;
+  min-height: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--rm-radius);
 }
@@ -520,6 +521,9 @@ select {
   border: 1px solid var(--rm-gray-300);
   border-radius: var(--rm-radius);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  /* Override application.css block-size: 24px to match select height */
+  height: auto;
+  min-height: 2.5rem;
 }
 
 input[type="text"]:focus,
@@ -718,7 +722,8 @@ fieldset legend,
   border-bottom: 1px solid var(--rm-gray-200);
 }
 
-/* Tabs */
+/* Tabs - use #content prefix to override application.css specificity */
+#content .tabs ul,
 .tabs ul,
 ul.tabs,
 .nav-tabs {
@@ -730,11 +735,13 @@ ul.tabs,
   border-bottom: 1px solid var(--rm-gray-200);
 }
 
+#content .tabs ul li,
 .tabs ul li,
 ul.tabs li {
   margin-bottom: -1px;
 }
 
+#content .tabs ul li a,
 .tabs ul li a,
 ul.tabs li a,
 .nav-tabs .nav-link {
@@ -750,6 +757,7 @@ ul.tabs li a,
   transition: all 0.15s ease;
 }
 
+#content .tabs ul li a:hover,
 .tabs ul li a:hover,
 ul.tabs li a:hover,
 .nav-tabs .nav-link:hover {
@@ -758,6 +766,7 @@ ul.tabs li a:hover,
   text-decoration: none;
 }
 
+#content .tabs ul li a.selected,
 .tabs ul li a.selected,
 ul.tabs li a.selected,
 .nav-tabs .nav-link.active {
