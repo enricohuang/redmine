@@ -8,94 +8,381 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
+/**
+ * Alternate Theme for Redmine
+ * Now using Bootstrap 5.3 as base with OpenColor palette
+ * Features priority-based row coloring for issues
+ */
+
 @import url(/application.css);
 
-body, #wrapper { background-color:#EEEEEE; }
-#header, #top-menu { margin-block: 0px 0px; margin-inline: 11px 10px; }
-#main { background: #EEEEEE; margin-block: 8px 0px; margin-inline: 10px 10px; }
-#content, #main.nosidebar #content {
-  background: #fff;
-  border-block-start: 1px solid #d7d7d7;
-  border-block-end: 1px solid #bbb;
-  border-inline-start: 1px solid #d7d7d7;
-  border-inline-end: 1px solid #bbb;
+/* ==========================================================================
+   Alternate Theme Color Variables
+   ========================================================================== */
+
+:root {
+  /* Alternate theme colors */
+  --alt-primary: #507AAA;
+  --alt-bg: #EEEEEE;
+  --alt-content-bg: #ffffff;
+  --alt-border: #d7d7d7;
+  --alt-border-dark: #bbb;
+
+  /* Priority colors */
+  --priority-highest-bg: #ffd4d4;
+  --priority-highest-bg-alt: #ffc4c4;
+  --priority-highest-text: #900;
+  --priority-highest-border: #ffb4b4;
+
+  --priority-high-bg: #fff2f2;
+  --priority-high-bg-alt: #fee;
+  --priority-high-text: #900;
+  --priority-high-border: #fcc;
+
+  --priority-lowest-bg: #f2faff;
+  --priority-lowest-bg-alt: #eaf7ff;
+  --priority-lowest-text: #559;
+  --priority-lowest-border: #add7f3;
+
+  /* Override Bootstrap variables */
+  --bs-primary: var(--alt-primary);
+  --bs-link-color: var(--alt-primary);
 }
-#footer { background-color:#EEEEEE; border: 0px; }
 
-/* Headers */
-h2, h3, h4, .wiki h1, .wiki h2, .wiki h3 {border-block-end: 0px;}
+/* ==========================================================================
+   Alternate Theme Layout
+   ========================================================================== */
 
-/* Menu */
-#main-menu li a { background-color: #507AAA; font-weight: bold;}
-#main-menu li a:hover { background: #507AAA; text-decoration: underline; }
-#main-menu li a.selected, #main-menu li a.selected:hover { background-color:#EEEEEE; }
-#main-menu li a.new-object { background-color:#507AAA; text-decoration: none; }
+body,
+#wrapper {
+  background-color: var(--alt-bg);
+}
+
+#header,
+#top-menu {
+  margin: 0 11px 0 10px;
+}
+
+#main {
+  background: var(--alt-bg);
+  margin: 8px 10px 0 10px;
+}
+
+#content,
+#main.nosidebar #content {
+  background: var(--alt-content-bg);
+  border-top: 1px solid var(--alt-border);
+  border-bottom: 1px solid var(--alt-border-dark);
+  border-left: 1px solid var(--alt-border);
+  border-right: 1px solid var(--alt-border-dark);
+}
+
+#footer {
+  background-color: var(--alt-bg);
+  border: 0;
+}
+
+/* ==========================================================================
+   Alternate Theme Headers
+   ========================================================================== */
+
+h2, h3, h4, .wiki h1, .wiki h2, .wiki h3 {
+  border-bottom: 0;
+}
+
+/* ==========================================================================
+   Alternate Theme Menu
+   ========================================================================== */
+
+#main-menu li a {
+  background-color: var(--alt-primary);
+  font-weight: bold;
+}
+
+#main-menu li a:hover {
+  background: var(--alt-primary);
+  text-decoration: underline;
+}
+
+#main-menu li a.selected,
+#main-menu li a.selected:hover {
+  background-color: var(--alt-bg);
+  color: var(--oc-gray-8);
+}
+
+#main-menu li a.new-object {
+  background-color: var(--alt-primary);
+  text-decoration: none;
+}
 
 #main-menu .menu-children {
-  border-block-end: 1px solid #507AAA;
-  border-inline-start: 1px solid #507AAA;
-  border-inline-end: 1px solid #507AAA;
+  border-bottom: 1px solid var(--alt-primary);
+  border-left: 1px solid var(--alt-primary);
+  border-right: 1px solid var(--alt-primary);
 }
-#main-menu .menu-children li a:hover { background-color: #507AAA;}
 
+#main-menu .menu-children li a:hover {
+  background-color: var(--alt-primary);
+}
 
-/* Tables */
-table.list tbody td, table.list tbody tr:hover td { border: solid 1px #d7d7d7; }
+/* Bootstrap nav-tabs in main menu */
+#main-menu .nav-tabs {
+  border-bottom: none;
+}
+
+#main-menu .nav-tabs .nav-link {
+  background-color: var(--alt-primary);
+  border: none;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+#main-menu .nav-tabs .nav-link:hover {
+  background-color: var(--alt-primary);
+  text-decoration: underline;
+}
+
+#main-menu .nav-tabs .nav-link.active {
+  background-color: var(--alt-bg);
+  color: var(--oc-gray-8);
+}
+
+/* ==========================================================================
+   Alternate Theme Tables
+   ========================================================================== */
+
+table.list tbody td,
+table.list tbody tr:hover td {
+  border: solid 1px var(--alt-border);
+}
+
 table.list thead th {
   border-width: 1px;
   border-style: solid;
-  border-block-start-color: #d7d7d7;
-  border-block-end-color: #999999;
-  border-inline-start-color: #d7d7d7;
-  border-inline-end-color: #d7d7d7;
+  border-top-color: var(--alt-border);
+  border-bottom-color: #999999;
+  border-left-color: var(--alt-border);
+  border-right-color: var(--alt-border);
 }
 
-/* Issues grid styles by priorities (provided by Wynn Netherland) */
-table.list tr.issue a { color: #666; }
+table.list tr.issue a {
+  color: #666;
+}
 
-tr.odd.priority-highest, table.list tbody tr.odd.priority-highest:hover { color: #900; font-weight: bold; }
-tr.odd.priority-highest { background: #ffd4d4; }
-tr.even.priority-highest, table.list tbody tr.even.priority-highest:hover { color: #900; font-weight: bold; }
-tr.even.priority-highest { background: #ffc4c4; }
-tr.priority-highest a, tr.priority-5:hover a { color: #900; }
-tr.odd.priority-highest td, tr.even.priority-highest td { border-color: #ffb4b4; }
+/* ==========================================================================
+   Priority-based Row Coloring
+   ========================================================================== */
 
-tr.odd.priority-high2, table.list tbody tr.odd.priority-high4:hover { color: #900; }
-tr.odd.priority-high2 { background: #ffd4d4; }
-tr.even.priority-high2, table.list tbody tr.even.priority-high4:hover { color: #900; }
-tr.even.priority-high2 { background: #ffc4c4; }
-tr.priority-high2 a { color: #900; }
-tr.odd.priority-high2 td, tr.even.priority-high4 td { border-color: #ffb4b4; }
+/* Highest Priority */
+tr.odd.priority-highest,
+table.list tbody tr.odd.priority-highest:hover {
+  color: var(--priority-highest-text);
+  font-weight: bold;
+}
 
-tr.odd.priority-high3, table.list tbody tr.odd.priority-high3:hover { color: #900; }
-tr.odd.priority-high3 { background: #fff2f2; }
-tr.even.priority-high3, table.list tbody tr.even.priority-high3:hover { color: #900; }
-tr.even.priority-high3 { background: #fee; }
-tr.priority-high3 a { color: #900; }
-tr.odd.priority-high3 td, tr.even.priority-high3 td { border-color: #fcc; }
+tr.odd.priority-highest {
+  background: var(--priority-highest-bg);
+}
 
-tr.odd.priority-lowest, table.list tbody tr.odd.priority-lowest:hover { color: #559; }
-tr.odd.priority-lowest { background: #f2faff; }
-tr.even.priority-lowest, table.list tbody tr.even.priority-lowest:hover { color: #559; }
-tr.even.priority-lowest { background: #eaf7ff; }
-tr.priority-lowest a { color: #559; }
-tr.odd.priority-lowest td, tr.even.priority-lowest td { border-color: #add7f3; }
+tr.even.priority-highest,
+table.list tbody tr.even.priority-highest:hover {
+  color: var(--priority-highest-text);
+  font-weight: bold;
+}
+
+tr.even.priority-highest {
+  background: var(--priority-highest-bg-alt);
+}
+
+tr.priority-highest a,
+tr.priority-5:hover a {
+  color: var(--priority-highest-text);
+}
+
+tr.odd.priority-highest td,
+tr.even.priority-highest td {
+  border-color: var(--priority-highest-border);
+}
+
+/* High Priority (Level 2) */
+tr.odd.priority-high2,
+table.list tbody tr.odd.priority-high4:hover {
+  color: var(--priority-highest-text);
+}
+
+tr.odd.priority-high2 {
+  background: var(--priority-highest-bg);
+}
+
+tr.even.priority-high2,
+table.list tbody tr.even.priority-high4:hover {
+  color: var(--priority-highest-text);
+}
+
+tr.even.priority-high2 {
+  background: var(--priority-highest-bg-alt);
+}
+
+tr.priority-high2 a {
+  color: var(--priority-highest-text);
+}
+
+tr.odd.priority-high2 td,
+tr.even.priority-high4 td {
+  border-color: var(--priority-highest-border);
+}
+
+/* High Priority (Level 3) */
+tr.odd.priority-high3,
+table.list tbody tr.odd.priority-high3:hover {
+  color: var(--priority-high-text);
+}
+
+tr.odd.priority-high3 {
+  background: var(--priority-high-bg);
+}
+
+tr.even.priority-high3,
+table.list tbody tr.even.priority-high3:hover {
+  color: var(--priority-high-text);
+}
+
+tr.even.priority-high3 {
+  background: var(--priority-high-bg-alt);
+}
+
+tr.priority-high3 a {
+  color: var(--priority-high-text);
+}
+
+tr.odd.priority-high3 td,
+tr.even.priority-high3 td {
+  border-color: var(--priority-high-border);
+}
+
+/* Lowest Priority */
+tr.odd.priority-lowest,
+table.list tbody tr.odd.priority-lowest:hover {
+  color: var(--priority-lowest-text);
+}
+
+tr.odd.priority-lowest {
+  background: var(--priority-lowest-bg);
+}
+
+tr.even.priority-lowest,
+table.list tbody tr.even.priority-lowest:hover {
+  color: var(--priority-lowest-text);
+}
+
+tr.even.priority-lowest {
+  background: var(--priority-lowest-bg-alt);
+}
+
+tr.priority-lowest a {
+  color: var(--priority-lowest-text);
+}
+
+tr.odd.priority-lowest td,
+tr.even.priority-lowest td {
+  border-color: var(--priority-lowest-border);
+}
+
+/* ==========================================================================
+   Alternate Theme Bootstrap Component Overrides
+   ========================================================================== */
 
 /* Buttons */
-input[type="button"], input[type="submit"], input[type="reset"] { background-color: #f2f2f2; color: #222222; border: 1px outset #cccccc; }
-input[type="button"]:hover, input[type="submit"]:hover, input[type="reset"]:hover { background-color: #ccccbb; }
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.btn {
+  background-color: #f2f2f2;
+  color: #222222;
+  border: 1px solid #cccccc;
+}
 
-/* Fields */
-input[type="text"], input[type="password"], textarea, select { border: 1px solid #d7d7d7; }
-input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus { border: 1px solid #888866; }
-option { border-block-end: 1px dotted #d7d7d7; }
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+.btn:hover {
+  background-color: #ccccbb;
+  border-color: #999999;
+}
 
-/* Misc */
-.box { background-color: #fcfcfc; }
+/* Primary buttons */
+input[type="submit"][name="commit"],
+.btn-primary {
+  background-color: var(--alt-primary);
+  border-color: var(--alt-primary);
+  color: #ffffff;
+}
+
+input[type="submit"][name="commit"]:hover,
+.btn-primary:hover {
+  background-color: #3d6a9a;
+  border-color: #3d6a9a;
+}
+
+/* Form Fields */
+input[type="text"],
+input[type="password"],
+textarea,
+select,
+.form-control {
+  border: 1px solid var(--alt-border);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus,
+.form-control:focus {
+  border: 1px solid #888866;
+  box-shadow: 0 0 0 0.2rem rgba(80, 122, 170, 0.25);
+}
+
+option {
+  border-bottom: 1px dotted var(--alt-border);
+}
+
+/* Cards/Boxes */
+.box,
+.card {
+  background-color: #fcfcfc;
+  border-color: var(--alt-border);
+}
+
+.card-header {
+  background-color: var(--alt-bg);
+  border-bottom-color: var(--alt-border);
+}
+
+/* Pagination */
+.pagination .page-item.active .page-link,
+p.pagination span.current {
+  background-color: var(--alt-primary);
+  border-color: var(--alt-primary);
+}
+
+/* ==========================================================================
+   Alternate Theme Responsive
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+  #header,
+  #top-menu {
+    margin: 0;
+  }
+
+  #main {
+    margin: 0;
+  }
+}

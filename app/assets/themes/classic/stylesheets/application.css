@@ -8,59 +8,298 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
+/**
+ * Classic Theme for Redmine
+ * Now using Bootstrap 5.3 as base with OpenColor palette
+ */
+
 @import url(/application.css);
 
-body{ color:#303030; background:#e8eaec; }
+/* ==========================================================================
+   Classic Theme Color Variables
+   Override Bootstrap/OpenColor variables for classic blue theme
+   ========================================================================== */
 
-#top-menu { font-size: 80%; block-size: 2em; padding-block-start: 0.5em; background-color: #578bb8; }
-#top-menu a { font-weight: bold; }
-#header { background: #467aa7; block-size:5.8em; padding-block: 10px 0; padding-inline: 0; }
-#header h1 { margin-inline-start: 6px; }
-#quick-search { margin-inline-end: 6px; }
-#main-menu { background-color: #578bb8; inset-inline-start: 0; border-block-start: 1px solid #fff; inline-size: 100%; }
-#main-menu li { margin: 0; padding: 0; }
-#main-menu li a { background-color: #578bb8; border-inline-end: 1px solid #fff; font-size: 90%; padding-block: 4px; padding-inline: 8px; font-weight: bold; }
-#main-menu li a:hover { background-color: #80b0da; color: #ffffff; }
-#main-menu li a.selected, #main-menu li a.selected:hover { background-color: #80b0da; color: #ffffff; }
-#main-menu li a.new-object { background-color:#80b0da; }
+:root {
+  /* Classic theme primary color (blue) */
+  --classic-primary: #467aa7;
+  --classic-primary-light: #578bb8;
+  --classic-primary-hover: #80b0da;
+  --classic-primary-dark: #2a5a8a;
+
+  /* Override Bootstrap primary color for classic theme */
+  --bs-primary: var(--classic-primary);
+  --bs-link-color: var(--classic-primary);
+  --bs-link-hover-color: var(--classic-primary-dark);
+
+  /* Classic theme background */
+  --classic-bg: #e8eaec;
+  --classic-content-bg: #ffffff;
+
+  /* Classic theme typography */
+  --classic-heading-color: #606060;
+  --classic-text-color: #303030;
+}
+
+/* ==========================================================================
+   Classic Theme Layout Overrides
+   ========================================================================== */
+
+body {
+  color: var(--classic-text-color);
+  background: var(--classic-bg);
+}
+
+/* Top Menu */
+#top-menu {
+  font-size: 80%;
+  min-height: 2em;
+  padding-top: 0.5em;
+  background-color: var(--classic-primary-light);
+}
+
+#top-menu a {
+  font-weight: bold;
+}
+
+/* Header */
+#header {
+  background: var(--classic-primary);
+  min-height: 5.8em;
+  padding: 10px 0 0 0;
+}
+
+#header h1 {
+  margin-left: 6px;
+}
+
+#quick-search {
+  margin-right: 6px;
+}
+
+/* Main Menu */
+#main-menu {
+  background-color: var(--classic-primary-light);
+  left: 0;
+  border-top: 1px solid #fff;
+  width: 100%;
+}
+
+#main-menu li {
+  margin: 0;
+  padding: 0;
+}
+
+#main-menu li a {
+  background-color: var(--classic-primary-light);
+  border-right: 1px solid #fff;
+  font-size: 90%;
+  padding: 4px 8px;
+  font-weight: bold;
+  border-radius: 0;
+}
+
+#main-menu li a:hover {
+  background-color: var(--classic-primary-hover);
+  color: #ffffff;
+}
+
+#main-menu li a.selected,
+#main-menu li a.selected:hover {
+  background-color: var(--classic-primary-hover);
+  color: #ffffff;
+}
+
+#main-menu li a.new-object {
+  background-color: var(--classic-primary-hover);
+}
 
 #main-menu .menu-children {
-  border-inline-end: 1px solid #80b0da;
-  border-block-end: 1px solid #80b0da;
-  border-inline-start: 1px solid #80b0da;
+  border-right: 1px solid var(--classic-primary-hover);
+  border-bottom: 1px solid var(--classic-primary-hover);
+  border-left: 1px solid var(--classic-primary-hover);
 }
-#main-menu .menu-children li a { border-inline-end: none; }
-#main-menu .menu-children li a:hover { background-color: #80b0da }
 
-#footer { background-color: #578bb8; border: 0; color: #fff;}
-#footer a { color: #fff; font-weight: bold; }
-
-#main { font:90% Verdana,Tahoma,Arial,sans-serif; background: #e8eaec; }
-#main a { font-weight: bold; color: #467aa7;}
-#main a:hover { color: #2a5a8a; text-decoration: underline; }
-#content { background: #fff; }
-
-h2, h3, h4, .wiki h1, .wiki h2, .wiki h3 { border-block-end: 0; color:#606060; font-family: Trebuchet MS,Georgia,"Times New Roman",serif; }
-h2, .wiki h1 { letter-spacing:-1px; }
-h4 { border-block-end: dotted 1px #c0c0c0; }
-
-#top-menu a.home, #top-menu a.my-page, #top-menu a.projects, #top-menu a.administration, #top-menu a.help {
-    background-position: 0% 40%;
-    background-repeat: no-repeat;
-    padding-inline-start: 20px;
-    padding-block: 2px 3px;
+#main-menu .menu-children li a {
+  border-right: none;
 }
-[dir="rtl"] :is(#top-menu a.home, #top-menu a.my-page, #top-menu a.projects, #top-menu a.administration, #top-menu a.help) {background-position: right 0% top 40%;}
+
+#main-menu .menu-children li a:hover {
+  background-color: var(--classic-primary-hover);
+}
+
+/* Bootstrap nav-tabs in main menu */
+#main-menu .nav-tabs {
+  border-bottom: none;
+}
+
+#main-menu .nav-tabs .nav-link {
+  background-color: var(--classic-primary-light);
+  border: none;
+  border-right: 1px solid #fff;
+  border-radius: 0;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+#main-menu .nav-tabs .nav-link:hover,
+#main-menu .nav-tabs .nav-link.active {
+  background-color: var(--classic-primary-hover);
+  color: #ffffff;
+}
+
+/* Footer */
+#footer {
+  background-color: var(--classic-primary-light);
+  border: 0;
+  color: #fff;
+}
+
+#footer a {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Main Content Area */
+#main {
+  font: 90% Verdana, Tahoma, Arial, sans-serif;
+  background: var(--classic-bg);
+}
+
+#main a {
+  font-weight: bold;
+  color: var(--classic-primary);
+}
+
+#main a:hover {
+  color: var(--classic-primary-dark);
+  text-decoration: underline;
+}
+
+#content {
+  background: var(--classic-content-bg);
+}
+
+/* Headings */
+h2, h3, h4, .wiki h1, .wiki h2, .wiki h3 {
+  border-bottom: 0;
+  color: var(--classic-heading-color);
+  font-family: Trebuchet MS, Georgia, "Times New Roman", serif;
+}
+
+h2, .wiki h1 {
+  letter-spacing: -1px;
+}
+
+h4 {
+  border-bottom: dotted 1px #c0c0c0;
+}
+
+/* ==========================================================================
+   Classic Theme Bootstrap Component Overrides
+   ========================================================================== */
+
+/* Buttons */
+.btn-primary,
+input[type="submit"][name="commit"] {
+  background-color: var(--classic-primary);
+  border-color: var(--classic-primary);
+}
+
+.btn-primary:hover,
+input[type="submit"][name="commit"]:hover {
+  background-color: var(--classic-primary-dark);
+  border-color: var(--classic-primary-dark);
+}
+
+/* Links */
+a {
+  color: var(--classic-primary);
+}
+
+a:hover {
+  color: var(--classic-primary-dark);
+}
+
+/* Cards */
+.card {
+  border-color: #c0c0c0;
+}
+
+.card-header {
+  background-color: var(--classic-bg);
+  border-bottom-color: #c0c0c0;
+}
+
+/* Tables */
+.table th,
+table.list th {
+  background-color: var(--classic-bg);
+  border-bottom-color: #c0c0c0;
+}
+
+/* Pagination */
+.pagination .page-item.active .page-link,
+p.pagination span.current {
+  background-color: var(--classic-primary);
+  border-color: var(--classic-primary);
+}
+
+/* Alerts */
+.alert-success,
+.flash.notice {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.alert-danger,
+.flash.error {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* ==========================================================================
+   Classic Theme Icons (Legacy Support)
+   ========================================================================== */
+
+#top-menu a.home,
+#top-menu a.my-page,
+#top-menu a.projects,
+#top-menu a.administration,
+#top-menu a.help {
+  background-position: 0% 40%;
+  background-repeat: no-repeat;
+  padding-left: 20px;
+  padding-top: 2px;
+  padding-bottom: 3px;
+}
+
+[dir="rtl"] :is(#top-menu a.home, #top-menu a.my-page, #top-menu a.projects, #top-menu a.administration, #top-menu a.help) {
+  background-position: right 0% top 40%;
+}
 
 #top-menu a.home { background-image: url(/themes/classic/home.png); }
 #top-menu a.my-page { background-image: url(/user.png); }
 #top-menu a.projects { background-image: url(/projects.png); }
 #top-menu a.administration { background-image: url(/themes/classic/wrench.png); }
 #top-menu a.help { background-image: url(/help.png); }
+
+/* ==========================================================================
+   Classic Theme Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+  #main-menu .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 85%;
+  }
+}
