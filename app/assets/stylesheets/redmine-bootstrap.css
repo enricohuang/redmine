@@ -844,6 +844,40 @@ p.pagination span.current,
   flex-wrap: wrap;
 }
 
+/* Column selection buttons (Available/Selected columns) */
+#list-definition .buttons {
+  flex-direction: column;
+  margin: 0;
+  gap: 0.25rem;
+}
+
+#list-definition .buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--rm-gray-600);
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+#list-definition .buttons button svg.icon-svg {
+  stroke: var(--rm-gray-600);
+  width: 18px;
+  height: 18px;
+}
+
+#list-definition .buttons button:hover {
+  color: var(--rm-primary);
+  border-color: var(--rm-primary);
+}
+
+#list-definition .buttons button:hover svg.icon-svg {
+  stroke: var(--rm-primary);
+}
+
 /* Progress bar */
 table.progress {
   width: 100%;
@@ -1091,6 +1125,64 @@ tr.priority-lowest td { border-left: 3px solid var(--rm-gray-400); }
 
 fieldset#filters {
   background: var(--rm-gray-50);
+}
+
+/* Filter row layout - prevent wrapping of values */
+#filters-table .filter {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+#filters-table .filter .values {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#filters-table .filter .values > span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Toggle multiselect icon styling */
+.toggle-multiselect {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.toggle-multiselect svg.icon-svg {
+  stroke: var(--rm-gray-500);
+}
+
+.toggle-multiselect:hover svg.icon-svg {
+  stroke: var(--rm-primary);
+}
+
+/* Add filter section - inline label and dropdown */
+.add-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  float: right;
+}
+
+.add-filter label {
+  display: inline;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.add-filter select {
+  width: auto;
+  min-width: 150px;
 }
 
 /* ==========================================================================
