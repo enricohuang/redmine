@@ -62,12 +62,29 @@
     <% end %>
 
     <h6 class="text-muted text-uppercase small fw-semibold mb-2"><%= l(:label_general) %></h6>
-    <div class="js-general-menu mb-3"></div>
+    <div class="offcanvas-general-menu mb-3">
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house me-2"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/my/page"><i class="bi bi-person me-2"></i>My page</a></li>
+        <li class="nav-item"><a class="nav-link" href="/projects"><i class="bi bi-folder me-2"></i>Projects</a></li>
+        <% if User.current.admin? %>
+        <li class="nav-item"><a class="nav-link" href="/admin"><i class="bi bi-gear me-2"></i>Administration</a></li>
+        <% end %>
+        <li class="nav-item"><a class="nav-link" href="https://www.redmine.org/guide" target="_blank" rel="noopener"><i class="bi bi-question-circle me-2"></i>Help</a></li>
+      </ul>
+    </div>
 
-    <div class="js-sidebar flyout-menu__sidebar mb-3"></div>
+    <div class="offcanvas-sidebar mb-3"></div>
 
     <h6 class="text-muted text-uppercase small fw-semibold mb-2"><%= l(:label_profile) %></h6>
-    <div class="js-profile-menu"></div>
+    <div class="offcanvas-profile-menu">
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="/my/account"><i class="bi bi-person-gear me-2"></i>My account</a></li>
+        <% if User.current.logged? %>
+        <li class="nav-item"><a class="nav-link" href="/logout" data-method="post" rel="nofollow"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 </div>
 

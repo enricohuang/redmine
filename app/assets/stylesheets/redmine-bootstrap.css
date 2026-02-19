@@ -452,10 +452,35 @@ button.primary:hover {
 /* Danger button */
 input[type="submit"].delete,
 .btn-danger,
-a.delete {
+a.delete:not(.icon-only) {
   color: #fff;
   background: var(--rm-danger);
   border-color: var(--rm-danger);
+}
+
+/* Icon-only delete buttons (like watcher delete) */
+a.delete.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 4px;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--rm-gray-500);
+  border: none;
+  transition: all 0.15s ease;
+}
+
+a.delete.icon-only:hover {
+  background: var(--rm-danger);
+  color: #fff;
+}
+
+a.delete.icon-only svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Form Controls */
@@ -499,6 +524,9 @@ select {
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
+  /* Ensure proper height for text content */
+  height: auto;
+  min-height: 2.5rem;
 }
 
 /* Checkboxes and Radios */
@@ -508,6 +536,7 @@ input[type="radio"] {
   height: 1.125rem;
   margin-right: 0.5rem;
   accent-color: var(--rm-primary);
+  vertical-align: middle;
 }
 
 /* Labels */
@@ -517,6 +546,24 @@ label {
   font-weight: 500;
   color: var(--rm-gray-700);
   font-size: 0.875rem;
+}
+
+/* Inline labels for checkboxes/radios - make them appear on same line */
+label.inline,
+label.no-css,
+input[type="checkbox"] + label,
+input[type="radio"] + label {
+  display: inline;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* Checkbox/radio wrapper paragraphs should allow inline content */
+p:has(> input[type="checkbox"]),
+p:has(> input[type="radio"]) {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 /* Tables */
@@ -1234,7 +1281,10 @@ fieldset#filters {
   width: 28px;
   height: 28px;
   padding: 0;
-  background: #fff;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
   border: 1px solid var(--rm-gray-300);
   border-radius: var(--rm-radius-sm);
   cursor: pointer;
@@ -1593,4 +1643,26 @@ table.cal td.today {
 .tribute-container li.highlight {
   background: var(--rm-gray-50);
   color: var(--rm-primary);
+}
+
+/* ==========================================================================
+   Table Responsiveness
+   ========================================================================== */
+
+/* Wrap content area to allow horizontal scroll for wide tables */
+#content {
+  overflow-x: auto;
+  min-width: 0; /* Prevents flex item from overflowing */
+}
+
+/* Ensure tables can expand to show all content */
+table.list {
+  min-width: max-content;
+}
+
+/* Remove text-overflow from table headers and cells */
+table.list th,
+table.list td {
+  text-overflow: clip;
+  overflow: visible;
 }

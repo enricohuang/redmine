@@ -63,6 +63,7 @@
     background-color : var(--oc-gray-0);
     background-position : 50% 50%;
     background-repeat: no-repeat;
+    background-size: 16px 16px;
     cursor:pointer;
     opacity:0.7;
 }
@@ -103,65 +104,65 @@
     border-collapse: collapse;
 }
 
-/* Buttons
+/* Buttons - using higher specificity to override redmine-bootstrap.css
 -------------------------------------------------------- */
-.jstb_strong {
+.jstElements button.jstb_strong {
     background-image: url(/jstoolbar/bold.svg);
 }
-.jstb_em {
+.jstElements button.jstb_em {
     background-image: url(/jstoolbar/italic.svg);
 }
-.jstb_ins {
+.jstElements button.jstb_ins {
     background-image: url(/jstoolbar/underline.svg);
 }
-.jstb_del {
+.jstElements button.jstb_del {
     background-image: url(/jstoolbar/strikethrough.svg);
 }
-.jstb_code {
+.jstElements button.jstb_code {
     background-image: url(/jstoolbar/letter-c.svg);
 }
-.jstb_h1 {
+.jstElements button.jstb_h1 {
     background-image: url(/jstoolbar/h1.svg);
 }
-.jstb_h2 {
+.jstElements button.jstb_h2 {
     background-image: url(/jstoolbar/h2.svg);
 }
-.jstb_h3 {
+.jstElements button.jstb_h3 {
     background-image: url(/jstoolbar/h3.svg);
 }
-.jstb_ul {
+.jstElements button.jstb_ul {
     background-image: url(/jstoolbar/list.svg);
 }
-.jstb_ol {
+.jstElements button.jstb_ol {
     background-image: url(/jstoolbar/list-numbers.svg);
 }
-.jstb_tl {
+.jstElements button.jstb_tl {
     background-image: url(/jstoolbar/list-check.svg);
 }
-.jstb_bq {
+.jstElements button.jstb_bq {
     background-image: url(/jstoolbar/indent-increase.svg);
 }
-.jstb_unbq {
+.jstElements button.jstb_unbq {
     background-image: url(/jstoolbar/indent-decrease.svg);
 }
-.jstb_pre::before {
+.jstElements button.jstb_pre::before {
     content: "pre";
     font-size: 10px;
     color: var(--oc-gray-9);
     font-weight: 700
 }
-.jstb_precode {
+.jstElements button.jstb_precode {
     background-image: url(/jstoolbar/code.svg);
 }
-.jstb_link {
+.jstElements button.jstb_link {
     background-image: url(/jstoolbar/wiki_link.svg);
 }
-.jstb_img {
+.jstElements button.jstb_img {
     background-image: url(/jstoolbar/image.svg);
 }
-.jstb_table {
+.jstElements button.jstb_table {
     background-image: url(/jstoolbar/table.svg);
 }
-.jstb_help {
+.jstElements button.jstb_help {
     background-image: url(/jstoolbar/help.svg);
 }

@@ -1620,18 +1620,17 @@ p.progress-info {clear: inline-start; font-size: 86%; margin-block-start: -4px; 
 .version-overview table.progress td { block-size: 1.2em; }
 
 /***** Tabs *****/
-#content .tabs {block-size: 2.6em; margin-block-end: 1.2em; position: relative; overflow: hidden;}
+#content .tabs {block-size: auto; min-block-size: 2.6em; margin-block-end: 1.2em; position: relative; overflow-x: auto; overflow-y: hidden;}
 #content .tabs ul {
   margin: 0;
-  position: absolute;
-  inset-block-end:0;
+  display: flex;
+  flex-wrap: nowrap;
   padding-inline-start: 0.5em;
-  min-inline-size: 2000px;
-  inline-size: 100%;
+  padding-block-end: 0;
   border-block-end: 1px solid var(--oc-gray-4);
 }
 #content .tabs ul li {
-  float:inline-start;
+  flex-shrink: 0;
   list-style-type:none;
   white-space:nowrap;
   margin-inline-end:4px;
