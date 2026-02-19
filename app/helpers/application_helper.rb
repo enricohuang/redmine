@@ -513,13 +513,32 @@ module ApplicationHelper
     content.html_safe
   end
 
-  # Renders flash messages
+  # Renders flash messages using Bootstrap alerts
   def render_flash_messages
     s = +''
     flash.each do |k, v|
       next unless v.is_a?(String)
 
-      s << content_tag('div', notice_icon(k) + v.html_safe, :class => "flash #{k}", :id => "flash_#{k}")
+      # Map flash types to Bootstrap alert classes
+      bootstrap_class = case k.to_s
+                        when 'notice', 'success'
+                          'alert-success'
+                        when 'error', 'alert'
+                          'alert-danger'
+                        when 'warning'
+                          'alert-warning'
+                        else
+                          'alert-info'
+                        end
+
+      # Use Bootstrap's btn-close which has the X icon via CSS (no text content)
+      close_button = content_tag('button', '', type: 'button', class: 'btn-close', 'data-bs-dismiss': 'alert', 'aria-label': 'Close')
+
+      s << content_tag('div',
+                       notice_icon(k) + v.html_safe + close_button,
+                       :class => "alert #{bootstrap_class} alert-dismissible fade show flash #{k}",
+                       :id => "flash_#{k}",
+                       :role => 'alert')
     end
     s.html_safe
   end
