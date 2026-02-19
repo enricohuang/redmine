@@ -128,6 +128,27 @@ To enable:
 2. Run `bundle exec rake redmine:elasticsearch:create_index`
 3. Run `bundle exec rake redmine:elasticsearch:reindex_all`
 
+### Bootstrap 5.3 UI Framework
+
+Modern, responsive UI powered by Bootstrap 5.3 with OpenColor palette integration.
+
+- **Bootstrap 5.3.3** - Latest Bootstrap CSS and JavaScript components
+- **Bootstrap Icons 1.11.3** - Comprehensive icon library
+- **OpenColor Integration** - Color variables mapped to Bootstrap's semantic colors
+- **Responsive Grid Layout** - Mobile-first design with collapsible sidebar
+- **Modern Components** - Bootstrap-styled buttons, forms, tables, modals, and alerts
+- **Offcanvas Mobile Menu** - Smooth mobile navigation experience
+- **Theme Support** - Both classic and alternate themes updated for Bootstrap base
+- **Accessibility** - ARIA labels and keyboard navigation improvements
+
+Key features:
+- Automatic styling for form elements (inputs, selects, checkboxes)
+- Bootstrap table classes for list views
+- Dismissible flash messages with Bootstrap alerts
+- Bootstrap pagination styling
+- Bootstrap modal for AJAX dialogs
+- Bootstrap tooltips and popovers
+
 ### Rails 8.1+ Compatibility
 
 Fixed deprecated timezone configuration for Rails 8.1+ compatibility while maintaining backward compatibility with earlier Rails versions.

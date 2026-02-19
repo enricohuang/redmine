@@ -531,9 +531,11 @@ module ApplicationHelper
                           'alert-info'
                         end
 
+      # Use Bootstrap's btn-close which has the X icon via CSS (no text content)
+      close_button = content_tag('button', '', type: 'button', class: 'btn-close', 'data-bs-dismiss': 'alert', 'aria-label': 'Close')
+
       s << content_tag('div',
-                       content_tag('button', '&times;'.html_safe, type: 'button', class: 'btn-close', 'data-bs-dismiss': 'alert', 'aria-label': 'Close') +
-                       notice_icon(k) + v.html_safe,
+                       notice_icon(k) + v.html_safe + close_button,
                        :class => "alert #{bootstrap_class} alert-dismissible fade show flash #{k}",
                        :id => "flash_#{k}",
                        :role => 'alert')

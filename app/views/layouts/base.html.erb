@@ -100,28 +100,14 @@
     <span class="js-profile-menu"></span>
 </div>
 
-<!-- Top Menu Bar (Bootstrap Navbar) -->
-<nav id="top-menu" class="navbar navbar-dark py-1 px-3" style="background-color: #3E5B76;">
-  <div class="container-fluid px-0">
-    <div class="d-flex align-items-center flex-grow-1">
-      <% if User.current.logged? || !Setting.login_required? %>
-        <ul class="navbar-nav flex-row me-auto">
-          <%= render_menu :top_menu %>
-        </ul>
-      <% end %>
-    </div>
-    <div class="d-flex align-items-center">
-      <% if User.current.logged? %>
-        <span id="loggedas" class="text-white small me-3">
-          <%= l(:label_logged_as) %> <%= link_to_user(User.current, :format => :username) %>
-        </span>
-      <% end %>
-      <div id="account">
+<!-- Top Menu Bar -->
+<div id="top-menu" class="d-flex align-items-center py-1 px-3" style="background-color: #3E5B76; font-size: 0.8em; color: #fff;">
+    <div id="account" class="ms-auto order-2">
         <%= render_menu :account_menu -%>
-      </div>
     </div>
-  </div>
-</nav>
+    <%= content_tag('div', "#{l(:label_logged_as)} #{link_to_user(User.current, :format => :username)}".html_safe, :id => 'loggedas', :class => 'text-white me-3 order-2') if User.current.logged? %>
+    <%= render_menu :top_menu if User.current.logged? || !Setting.login_required? -%>
+</div>
 
 <!-- Header Section -->
 <header id="header" class="position-relative" style="background: linear-gradient(180deg, #628DB6 30%, #356D92); color: #f8f9fa; padding: 0.5rem 1.25rem 1.25rem;">
@@ -162,7 +148,7 @@
 
   <% if display_main_menu?(@project) %>
   <!-- Main Menu (Project Navigation Tabs) -->
-  <nav id="main-menu" class="tabs mt-3">
+  <div id="main-menu" class="tabs mt-3">
     <ul class="nav nav-tabs border-0">
       <%= render_main_menu(@project) %>
     </ul>
@@ -174,12 +160,12 @@
         <%= sprite_icon("angle-right", rtl: true) %>
       </button>
     </div>
-  </nav>
+  </div>
   <% end %>
 </header>
 
 <!-- Main Content Area -->
-<main id="main" class="flex-grow-1 <%= sidebar_content? ? 'collapsiblesidebar' : 'nosidebar' %>">
+<div id="main" class="flex-grow-1 <%= sidebar_content? ? 'collapsiblesidebar' : 'nosidebar' %>">
   <%= javascript_tag "$('#main.collapsiblesidebar').collapsibleSidebar();" if sidebar_content? %>
   <div class="container-fluid h-100">
     <div class="row h-100">
@@ -192,7 +178,7 @@
 
       <% if sidebar_content? %>
       <!-- Sidebar Column -->
-      <aside id="sidebar" class="col-12 col-lg-3 py-3 order-lg-2 bg-light border-start">
+      <div id="sidebar" class="col-12 col-lg-3 py-3 order-lg-2 bg-light border-start">
         <div id="sidebar-switch-panel" class="d-none d-lg-block mb-2" style="visibility: hidden;">
           <a id="sidebar-switch-button" class="btn btn-sm btn-outline-secondary" href="#">
             <%= sprite_icon("chevrons-right", size: 20, rtl: true) %>
@@ -203,11 +189,11 @@
           <%= yield :sidebar %>
           <%= view_layouts_base_sidebar_hook_response %>
         </div>
-      </aside>
+      </div>
       <% end %>
     </div>
   </div>
-</main>
+</div>
 
 <!-- Footer -->
 <footer id="footer" class="bg-light border-top py-2 px-3 text-center text-muted small">
