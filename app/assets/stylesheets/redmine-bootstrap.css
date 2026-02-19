@@ -1,0 +1,410 @@
+/**
+ * Redmine Bootstrap 5.3 Customization
+ * Maps OpenColor palette to Bootstrap CSS variables
+ * and provides Redmine-specific overrides
+ */
+
+/* ==========================================================================
+   Bootstrap Variable Overrides
+   Map OpenColor palette to Bootstrap's color system
+   ========================================================================== */
+
+:root {
+  /* Primary Colors - Using OpenColor Blue */
+  --bs-primary: var(--oc-blue-7);
+  --bs-primary-rgb: var(--oc-blue-7-rgb);
+
+  /* Secondary Colors - Using OpenColor Gray */
+  --bs-secondary: var(--oc-gray-6);
+  --bs-secondary-rgb: var(--oc-gray-6-rgb);
+
+  /* Success Colors - Using OpenColor Green */
+  --bs-success: var(--oc-green-7);
+  --bs-success-rgb: var(--oc-green-7-rgb);
+
+  /* Danger Colors - Using OpenColor Red */
+  --bs-danger: var(--oc-red-7);
+  --bs-danger-rgb: var(--oc-red-7-rgb);
+
+  /* Warning Colors - Using OpenColor Yellow */
+  --bs-warning: var(--oc-yellow-6);
+  --bs-warning-rgb: var(--oc-yellow-6-rgb);
+
+  /* Info Colors - Using OpenColor Cyan */
+  --bs-info: var(--oc-cyan-6);
+  --bs-info-rgb: var(--oc-cyan-6-rgb);
+
+  /* Light/Dark Colors */
+  --bs-light: var(--oc-gray-0);
+  --bs-light-rgb: var(--oc-gray-0-rgb);
+  --bs-dark: var(--oc-gray-8);
+  --bs-dark-rgb: var(--oc-gray-8-rgb);
+
+  /* Body Colors */
+  --bs-body-color: var(--oc-gray-9);
+  --bs-body-color-rgb: var(--oc-gray-9-rgb);
+  --bs-body-bg: var(--oc-white);
+  --bs-body-bg-rgb: var(--oc-white-rgb);
+
+  /* Link Colors */
+  --bs-link-color: var(--oc-blue-7);
+  --bs-link-color-rgb: var(--oc-blue-7-rgb);
+  --bs-link-hover-color: var(--oc-blue-9);
+
+  /* Border Colors */
+  --bs-border-color: var(--oc-gray-3);
+  --bs-border-color-translucent: rgba(var(--oc-gray-9-rgb), 0.175);
+
+  /* Font Family - Use Redmine's Noto Sans */
+  --bs-font-sans-serif: var(--fonts-main), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bs-font-monospace: Consolas, Menlo, "Liberation Mono", Courier, monospace;
+  --bs-body-font-family: var(--bs-font-sans-serif);
+  --bs-body-font-size: 0.875rem;
+  --bs-body-font-weight: 400;
+  --bs-body-line-height: 1.5;
+
+  /* Border Radius - Redmine style */
+  --bs-border-radius: 0.25rem;
+  --bs-border-radius-sm: 0.2rem;
+  --bs-border-radius-lg: 0.3rem;
+  --bs-border-radius-xl: 0.5rem;
+  --bs-border-radius-pill: 50rem;
+
+  /* Spacing */
+  --bs-spacer: 1rem;
+
+  /* Card */
+  --bs-card-border-color: var(--oc-gray-3);
+  --bs-card-bg: var(--oc-white);
+  --bs-card-cap-bg: var(--oc-gray-1);
+
+  /* Table */
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: var(--oc-gray-0);
+  --bs-table-hover-bg: var(--oc-gray-1);
+  --bs-table-border-color: var(--oc-gray-3);
+
+  /* Form Controls */
+  --bs-form-control-bg: var(--oc-white);
+  --bs-form-control-border-color: var(--oc-gray-4);
+
+  /* Redmine-specific colors */
+  --redmine-header-bg: linear-gradient(180deg, #628DB6 30%, #356D92);
+  --redmine-top-menu-bg: #3E5B76;
+  --redmine-sidebar-bg: var(--oc-gray-0);
+  --redmine-sidebar-border: var(--oc-gray-4);
+}
+
+/* ==========================================================================
+   Bootstrap Component Customizations for Redmine
+   ========================================================================== */
+
+/* Navbar - Redmine style */
+.navbar-redmine {
+  background: var(--redmine-top-menu-bg);
+}
+
+.navbar-redmine .navbar-brand,
+.navbar-redmine .nav-link {
+  color: var(--oc-white);
+}
+
+.navbar-redmine .nav-link:hover,
+.navbar-redmine .nav-link:focus {
+  color: var(--oc-gray-2);
+}
+
+/* Header Navigation - Redmine project tabs style */
+.nav-redmine-tabs {
+  background: var(--redmine-header-bg);
+}
+
+.nav-redmine-tabs .nav-link {
+  color: var(--oc-white);
+  border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
+  padding: 0.5rem 1rem;
+  margin-right: 2px;
+}
+
+.nav-redmine-tabs .nav-link:hover {
+  background: rgba(var(--oc-white-rgb), 0.4);
+  color: var(--oc-white);
+}
+
+.nav-redmine-tabs .nav-link.active {
+  background: var(--oc-white);
+  color: var(--oc-gray-7);
+  font-weight: bold;
+}
+
+/* Buttons - Redmine style */
+.btn-redmine {
+  background-color: var(--oc-gray-0);
+  border: 1px solid var(--oc-gray-4);
+  color: var(--oc-gray-7);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.btn-redmine:hover {
+  background-color: var(--oc-gray-1);
+  border-color: var(--oc-gray-5);
+  color: var(--oc-gray-8);
+}
+
+.btn-redmine-primary {
+  background-color: var(--oc-blue-7);
+  border-color: var(--oc-blue-7);
+  color: var(--oc-white);
+}
+
+.btn-redmine-primary:hover {
+  background-color: var(--oc-blue-8);
+  border-color: var(--oc-blue-8);
+  color: var(--oc-white);
+}
+
+.btn-redmine-danger {
+  background-color: var(--oc-red-6);
+  border-color: var(--oc-red-6);
+  color: var(--oc-white);
+}
+
+.btn-redmine-danger:hover {
+  background-color: var(--oc-red-7);
+  border-color: var(--oc-red-7);
+  color: var(--oc-white);
+}
+
+/* Cards - Redmine box style */
+.card-redmine {
+  border: 1px solid var(--oc-gray-3);
+  border-radius: var(--bs-border-radius);
+}
+
+.card-redmine .card-header {
+  background: var(--oc-gray-1);
+  border-bottom: 1px solid var(--oc-gray-3);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+}
+
+/* Tables - Redmine list style */
+.table-redmine {
+  border-color: var(--oc-gray-3);
+}
+
+.table-redmine th {
+  background-color: var(--oc-gray-0);
+  font-weight: 600;
+  border-bottom: 2px solid var(--oc-gray-3);
+}
+
+.table-redmine tbody tr:hover {
+  background-color: var(--oc-yellow-0);
+}
+
+/* Alerts - Redmine flash messages */
+.alert-redmine-success {
+  background-color: var(--oc-green-1);
+  border-color: var(--oc-green-3);
+  color: var(--oc-green-9);
+}
+
+.alert-redmine-error {
+  background-color: var(--oc-red-1);
+  border-color: var(--oc-red-3);
+  color: var(--oc-red-9);
+}
+
+.alert-redmine-warning {
+  background-color: var(--oc-orange-1);
+  border-color: var(--oc-orange-3);
+  color: var(--oc-orange-9);
+}
+
+.alert-redmine-info {
+  background-color: var(--oc-blue-0);
+  border-color: var(--oc-blue-2);
+  color: var(--oc-blue-9);
+}
+
+/* Form Controls - Redmine style */
+.form-control-redmine {
+  border-color: var(--oc-gray-4);
+  border-radius: var(--bs-border-radius-sm);
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-control-redmine:focus {
+  border-color: var(--oc-blue-5);
+  box-shadow: 0 0 0 0.2rem rgba(var(--oc-blue-5-rgb), 0.25);
+}
+
+/* Dropdown - Redmine style */
+.dropdown-menu-redmine {
+  border-color: var(--oc-gray-3);
+  box-shadow: 0 2px 8px rgba(var(--oc-gray-9-rgb), 0.15);
+}
+
+.dropdown-menu-redmine .dropdown-item:hover,
+.dropdown-menu-redmine .dropdown-item:focus {
+  background-color: var(--oc-blue-7);
+  color: var(--oc-white);
+}
+
+/* Badge - Redmine labels */
+.badge-redmine {
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.25em 0.5em;
+}
+
+/* Pagination - Redmine style */
+.pagination-redmine .page-link {
+  color: var(--oc-gray-7);
+  border-color: var(--oc-gray-3);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.pagination-redmine .page-item.active .page-link {
+  background-color: var(--oc-blue-7);
+  border-color: var(--oc-blue-7);
+}
+
+.pagination-redmine .page-link:hover {
+  background-color: var(--oc-gray-1);
+  border-color: var(--oc-gray-4);
+}
+
+/* Modal - Redmine style */
+.modal-redmine .modal-header {
+  background: var(--oc-gray-1);
+  border-bottom-color: var(--oc-gray-3);
+}
+
+.modal-redmine .modal-footer {
+  background: var(--oc-gray-0);
+  border-top-color: var(--oc-gray-3);
+}
+
+/* ==========================================================================
+   Bootstrap Layout Helpers for Redmine
+   ========================================================================== */
+
+/* Main wrapper */
+.redmine-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header section */
+.redmine-header {
+  background: var(--redmine-header-bg);
+  color: var(--oc-gray-0);
+  padding: 0.5rem 1.25rem 1.25rem;
+  position: relative;
+}
+
+/* Top menu bar */
+.redmine-top-menu {
+  background: var(--redmine-top-menu-bg);
+  color: var(--oc-white);
+  font-size: 0.8rem;
+  padding: 0.25rem 1rem;
+}
+
+.redmine-top-menu a {
+  color: var(--oc-white);
+}
+
+/* Main content area */
+.redmine-main {
+  flex-grow: 1;
+  display: flex;
+}
+
+/* Sidebar */
+.redmine-sidebar {
+  background: var(--redmine-sidebar-bg);
+  border-left: 1px solid var(--redmine-sidebar-border);
+  padding: 1rem;
+  font-size: 0.8125rem;
+}
+
+/* Content */
+.redmine-content {
+  flex-grow: 1;
+  padding: 1rem 1.25rem;
+}
+
+/* Footer */
+.redmine-footer {
+  background: var(--oc-gray-0);
+  border-top: 1px solid var(--oc-gray-3);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  color: var(--oc-gray-6);
+  text-align: center;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+  .redmine-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--redmine-sidebar-border);
+  }
+
+  .redmine-main {
+    flex-direction: column;
+  }
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+/* Text colors using OpenColor */
+.text-oc-primary { color: var(--oc-blue-7) !important; }
+.text-oc-secondary { color: var(--oc-gray-6) !important; }
+.text-oc-success { color: var(--oc-green-7) !important; }
+.text-oc-danger { color: var(--oc-red-7) !important; }
+.text-oc-warning { color: var(--oc-orange-7) !important; }
+.text-oc-info { color: var(--oc-cyan-7) !important; }
+
+/* Background colors using OpenColor */
+.bg-oc-primary { background-color: var(--oc-blue-7) !important; }
+.bg-oc-secondary { background-color: var(--oc-gray-6) !important; }
+.bg-oc-success { background-color: var(--oc-green-7) !important; }
+.bg-oc-danger { background-color: var(--oc-red-7) !important; }
+.bg-oc-warning { background-color: var(--oc-orange-6) !important; }
+.bg-oc-info { background-color: var(--oc-cyan-6) !important; }
+.bg-oc-light { background-color: var(--oc-gray-0) !important; }
+
+/* Issue status colors */
+.badge-status-new { background-color: var(--oc-blue-6); color: var(--oc-white); }
+.badge-status-inprogress { background-color: var(--oc-orange-6); color: var(--oc-white); }
+.badge-status-resolved { background-color: var(--oc-green-6); color: var(--oc-white); }
+.badge-status-feedback { background-color: var(--oc-grape-6); color: var(--oc-white); }
+.badge-status-closed { background-color: var(--oc-gray-6); color: var(--oc-white); }
+.badge-status-rejected { background-color: var(--oc-red-6); color: var(--oc-white); }
+
+/* Priority colors */
+.priority-low { color: var(--oc-blue-7); }
+.priority-normal { color: var(--oc-gray-7); }
+.priority-high { color: var(--oc-orange-7); }
+.priority-urgent { color: var(--oc-red-6); }
+.priority-immediate { color: var(--oc-red-8); font-weight: bold; }
+
+/* Tracker colors (issue types) */
+.tracker-bug { color: var(--oc-red-7); }
+.tracker-feature { color: var(--oc-green-7); }
+.tracker-support { color: var(--oc-cyan-7); }
+.tracker-task { color: var(--oc-blue-7); }
