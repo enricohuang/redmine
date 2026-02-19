@@ -556,6 +556,7 @@ input[type="radio"] + label {
   display: inline;
   font-weight: normal;
   vertical-align: middle;
+  margin-right: 1rem; /* Add spacing between radio/checkbox groups */
 }
 
 /* Checkbox/radio wrapper paragraphs should allow inline content */
@@ -1495,7 +1496,8 @@ span.badge,
   cursor: pointer;
 }
 
-.collapsible::before {
+/* Only add arrow for elements without SVG icons */
+.collapsible:not(:has(svg))::before {
   content: "▼";
   display: inline-block;
   margin-right: 0.5rem;
@@ -1503,8 +1505,15 @@ span.badge,
   transition: transform 0.15s ease;
 }
 
-.collapsible.collapsed::before {
+.collapsible.collapsed:not(:has(svg))::before {
   transform: rotate(-90deg);
+}
+
+/* Ensure collapsible legend with SVG displays inline */
+fieldset.collapsible > legend {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 /* Loading/spinner enhancements */
