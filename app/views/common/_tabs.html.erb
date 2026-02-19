@@ -1,21 +1,21 @@
 <% default_action = false %>
 
 <div class="tabs">
-  <ul>
+  <ul class="nav nav-tabs">
   <% tabs.each do |tab| -%>
     <% action = get_tab_action(tab) %>
-    <li><%= link_to l(tab[:label]), (tab[:url] || { :tab => tab[:name] }),
+    <li class="nav-item"><%= link_to l(tab[:label]), (tab[:url] || { :tab => tab[:name] }),
                                     :id => "tab-#{tab[:name]}",
-                                    :class => (tab[:name] != selected_tab ? nil : 'selected'),
+                                    :class => "nav-link #{'active' if tab[:name] == selected_tab}",
                                     :onclick => (action.nil? ? nil : "#{ action }; return false;") %></li>
     <% default_action = action if tab[:name] == selected_tab %>
   <% end -%>
   </ul>
   <div class="tabs-buttons" style="display:none;">
-    <button class="tab-left icon-only" type="button" onclick="moveTabLeft(this);">
+    <button class="tab-left btn btn-sm btn-outline-secondary" type="button" onclick="moveTabLeft(this);">
       <%= sprite_icon("angle-left", rtl: true) %>
     </button>
-    <button class="tab-right icon-only" type="button" onclick="moveTabRight(this);">
+    <button class="tab-right btn btn-sm btn-outline-secondary" type="button" onclick="moveTabRight(this);">
       <%= sprite_icon("angle-right", rtl: true) %>
     </button>
   </div>
@@ -25,7 +25,7 @@
   <%= content_tag('div', (render(:partial => tab[:partial], :locals => {:tab => tab}) if tab[:partial]) ,
                        :id => "tab-content-#{tab[:name]}",
                        :style => (tab[:name] != selected_tab ? 'display:none' : nil),
-                       :class => 'tab-content') if tab[:partial] || tab[:remote] %>
+                       :class => 'tab-content tab-pane fade show') if tab[:partial] || tab[:remote] %>
 <% end -%>
 
 <%= javascript_tag default_action if default_action %>

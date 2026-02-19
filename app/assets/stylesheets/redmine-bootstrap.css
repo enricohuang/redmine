@@ -408,3 +408,715 @@
 .tracker-feature { color: var(--oc-green-7); }
 .tracker-support { color: var(--oc-cyan-7); }
 .tracker-task { color: var(--oc-blue-7); }
+
+/* ==========================================================================
+   Automatic Bootstrap Styling for Redmine Elements
+   Apply Bootstrap classes to existing Redmine HTML patterns
+   ========================================================================== */
+
+/* Buttons - Apply Bootstrap button styling to all submit inputs and buttons */
+input[type="submit"],
+input[type="button"],
+button[type="submit"],
+button[type="button"],
+.button,
+a.button {
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--oc-gray-7);
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--oc-gray-0);
+  border: 1px solid var(--oc-gray-4);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: var(--bs-border-radius);
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover,
+button[type="submit"]:hover,
+button[type="button"]:hover,
+.button:hover,
+a.button:hover {
+  color: var(--oc-gray-8);
+  background-color: var(--oc-gray-1);
+  border-color: var(--oc-gray-5);
+}
+
+input[type="submit"]:focus,
+input[type="button"]:focus,
+button[type="submit"]:focus,
+button[type="button"]:focus,
+.button:focus,
+a.button:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(var(--oc-blue-5-rgb), 0.25);
+}
+
+input[type="submit"]:disabled,
+button[type="submit"]:disabled,
+.button:disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* Primary submit buttons (Create, Save, etc.) */
+input[type="submit"][name="commit"],
+button[type="submit"].btn-primary {
+  color: var(--oc-white);
+  background-color: var(--oc-blue-7);
+  border-color: var(--oc-blue-7);
+}
+
+input[type="submit"][name="commit"]:hover,
+button[type="submit"].btn-primary:hover {
+  color: var(--oc-white);
+  background-color: var(--oc-blue-8);
+  border-color: var(--oc-blue-8);
+}
+
+/* Danger buttons (Delete) */
+input[type="submit"].delete,
+button.delete,
+a.delete {
+  color: var(--oc-white);
+  background-color: var(--oc-red-6);
+  border-color: var(--oc-red-6);
+}
+
+input[type="submit"].delete:hover,
+button.delete:hover,
+a.delete:hover {
+  color: var(--oc-white);
+  background-color: var(--oc-red-7);
+  border-color: var(--oc-red-7);
+}
+
+/* Small buttons */
+input[type="submit"].small,
+button.small,
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  border-radius: var(--bs-border-radius-sm);
+}
+
+/* Form Controls - Apply Bootstrap form-control styling */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+textarea,
+select {
+  display: block;
+  width: auto;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--oc-gray-9);
+  background-color: var(--oc-white);
+  background-clip: padding-box;
+  border: 1px solid var(--oc-gray-4);
+  appearance: none;
+  border-radius: var(--bs-border-radius);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus {
+  color: var(--oc-gray-9);
+  background-color: var(--oc-white);
+  border-color: var(--oc-blue-5);
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(var(--oc-blue-5-rgb), 0.25);
+}
+
+input[type="text"]:disabled,
+input[type="password"]:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: var(--oc-gray-1);
+  opacity: 1;
+}
+
+input[type="text"]:read-only,
+input[type="password"]:read-only,
+textarea:read-only {
+  background-color: var(--oc-gray-1);
+}
+
+/* Select with arrow */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23495057' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  padding-right: 2.25rem;
+}
+
+/* Multiple select */
+select[multiple] {
+  background-image: none;
+  padding-right: 0.75rem;
+}
+
+/* Checkbox and Radio styling */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.25em;
+  vertical-align: top;
+  background-color: var(--oc-white);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid var(--oc-gray-4);
+  appearance: none;
+  print-color-adjust: exact;
+}
+
+input[type="checkbox"] {
+  border-radius: 0.25em;
+}
+
+input[type="radio"] {
+  border-radius: 50%;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--oc-blue-7);
+  border-color: var(--oc-blue-7);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+input[type="radio"]:checked {
+  background-color: var(--oc-blue-7);
+  border-color: var(--oc-blue-7);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  border-color: var(--oc-blue-5);
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(var(--oc-blue-5-rgb), 0.25);
+}
+
+/* Tables - Apply Bootstrap table styling to Redmine tables */
+table.list,
+table.issues,
+table.files,
+table.time-entries,
+table.members,
+table.versions,
+table.plugins {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: var(--oc-gray-9);
+  vertical-align: top;
+  border-color: var(--oc-gray-3);
+  caption-side: bottom;
+  border-collapse: collapse;
+}
+
+table.list th,
+table.issues th,
+table.files th,
+table.time-entries th,
+table.members th,
+table.versions th,
+table.plugins th {
+  background-color: var(--oc-gray-0);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 2px solid var(--oc-gray-3);
+}
+
+table.list td,
+table.issues td,
+table.files td,
+table.time-entries td,
+table.members td,
+table.versions td,
+table.plugins td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--oc-gray-2);
+  vertical-align: middle;
+}
+
+table.list tbody tr:hover,
+table.issues tbody tr:hover,
+table.files tbody tr:hover,
+table.time-entries tbody tr:hover,
+table.members tbody tr:hover,
+table.versions tbody tr:hover {
+  background-color: var(--oc-yellow-0);
+}
+
+/* Alternating row colors */
+table.list tbody tr:nth-of-type(odd),
+table.issues tbody tr:nth-of-type(odd) {
+  background-color: rgba(var(--oc-gray-0-rgb), 0.5);
+}
+
+table.list tbody tr:nth-of-type(even),
+table.issues tbody tr:nth-of-type(even) {
+  background-color: var(--oc-white);
+}
+
+/* Sortable table headers */
+table.list th.sort,
+table.issues th.sort {
+  cursor: pointer;
+}
+
+table.list th.sort:hover,
+table.issues th.sort:hover {
+  background-color: var(--oc-gray-1);
+}
+
+/* Flash messages / Alerts */
+.flash {
+  position: relative;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--bs-border-radius);
+}
+
+.flash.notice,
+.flash.success {
+  color: var(--oc-green-9);
+  background-color: var(--oc-green-1);
+  border-color: var(--oc-green-3);
+}
+
+.flash.error,
+.flash.alert {
+  color: var(--oc-red-9);
+  background-color: var(--oc-red-1);
+  border-color: var(--oc-red-3);
+}
+
+.flash.warning {
+  color: var(--oc-orange-9);
+  background-color: var(--oc-orange-1);
+  border-color: var(--oc-orange-3);
+}
+
+.flash.info {
+  color: var(--oc-blue-9);
+  background-color: var(--oc-blue-0);
+  border-color: var(--oc-blue-2);
+}
+
+/* Contextual actions / Buttons group */
+.contextual {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+  gap: 0.25rem;
+}
+
+p.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+p.pagination a,
+p.pagination span.current,
+p.pagination span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--oc-gray-7);
+  text-decoration: none;
+  background-color: var(--oc-white);
+  border: 1px solid var(--oc-gray-3);
+  border-radius: var(--bs-border-radius);
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+p.pagination a:hover {
+  color: var(--oc-gray-8);
+  background-color: var(--oc-gray-1);
+  border-color: var(--oc-gray-4);
+}
+
+p.pagination span.current {
+  color: var(--oc-white);
+  background-color: var(--oc-blue-7);
+  border-color: var(--oc-blue-7);
+}
+
+/* Box / Card containers */
+.box,
+.splitcontent,
+fieldset {
+  background-color: var(--oc-white);
+  border: 1px solid var(--oc-gray-3);
+  border-radius: var(--bs-border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+fieldset legend {
+  float: left;
+  width: 100%;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: inherit;
+  color: var(--oc-gray-8);
+  border-bottom: 1px solid var(--oc-gray-3);
+}
+
+fieldset > :not(legend) {
+  clear: left;
+}
+
+/* Tabs navigation */
+.tabs ul,
+ul.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--oc-gray-3);
+}
+
+.tabs ul li,
+ul.tabs li {
+  margin-bottom: -1px;
+}
+
+.tabs ul li a,
+ul.tabs li a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--oc-gray-7);
+  text-decoration: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-top-left-radius: var(--bs-border-radius);
+  border-top-right-radius: var(--bs-border-radius);
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.tabs ul li a:hover,
+ul.tabs li a:hover {
+  color: var(--oc-gray-9);
+  background-color: var(--oc-gray-1);
+  border-color: var(--oc-gray-2) var(--oc-gray-2) var(--oc-gray-3);
+}
+
+.tabs ul li a.selected,
+ul.tabs li a.selected {
+  color: var(--oc-gray-9);
+  background-color: var(--oc-white);
+  border-color: var(--oc-gray-3) var(--oc-gray-3) var(--oc-white);
+  font-weight: 600;
+}
+
+/* Dropdown menus */
+.drdn {
+  position: relative;
+  display: inline-block;
+}
+
+.drdn-content {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  color: var(--oc-gray-9);
+  text-align: left;
+  list-style: none;
+  background-color: var(--oc-white);
+  background-clip: padding-box;
+  border: 1px solid var(--oc-gray-3);
+  border-radius: var(--bs-border-radius);
+  box-shadow: 0 0.5rem 1rem rgba(var(--oc-black-rgb), 0.15);
+}
+
+.drdn:hover .drdn-content,
+.drdn-content.visible {
+  display: block;
+}
+
+.drdn-content a {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: var(--oc-gray-9);
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+}
+
+.drdn-content a:hover,
+.drdn-content a:focus {
+  color: var(--oc-white);
+  background-color: var(--oc-blue-7);
+}
+
+/* Progress bar */
+table.progress {
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--oc-gray-2);
+  border-radius: var(--bs-border-radius);
+  overflow: hidden;
+}
+
+table.progress td {
+  padding: 0;
+  height: 0.5rem;
+}
+
+table.progress td.closed {
+  background-color: var(--oc-green-6);
+}
+
+table.progress td.done {
+  background-color: var(--oc-blue-5);
+}
+
+/* Tooltip styling */
+.tooltip-inner {
+  background-color: var(--oc-gray-8);
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: var(--oc-gray-8);
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+  border-bottom-color: var(--oc-gray-8);
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+  border-left-color: var(--oc-gray-8);
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+  border-right-color: var(--oc-gray-8);
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  list-style: none;
+  font-size: 0.875rem;
+}
+
+.breadcrumbs a {
+  color: var(--oc-gray-6);
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  color: var(--oc-blue-7);
+  text-decoration: underline;
+}
+
+/* Labels/Badges */
+.label,
+.badge,
+span.tag {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  font-size: 0.75em;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--oc-white);
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: var(--bs-border-radius);
+  background-color: var(--oc-gray-6);
+}
+
+/* Wiki content styling */
+.wiki {
+  line-height: 1.6;
+}
+
+.wiki h1,
+.wiki h2,
+.wiki h3,
+.wiki h4,
+.wiki h5,
+.wiki h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.wiki pre {
+  display: block;
+  padding: 1rem;
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--oc-gray-9);
+  background-color: var(--oc-gray-0);
+  border: 1px solid var(--oc-gray-3);
+  border-radius: var(--bs-border-radius);
+  overflow-x: auto;
+}
+
+.wiki code {
+  padding: 0.125rem 0.25rem;
+  font-size: 0.875em;
+  color: var(--oc-red-7);
+  background-color: var(--oc-gray-0);
+  border-radius: var(--bs-border-radius-sm);
+}
+
+.wiki pre code {
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.wiki blockquote {
+  margin: 0 0 1rem;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid var(--oc-gray-4);
+  background-color: var(--oc-gray-0);
+}
+
+.wiki table {
+  width: auto;
+  margin-bottom: 1rem;
+  border-collapse: collapse;
+}
+
+.wiki table th,
+.wiki table td {
+  padding: 0.5rem;
+  border: 1px solid var(--oc-gray-3);
+}
+
+.wiki table th {
+  background-color: var(--oc-gray-0);
+  font-weight: 600;
+}
+
+/* Error messages in forms */
+.errorExplanation,
+#errorExplanation {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--oc-red-0);
+  border: 1px solid var(--oc-red-3);
+  border-radius: var(--bs-border-radius);
+  color: var(--oc-red-9);
+}
+
+.errorExplanation h2,
+#errorExplanation h2 {
+  margin-top: 0;
+  font-size: 1rem;
+  color: var(--oc-red-8);
+}
+
+.errorExplanation ul,
+#errorExplanation ul {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
+
+/* Loading spinner animation */
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.svg-loader {
+  animation: spinner-border 0.75s linear infinite;
+}
+
+/* Offcanvas customization */
+.offcanvas-header {
+  background-color: var(--redmine-top-menu-bg);
+  color: var(--oc-white);
+}
+
+.offcanvas-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Modal customization */
+.modal-content {
+  border-color: var(--oc-gray-3);
+}
+
+.modal-header {
+  background-color: var(--oc-gray-0);
+  border-bottom-color: var(--oc-gray-3);
+}
+
+.modal-footer {
+  background-color: var(--oc-gray-0);
+  border-top-color: var(--oc-gray-3);
+}
