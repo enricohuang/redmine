@@ -1759,14 +1759,35 @@ table.cal td.today {
   min-width: 0; /* Prevents flex item from overflowing */
 }
 
-/* Ensure tables can expand to show all content */
-table.list {
-  min-width: max-content;
+/* Issues table - columns should fit content, not stretch */
+table.list.issues {
+  width: auto;
+  min-width: 100%;
+  table-layout: auto;
 }
 
-/* Remove text-overflow from table headers and cells */
-table.list th,
-table.list td {
-  text-overflow: clip;
-  overflow: visible;
+table.list.issues th,
+table.list.issues td {
+  width: auto;
+  white-space: nowrap;
+}
+
+/* Subject column should take remaining space and allow wrapping */
+table.list.issues td.subject,
+table.list.issues th.subject {
+  width: 100%;
+  white-space: normal;
+}
+
+/* Checkbox column fixed width */
+table.list.issues td.checkbox,
+table.list.issues th.checkbox {
+  width: 40px;
+}
+
+/* ID column compact */
+table.list.issues td.id,
+table.list.issues th.id {
+  width: auto;
+  white-space: nowrap;
 }
