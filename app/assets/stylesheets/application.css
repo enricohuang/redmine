@@ -429,7 +429,7 @@ table.list td.attachments span.attachment-filename:hover a.icon-download {visibi
 table.list td.tick {inline-size: 15%}
 table.list td.checkbox { inline-size: 15px; padding-block: 2px 0; padding-inline: 0;}
 table.list .checkbox input {padding: 0; block-size: initial;}
-table.list td.buttons, div.buttons { white-space:nowrap; text-align: end; }
+table.list td.buttons, div.buttons { white-space:nowrap; text-align: end; background-color: inherit; }
 table.list td.buttons a, div.buttons a, table.list td.buttons span.icon-only { margin-inline-end: 0.6em; }
 table.list td.buttons a:last-child, div.buttons a:last-child { margin-inline-end: 0; }
 table.list td.buttons img, div.buttons img {vertical-align:middle;}
@@ -516,7 +516,7 @@ table.files tr.file td.filename { text-align: start; }
 table.files tr.file td.digest { font-size: 86%; }
 
 table.members td.roles, table.memberships td.roles { inline-size: 45%; }
-table.members td.buttons { text-align: start; inline-size: 1px; white-space: nowrap;}
+table.members td.buttons { text-align: start; inline-size: 1px; white-space: nowrap; background-color: inherit;}
 
 table.messages td.last_message {text-align: start;}
 tr.message { block-size: 2.6em; }
@@ -815,7 +815,7 @@ div#sticky-issue-header .subject {
 #issue_tree table.issues, #relations table.issues {border: 0;}
 #issue_tree table.issues td, #relations table.issues td {border: 0;}
 #issue_tree td.checkbox, #relations td.checkbox {display:none;}
-#issue_tree td.buttons, #relations td.buttons {padding:0;}
+#issue_tree td.buttons, #relations td.buttons {padding:0; background-color: inherit;}
 #issue_tree .issues-stat, #relations .issues-stat {font-size: 93%}
 #issue_tree .issues-stat .badge, #relations .issues-stat .badge {inset-block-end: initial;}
 #issue_tree .issue > td, #relations .issue > td, #issue_tree .issue .user {

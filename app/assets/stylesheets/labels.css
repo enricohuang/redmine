@@ -211,4 +211,5 @@ table.labels td.name {
 table.labels td.buttons {
   white-space: nowrap;
   text-align: right;
+  background-color: inherit;
 }

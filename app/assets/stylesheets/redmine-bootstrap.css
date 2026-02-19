@@ -316,7 +316,7 @@ h4 { font-size: 1.125rem; }
   background: var(--rm-content-bg);
   padding: 1.5rem 2rem;
   border-radius: var(--rm-radius-lg);
-  margin: 1rem;
+  margin: 0 1rem 1rem;
   box-shadow: var(--rm-shadow);
 }
 
@@ -576,13 +576,27 @@ table.members,
 table.versions,
 .table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   background: #fff;
-  border-radius: var(--rm-radius);
-  overflow: hidden;
   box-shadow: var(--rm-shadow-sm);
+  --bs-table-bg: transparent;
+}
+
+/* Table header and cell borders */
+table.list th,
+table.list td {
   border: 1px solid var(--rm-gray-200);
+  border-top: none;
+  border-left: none;
+}
+
+table.list th:last-child,
+table.list td:last-child {
+  border-right: none;
+}
+
+table.list thead tr:first-child th {
+  border-top: 1px solid var(--rm-gray-200);
 }
 
 table.list th,
@@ -595,17 +609,17 @@ table.issues th,
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--rm-gray-600);
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid var(--rm-gray-200);
 }
 
 table.list td,
 table.issues td,
 .table td {
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--rm-gray-100);
   vertical-align: middle;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 table.list tbody tr:last-child td,
@@ -1140,7 +1154,7 @@ fieldset#filters {
 }
 
 #filters-table .filter .values > span {
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: center;
   gap: 0.25rem;
 }
@@ -1765,39 +1779,24 @@ table.cal td.today {
   padding: 0;
 }
 
-/* Issues table styling - remove border-radius to prevent white corners */
-table.list.issues {
-  width: 100%;
-  border-radius: 0;
-}
-
 /* Remove the white block caused by rounded corners on table container */
 .autoscroll.table-responsive table.list {
   margin-bottom: 0;
-  border-radius: var(--rm-radius);
 }
 
-/* Actions/buttons column - minimal width, blend with header */
-table.list.issues th.buttons {
-  width: 1%;
-  padding: 0.5rem;
-  background: var(--rm-gray-50);
-}
-
+/* Actions/buttons column */
+table.list.issues th.buttons,
 table.list.issues td.buttons {
-  width: 1%;
-  white-space: nowrap;
   padding: 0.5rem;
   text-align: center;
-  background: inherit;
 }
 
 table.list.issues td.buttons a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border-radius: var(--rm-radius-sm);
   color: var(--rm-gray-500);
