@@ -57,11 +57,11 @@
 #context-menu ul ul, #context-menu  li:hover ul ul { display:none; }
 #context-menu li:hover ul, #context-menu li:hover li:hover ul { display:block; }
 
-/* selected element */
-.context-menu-selection { background-color:var(--rm-blue-7) !important; color:var(--rm-gray-50) !important; }
-.context-menu-selection a, .context-menu-selection a:hover { color:var(--rm-gray-50) !important; }
-.context-menu-selection:hover { background-color:var(--rm-blue-7) !important; color:var(--rm-gray-50)  !important; }
-.context-menu-selection svg.icon-svg { stroke: var(--rm-white) !important; }
-div#gantt_area .context-menu-selection { background-color: rgba(var(--rm-blue-7-rgb), 0.4) !important; }
-div#gantt_area .context-menu-selection:hover { background-color: rgba(var(--rm-blue-7-rgb), 0.4) !important; }
-div#gantt_area .context-menu-selection a { color: var(--rm-blue-9) !important; }
+/* selected element - light yellow highlight */
+.context-menu-selection { background-color: #fefce8 !important; color: inherit !important; }
+.context-menu-selection a, .context-menu-selection a:hover { color: inherit !important; }
+.context-menu-selection:hover { background-color: #fef9c3 !important; color: inherit !important; }
+.context-menu-selection svg.icon-svg { stroke: currentColor !important; }
+div#gantt_area .context-menu-selection { background-color: rgba(254, 252, 232, 0.7) !important; }
+div#gantt_area .context-menu-selection:hover { background-color: rgba(254, 249, 195, 0.7) !important; }
+div#gantt_area .context-menu-selection a { color: inherit !important; }

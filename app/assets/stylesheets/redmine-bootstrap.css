@@ -1882,14 +1882,12 @@ span.badge,
   color: var(--rm-primary);
 }
 
-/* Context menu (right-click) */
+/* Context menu (right-click) - visual styling is in context_menu.css on the ul */
 #context-menu {
-  background: #fff;
-  border: 1px solid var(--rm-gray-200);
-  border-radius: var(--rm-radius);
-  box-shadow: var(--rm-shadow-md);
-  padding: 0.5rem 0;
-  min-width: 180px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
 }
 
 #context-menu li {
@@ -1897,14 +1895,11 @@ span.badge,
 }
 
 #context-menu a {
-  display: block;
-  padding: 0.5rem 1rem;
   color: var(--rm-gray-700);
   font-size: 0.875rem;
 }
 
 #context-menu a:hover {
-  background: var(--rm-gray-50);
   color: var(--rm-primary);
   text-decoration: none;
 }
