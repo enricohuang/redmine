@@ -511,7 +511,30 @@ h4 { font-size: 1.125rem; }
 }
 
 #sidebar-switch-panel {
-  display: none !important;
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+
+#sidebar-switch-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--rm-radius-sm);
+  color: var(--rm-gray-400);
+  transition: all 0.15s ease;
+}
+
+#sidebar-switch-button:hover {
+  background: var(--rm-gray-200);
+  color: var(--rm-gray-600);
+  text-decoration: none;
+}
+
+#sidebar-switch-button svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Collapse sidebar when it has no real content (e.g. global issues page) */
@@ -2209,10 +2232,12 @@ li p { margin-top: 0; }
 h2 img { vertical-align: middle; }
 .hascontextmenu { cursor: context-menu; }
 
-/* --- Collapsible sidebar (dormant, JS plugin uses localStorage) --- */
+/* --- Collapsible sidebar --- */
 #main.nosidebar #sidebar { display: none; }
-#main.collapsedsidebar #sidebar { width: 0; padding-inline-end: 0; }
+#main.animate #sidebar { transition: width 0.25s ease, padding 0.25s ease; }
+#main.collapsedsidebar #sidebar { width: 28px; padding: 0.5rem 0 0 0; overflow: hidden; }
 #main.collapsedsidebar #sidebar-wrapper { display: none; }
+#main.collapsedsidebar #sidebar-switch-panel { text-align: center; margin-bottom: 0; }
 
 /* --- Dropdowns (extended) --- */
 .drdn-trigger {
