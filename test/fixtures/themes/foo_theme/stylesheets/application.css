@@ -1,2 +1,2 @@
-/* load the default Redmine stylesheet */
-@import url(../../../stylesheets/application.css);
+/* foo_theme - test fixture theme */
+body { color: #333; }

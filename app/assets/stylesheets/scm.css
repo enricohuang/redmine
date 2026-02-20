@@ -30,46 +30,46 @@ li.change.folder.change-A { background-image: url(/folder_open_add.png); }
 li.change.folder.change-M { background-image: url(/folder_open_orange.png); }
 
 li.change.change-A svg.icon-svg {
-    fill: var(--oc-green-7);
-    stroke: var(--oc-white);
+    fill: var(--rm-green-7);
+    stroke: var(--rm-white);
 }
 li.change.change-M svg.icon-svg {
-    fill: var(--oc-yellow-7);
-    stroke: var(--oc-white);
+    fill: var(--rm-yellow-7);
+    stroke: var(--rm-white);
 }
 li.change.change-C svg.icon-svg {
-    fill: var(--oc-cyan-7);
-    stroke: var(--oc-white);
+    fill: var(--rm-cyan-7);
+    stroke: var(--rm-white);
 }
 li.change.change-R svg.icon-svg {
-    fill: var(--oc-grape-7);
-    stroke: var(--oc-white);
+    fill: var(--rm-grape-7);
+    stroke: var(--rm-white);
 }
 li.change.change-D svg.icon-svg {
-    fill: var(--oc-red-7);
-    stroke: var(--oc-white);
+    fill: var(--rm-red-7);
+    stroke: var(--rm-white);
 }
 
-li.change .copied-from { font-style: italic; color: var(--oc-gray-6); font-size: 0.9em; }
+li.change .copied-from { font-style: italic; color: var(--rm-gray-600); font-size: 0.9em; }
 li.change .copied-from:before { content: " - "}
 
 #changes-legend { float: inline-end; font-size: 0.75rem; margin: 0; }
 #changes-legend li { float: inline-start; background-position: 5px 1px; }
 [dir="rtl"] #changes-legend li { background-position: right 5px top 1px; }
 
-table.filecontent { border: 1px solid var(--oc-gray-4);  border-collapse: collapse; inline-size: 98%; background-color: var(--oc-gray-0); }
+table.filecontent { border: 1px solid var(--rm-gray-400);  border-collapse: collapse; inline-size: 98%; background-color: var(--rm-gray-50); }
 table.filecontent tbody {font-family:Consolas, Menlo, "Liberation Mono", Courier, monospace; font-size:0.75rem;}
-table.filecontent th { border: 1px solid var(--oc-gray-4); background-color: var(--oc-gray-1); }
-table.filecontent th.filename { background-color: var(--oc-gray-2); text-align: start; padding: 5px;}
+table.filecontent th { border: 1px solid var(--rm-gray-400); background-color: var(--rm-gray-100); }
+table.filecontent th.filename { background-color: var(--rm-gray-200); text-align: start; padding: 5px;}
 table.filecontent tr.spacing th { text-align:center; }
-table.filecontent tr.spacing td { block-size: 0.4em; background: rgba(var(--oc-blue-1-rgb), 0.3);}
+table.filecontent tr.spacing td { block-size: 0.4em; background: rgba(var(--rm-blue-1-rgb), 0.3);}
 table.filecontent th.line-num {
-    border: 1px solid var(--oc-gray-4);
+    border: 1px solid var(--rm-gray-400);
     text-align: end;
     inline-size: 2%;
     padding-block: 0;
     padding-inline: 0 3px;
-    color: var(--oc-gray-6);
+    color: var(--rm-gray-600);
     user-select: none;
     -moz-user-select: none;
     -o-user-select: none;
@@ -97,8 +97,8 @@ table.filecontent td.line-code pre, table.filecontent td.line-code div {
     font-family:Consolas, Menlo, "Liberation Mono", Courier, monospace; font-size:0.75rem;
 }
 
-table.filecontent tr:target th.line-num { background-color:var(--oc-gray-3); color: var(--oc-gray-6); }
-table.filecontent tr:target td.line-code { background-color:var(--oc-blue-0); }
+table.filecontent tr:target th.line-num { background-color:var(--rm-gray-300); color: var(--rm-gray-600); }
+table.filecontent tr:target td.line-code { background-color:var(--rm-blue-0); }
 
 img.filecontent, video.filecontent { max-inline-size: 100%; }
 
@@ -107,19 +107,19 @@ img.filecontent, video.filecontent { max-inline-size: 100%; }
 }
 
 /* 12 different colors for the annonate view */
-table.annotate tr.bloc-0 td.line-code {border-inline-start-color: var(--oc-yellow-1);}
-table.annotate tr.bloc-1 td.line-code {border-inline-start-color: var(--oc-grape-2);}
-table.annotate tr.bloc-2 td.line-code {border-inline-start-color: var(--oc-cyan-1);}
-table.annotate tr.bloc-3 td.line-code {border-inline-start-color: var(--oc-orange-2);}
-table.annotate tr.bloc-4 td.line-code {border-inline-start-color: var(--oc-lime-2);}
-table.annotate tr.bloc-5 td.line-code {border-inline-start-color: var(--oc-indigo-2);}
-table.annotate tr.bloc-6 td.line-code {border-inline-start-color: var(--oc-pink-2);}
-table.annotate tr.bloc-7 td.line-code {border-inline-start-color: var(--oc-violet-1);}
-table.annotate tr.bloc-8 td.line-code {border-inline-start-color: var(--oc-green-2);}
-table.annotate tr.bloc-9 td.line-code {border-inline-start-color: var(--oc-violet-3);}
-table.annotate tr.bloc-10 td.line-code {border-inline-start-color: var(--oc-red-3);}
-table.annotate tr.bloc-11 td.line-code {border-inline-start-color: var(--oc-blue-2);}
-table.annotate tr.bloc-change {border-block-start: 1px solid var(--oc-gray-3);} 
+table.annotate tr.bloc-0 td.line-code {border-inline-start-color: var(--rm-yellow-1);}
+table.annotate tr.bloc-1 td.line-code {border-inline-start-color: var(--rm-grape-2);}
+table.annotate tr.bloc-2 td.line-code {border-inline-start-color: var(--rm-cyan-1);}
+table.annotate tr.bloc-3 td.line-code {border-inline-start-color: var(--rm-orange-2);}
+table.annotate tr.bloc-4 td.line-code {border-inline-start-color: var(--rm-lime-2);}
+table.annotate tr.bloc-5 td.line-code {border-inline-start-color: var(--rm-indigo-2);}
+table.annotate tr.bloc-6 td.line-code {border-inline-start-color: var(--rm-pink-2);}
+table.annotate tr.bloc-7 td.line-code {border-inline-start-color: var(--rm-violet-1);}
+table.annotate tr.bloc-8 td.line-code {border-inline-start-color: var(--rm-green-2);}
+table.annotate tr.bloc-9 td.line-code {border-inline-start-color: var(--rm-violet-3);}
+table.annotate tr.bloc-10 td.line-code {border-inline-start-color: var(--rm-red-3);}
+table.annotate tr.bloc-11 td.line-code {border-inline-start-color: var(--rm-blue-2);}
+table.annotate tr.bloc-change {border-block-start: 1px solid var(--rm-gray-300);} 
 
 table.annotate td.revision {
     padding:0;
@@ -146,8 +146,8 @@ table.annotate td.previous {
 }
 
 table.annotate td.line-code {
-    background-color: var(--oc-gray-0);
-    border-inline-start: 6px solid var(--oc-gray-3);
+    background-color: var(--rm-gray-50);
+    border-inline-start: 6px solid var(--rm-gray-300);
 }
 
 .breadcrumbs>.separator::before, .breadcrumbs>.separator::after {

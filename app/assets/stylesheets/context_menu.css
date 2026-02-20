@@ -14,12 +14,12 @@
 
 #context-menu ul {
   inline-size:150px;
-  border: 1px solid var(--oc-gray-4);
+  border: 1px solid var(--rm-gray-400);
   background:white;
   list-style:none;
   padding:2px;
   border-radius:2px;
-  box-shadow: 0 2px 4px rgba(var(--oc-gray-9-rgb), 0.1);
+  box-shadow: 0 2px 4px rgba(var(--rm-gray-900-rgb), 0.1);
 }
 
 #context-menu li {
@@ -46,10 +46,10 @@
   padding-inline: 8px;
 }
 #context-menu li>a { flex-grow: 1; }
-#context-menu a.disabled, #context-menu a.disabled:hover {color: var(--oc-gray-5);}
+#context-menu a.disabled, #context-menu a.disabled:hover {color: var(--rm-gray-500);}
 #context-menu li a.submenu { padding-inline-start: 28px;}
-#context-menu li:hover { border:1px solid var(--oc-blue-8); background-color:var(--oc-blue-0); border-radius:3px; }
-#context-menu a:hover {color:var(--oc-blue-9);}
+#context-menu li:hover { border:1px solid var(--rm-blue-8); background-color:var(--rm-blue-0); border-radius:3px; }
+#context-menu a:hover {color:var(--rm-blue-9);}
 #context-menu li.folder ul li a:not(.icon) {
   padding-inline-start: 28px;
 }
@@ -58,10 +58,10 @@
 #context-menu li:hover ul, #context-menu li:hover li:hover ul { display:block; }
 
 /* selected element */
-.context-menu-selection { background-color:var(--oc-blue-7) !important; color:var(--oc-gray-0) !important; }
-.context-menu-selection a, .context-menu-selection a:hover { color:var(--oc-gray-0) !important; }
-.context-menu-selection:hover { background-color:var(--oc-blue-7) !important; color:var(--oc-gray-0)  !important; }
-.context-menu-selection svg.icon-svg { stroke: var(--oc-white) !important; }
-div#gantt_area .context-menu-selection { background-color: rgba(var(--oc-blue-7-rgb), 0.4) !important; }
-div#gantt_area .context-menu-selection:hover { background-color: rgba(var(--oc-blue-7-rgb), 0.4) !important; }
-div#gantt_area .context-menu-selection a { color: var(--oc-blue-9) !important; }
+.context-menu-selection { background-color:var(--rm-blue-7) !important; color:var(--rm-gray-50) !important; }
+.context-menu-selection a, .context-menu-selection a:hover { color:var(--rm-gray-50) !important; }
+.context-menu-selection:hover { background-color:var(--rm-blue-7) !important; color:var(--rm-gray-50)  !important; }
+.context-menu-selection svg.icon-svg { stroke: var(--rm-white) !important; }
+div#gantt_area .context-menu-selection { background-color: rgba(var(--rm-blue-7-rgb), 0.4) !important; }
+div#gantt_area .context-menu-selection:hover { background-color: rgba(var(--rm-blue-7-rgb), 0.4) !important; }
+div#gantt_area .context-menu-selection a { color: var(--rm-blue-9) !important; }

@@ -4,86 +4,42 @@
  * This code is released under the GNU General Public License.
  */
 
-// generic layout specific responsive stuff goes here
+// Bootstrap offcanvas integration for mobile menu
+// Copies sidebar and main menu content into the offcanvas panel
 
-function openFlyout() {
-  $('html').addClass('flyout-is-active');
-  $('#main, #header').on('click.close-flyout', function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    closeFlyout();
-  });
-}
+$(document).ready(function() {
+  var flyoutMenu = document.getElementById('flyoutMenu');
+  if (!flyoutMenu) return;
 
-function closeFlyout() {
-  $('html').removeClass('flyout-is-active');
-  $('#main, #header').off('click.close-flyout');
-}
+  flyoutMenu.addEventListener('show.bs.offcanvas', function() {
+    // Copy main menu into offcanvas project menu slot
+    var mainMenu = document.querySelector('#main-menu > ul');
+    var projectSlot = flyoutMenu.querySelector('.js-project-menu');
+    if (mainMenu && projectSlot) {
+      var clone = mainMenu.cloneNode(true);
+      clone.classList.add('nav', 'flex-column');
+      // Style links for offcanvas
+      clone.querySelectorAll('a').forEach(function(a) {
+        a.classList.add('nav-link');
+      });
+      projectSlot.innerHTML = '';
+      projectSlot.appendChild(clone);
+    }
 
-
-function isMobile() {
-  return $('.js-flyout-menu-toggle-button').is(":visible");
-}
-
-function setupFlyout() {
-  var mobileInit = false,
-    desktopInit = false;
-
-  /* click handler for mobile menu toggle */
-  $('.js-flyout-menu-toggle-button').on('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if($('html').hasClass('flyout-is-active')) {
-      closeFlyout();
-    } else {
-      openFlyout();
+    // Copy sidebar content into offcanvas sidebar slot
+    var sidebarWrapper = document.getElementById('sidebar-wrapper');
+    var sidebarSlot = flyoutMenu.querySelector('.offcanvas-sidebar');
+    if (sidebarWrapper && sidebarSlot) {
+      sidebarSlot.innerHTML = sidebarWrapper.innerHTML;
     }
   });
 
-  /* bind resize handler */
-  $(window).resize(function() {
-    initMenu();
-  })
+  flyoutMenu.addEventListener('hidden.bs.offcanvas', function() {
+    // Clear cloned content to avoid stale data
+    var projectSlot = flyoutMenu.querySelector('.js-project-menu');
+    if (projectSlot) projectSlot.innerHTML = '';
 
-  /* menu init function for dom detaching and appending on mobile / desktop view */
-  function initMenu() {
-
-    var _initMobileMenu = function() {
-      /* only init mobile menu, if it hasn't been done yet */
-      if(!mobileInit) {
-
-        $('#main-menu > ul').detach().appendTo('.js-project-menu');
-        $('#top-menu > ul').detach().appendTo('.js-general-menu');
-        $('#sidebar > *').detach().appendTo('.js-sidebar');
-        $('#account > ul').detach().appendTo('.js-profile-menu');
-
-        mobileInit = true;
-        desktopInit = false;
-      }
-    }
-
-    var _initDesktopMenu = function() {
-      if(!desktopInit) {
-
-        $('.js-project-menu > ul').detach().appendTo('#main-menu');
-        $('.js-general-menu > ul').detach().appendTo('#top-menu');
-        $('.js-sidebar > *').detach().appendTo('#sidebar');
-        $('.js-profile-menu > ul').detach().appendTo('#account');
-
-        desktopInit = true;
-        mobileInit = false;
-      }
-    }
-
-    if(isMobile()) {
-      _initMobileMenu();
-    } else {
-      _initDesktopMenu();
-    }
-  }
-
-  // init menu on page load
-  initMenu();
-}
-
-$(document).ready(setupFlyout);
+    var sidebarSlot = flyoutMenu.querySelector('.offcanvas-sidebar');
+    if (sidebarSlot) sidebarSlot.innerHTML = '';
+  });
+});

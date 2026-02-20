@@ -173,16 +173,16 @@ html[dir="rtl"] fieldset.collapsible.collapsed>legend:not(:has(svg)) { backgroun
 
 html[dir="rtl"] div.flash.error:not(:has(svg)),
 html[dir="rtl"] #errorExplanation:not(:has(svg)) {
-  background: url(/exclamation.png) right 8px top 50% no-repeat var(--oc-red-1);
+  background: url(/exclamation.png) right 8px top 50% no-repeat var(--rm-red-1);
 }
 
 html[dir="rtl"] div.flash.notice:not(:has(svg)) {
-  background: url(/true.png) right 8px top 5px no-repeat var(--oc-green-1);
+  background: url(/true.png) right 8px top 5px no-repeat var(--rm-green-1);
 }
 
 html[dir="rtl"] div.flash.warning:not(:has(svg)),
 html[dir="rtl"] .conflict {
-  background: url(/warning.png) right 8px top 5px no-repeat var(--oc-yellow-1);
+  background: url(/warning.png) right 8px top 5px no-repeat var(--rm-yellow-1);
   text-align:right;
 }
 

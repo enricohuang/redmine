@@ -1,7 +1,9 @@
 <%= form_tag({:action => 'edit', :tab => 'display'}) do %>
 
 <div class="box tabular settings">
+<% if Redmine::Themes.themes.any? %>
 <p><%= setting_select :ui_theme, Redmine::Themes.themes.collect {|t| [t.name, t.id]}, :blank => :label_default, :label => :label_theme %></p>
+<% end %>
 
 <p><%= setting_select :default_language, lang_options_for_select(false) %></p>
 

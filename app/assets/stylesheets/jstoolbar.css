@@ -46,11 +46,11 @@
     block-size: 26px;
 }
 .wiki-preview {
-    color: var(--oc-gray-9);
-    background-color: var(--oc-white);
-    border: 1px solid var(--oc-gray-4);
+    color: var(--rm-gray-900);
+    background-color: var(--rm-white);
+    border: 1px solid var(--rm-gray-400);
 }
-.wiki-preview p.empty-preview {color: var(--oc-gray-6); font-style: italic; margin-block-start: 1em; text-align: center;}
+.wiki-preview p.empty-preview {color: var(--rm-gray-600); font-style: italic; margin-block-start: 1em; text-align: center;}
 
 .jstElements button {
     margin-inline-end: 2px;
@@ -59,8 +59,8 @@
     padding: 4px;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--oc-gray-4);
-    background-color : var(--oc-gray-0);
+    border-color: var(--rm-gray-400);
+    background-color : var(--rm-gray-50);
     background-position : 50% 50%;
     background-repeat: no-repeat;
     background-size: 16px 16px;
@@ -68,8 +68,8 @@
     opacity:0.7;
 }
 .jstElements button:hover {
-    border-color: var(--oc-gray-5);
-    background-color: var(--oc-gray-3);
+    border-color: var(--rm-gray-500);
+    background-color: var(--rm-gray-300);
     opacity:1;
 }
 .jstElements button span {
@@ -89,14 +89,14 @@
 .jstElements .help a {padding-block: 2px; padding-inline-start: 20px; padding-inline-end: 0; background: url(./help.png) no-repeat 0 50%;}
 
 .table-generator td {
-    border: 2px solid var(--oc-gray-5);
+    border: 2px solid var(--rm-gray-500);
     background-color: white;
     padding: 10px;
     cursor: pointer;
 }
 
 .table-generator td.selected-cell, .table-generator td:hover {
-    background-color: var(--oc-blue-1);
+    background-color: var(--rm-blue-1);
 }
 
 .table-generator {
@@ -148,7 +148,7 @@
 .jstElements button.jstb_pre::before {
     content: "pre";
     font-size: 10px;
-    color: var(--oc-gray-9);
+    color: var(--rm-gray-900);
     font-weight: 700
 }
 .jstElements button.jstb_precode {

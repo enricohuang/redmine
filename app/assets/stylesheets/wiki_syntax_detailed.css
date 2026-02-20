@@ -1,5 +1,3 @@
-@import url('/open-color.css');
-
 @font-face {
   font-family: "Noto Sans";
   src: url("/NotoSans-Regular.woff2") format("woff2");
@@ -36,27 +34,27 @@
   --fonts-main: "Noto Sans", sans-serif;
 }
 
-body { font-family: var(--fonts-main); font-size: 0.875rem; color: var(--oc-gray-9); line-height: 1.6;}
+body { font-family: var(--fonts-main); font-size: 0.875rem; color: var(--rm-gray-900); line-height: 1.6;}
 pre, code { font-family: Consolas, Menlo, "Liberation Mono", Courier, monospace; }
 pre {
     margin-block: 1em;
     margin-inline: 1.6em 1em;
     padding: 8px;
-    background-color: var(--oc-gray-0);
-    border: 1px solid var(--oc-gray-4);
+    background-color: var(--rm-gray-50);
+    border: 1px solid var(--rm-gray-400);
     border-radius: 3px;
     inline-size: auto;
     overflow-x: auto;
     overflow-y: hidden;
     line-height: normal;
 }
-a, a:link, a:visited{ color: var(--oc-blue-9); text-decoration: none; }
-a:hover, a:active{ color: var(--oc-red-9); text-decoration: underline;}
-a.new { color: var(--oc-red-9); }
+a, a:link, a:visited{ color: var(--rm-blue-9); text-decoration: none; }
+a:hover, a:active{ color: var(--rm-red-8); text-decoration: underline;}
+a.new { color: var(--rm-red-8); }
 
 table.sample { border-collapse: collapse; border-spacing: 0; margin: 4px; margin-inline-start: 30px;}
-table.sample th, table.sample td { border: solid 1px var(--oc-gray-5); padding: 4px; block-size: 1em; }
-table.list td { background-color: var(--oc-gray-0); vertical-align: middle; padding: 0.3em;}
+table.sample th, table.sample td { border: solid 1px var(--rm-gray-500); padding: 4px; block-size: 1em; }
+table.list td { background-color: var(--rm-gray-50); vertical-align: middle; padding: 0.3em;}
 
 .syntaxhl .c1 { color: #888888 }
 .syntaxhl .k { color: #008800; font-weight: bold }
@@ -77,13 +75,13 @@ table.list td { background-color: var(--oc-gray-0); vertical-align: middle; padd
 .markdown-alert-title {
   font-weight: bold;
 }
-.markdown-alert-tip { border-color: var(--oc-green-7); }
-.markdown-alert-tip .markdown-alert-title { color: var(--oc-green-9); }
-.markdown-alert-important { border-color: var(--oc-grape-7); }
-.markdown-alert-important .markdown-alert-title { color: var(--oc-grape-9); }
-.markdown-alert-caution { border-color: var(--oc-yellow-7); }
-.markdown-alert-caution .markdown-alert-title { color: var(--oc-yellow-9); }
-.markdown-alert-warning { border-color: var(--oc-orange-7); }
-.markdown-alert-warning .markdown-alert-title { color: var(--oc-orange-9); }
-.markdown-alert-note { border-color: var(--oc-indigo-7); }
-.markdown-alert-note .markdown-alert-title { color: var(--oc-indigo-9); }
+.markdown-alert-tip { border-color: var(--rm-green-7); }
+.markdown-alert-tip .markdown-alert-title { color: var(--rm-green-9); }
+.markdown-alert-important { border-color: var(--rm-grape-7); }
+.markdown-alert-important .markdown-alert-title { color: var(--rm-grape-9); }
+.markdown-alert-caution { border-color: var(--rm-yellow-7); }
+.markdown-alert-caution .markdown-alert-title { color: var(--rm-yellow-8); }
+.markdown-alert-warning { border-color: var(--rm-orange-7); }
+.markdown-alert-warning .markdown-alert-title { color: var(--rm-orange-9); }
+.markdown-alert-note { border-color: var(--rm-indigo-7); }
+.markdown-alert-note .markdown-alert-title { color: var(--rm-indigo-9); }

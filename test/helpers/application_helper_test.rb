@@ -2146,7 +2146,8 @@ class ApplicationHelperTest < Redmine::HelperTest
   end
 
   def test_image_tag_should_pick_the_theme_image_if_it_exists
-    theme = Redmine::Themes.themes.last
+    theme = Redmine::Themes::Theme.new(Rails.root.join('test/fixtures/themes/foo_theme'))
+    Redmine::Themes.themes << theme
     theme.images << 'image.png'
 
     with_settings :ui_theme => theme.id do
@@ -2155,6 +2156,7 @@ class ApplicationHelperTest < Redmine::HelperTest
     end
   ensure
     theme.images.delete 'image.png'
+    Redmine::Themes.themes.delete(theme)
   end
 
   def test_image_tag_sfor_plugin_should_pick_the_plugin_image

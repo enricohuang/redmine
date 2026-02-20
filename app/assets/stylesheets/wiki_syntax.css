@@ -1,5 +1,3 @@
-@import url('/open-color.css');
-
 @font-face {
   font-family: "Noto Sans";
   src: url("/NotoSans-Regular.woff2") format("woff2");
@@ -36,36 +34,36 @@
   --fonts-main: "Noto Sans", sans-serif;
 }
 
-h1 { font-family: var(--fonts-main); font-size: 0.875rem; text-align: center; color: var(--oc-gray-8); }
-body { font-family: var(--fonts-main); font-size: 0.75rem; color: var(--oc-gray-8); }
+h1 { font-family: var(--fonts-main); font-size: 0.875rem; text-align: center; color: var(--rm-gray-800); }
+body { font-family: var(--fonts-main); font-size: 0.75rem; color: var(--rm-gray-800); }
 pre, code {font-family: Consolas, Menlo, "Liberation Mono", Courier, monospace; }
 table th { padding-block-start: 1em; }
 table th img {
-  border: 1px solid var(--oc-gray-5);
+  border: 1px solid var(--rm-gray-500);
   opacity: 0.7;
 }
 table th .syntax-pre {
   display: inline-block;
-  border: 1px solid var(--oc-gray-5);
+  border: 1px solid var(--rm-gray-500);
   inline-size: 18px;
   block-size: 18px;
 }
 table th .syntax-pre:before {
   content: "pre";
   font-size: 0.625rem;
-  color: var(--oc-gray-7);
+  color: var(--rm-gray-700);
 }
-table td { background-color: var(--oc-gray-0); block-size: 2em; vertical-align: middle;}
+table td { background-color: var(--rm-gray-50); block-size: 2em; vertical-align: middle;}
 table td code { font-size: 1.2em; }
 table td h1 { font-size: 1.8em; text-align: start; }
 table td h2 { font-size: 1.4em; text-align: start; }
 table td h3 { font-size: 1.2em; text-align: start; }
 
 table.sample { border-collapse: collapse; border-spacing: 0; margin: 4px; }
-table.sample th, table.sample td { border: solid 1px var(--oc-gray-5); padding: 4px; block-size: 1em; }
+table.sample th, table.sample td { border: solid 1px var(--rm-gray-500); padding: 4px; block-size: 1em; }
 
-a, a:link, a:visited{ color: var(--oc-blue-9); text-decoration: none; }
-a:hover, a:active{ color: var(--oc-red-9); text-decoration: underline;}
+a, a:link, a:visited{ color: var(--rm-blue-9); text-decoration: none; }
+a:hover, a:active{ color: var(--rm-red-8); text-decoration: underline;}
 
 .syntaxhl .mi { color: #0000DD; font-weight: bold }
 .syntaxhl .nf { color: #0066BB; font-weight: bold }
@@ -83,5 +81,5 @@ span.more_info { font-weight: normal; }
 .markdown-alert-title {
   font-weight: bold;
 }
-.markdown-alert-note { border-color: var(--oc-indigo-7); }
-.markdown-alert-note .markdown-alert-title { color: var(--oc-indigo-9); }
+.markdown-alert-note { border-color: var(--rm-indigo-7); }
+.markdown-alert-note .markdown-alert-title { color: var(--rm-indigo-9); }
