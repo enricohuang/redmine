@@ -1351,6 +1351,8 @@ class Issue < ApplicationRecord
     issue_ids = issues.map(&:id)
     labels_by_issue = {}
     IssueLabel.where(issue_id: issue_ids).includes(:label).each do |il|
+      next if il.label.nil?
+
       (labels_by_issue[il.issue_id] ||= []) << il.label
     end
     issues.each do |issue|

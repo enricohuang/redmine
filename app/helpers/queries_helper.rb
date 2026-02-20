@@ -285,7 +285,7 @@ module QueriesHelper
         content_tag('ul', value.to_a.map {|user| content_tag('li', format_object(user))}.join.html_safe)
       when :labels
         labels = item.respond_to?(:preloaded_labels) ? item.preloaded_labels : item.labels.to_a
-        labels.map do |label|
+        labels.compact.map do |label|
           content_tag(:span, label.name,
             class: 'label-badge label-badge-small',
             style: "background-color: #{label.color}; color: #{label.text_color};")
