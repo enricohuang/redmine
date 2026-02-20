@@ -441,6 +441,13 @@ class Issue < ApplicationRecord
       if category
         self.category = project.issue_categories.find_by_name(category.name)
       end
+      # Reassign labels to ones with the same name in the new project, drop the rest
+      if labels.any?
+        new_labels = labels.filter_map do |label|
+          project.labels.find_by(name: label.name)
+        end
+        self.labels = new_labels
+      end
       # Clear the assignee if not available in the new project for new issues (eg. copy)
       # For existing issue, the previous assignee is still valid, so we keep it
       if new_record? && assigned_to && !assignable_users.include?(assigned_to)
