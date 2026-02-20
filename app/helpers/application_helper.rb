@@ -1618,12 +1618,13 @@ module ApplicationHelper
     titles[0] = "#{pcts[0]}%" if titles[0].blank?
     legend = options[:legend] || ''
     has_legend = legend.present?
+    total_pct = pcts[0] + pcts[1]
     if pcts[1] > 0
       # Stacked: multiple segments using .progress-stacked wrapper
       segments = ''.html_safe
       if pcts[0] > 0
         segments += content_tag('div',
-                      content_tag('div', '', :class => 'progress-bar bg-success', :title => titles[0]),
+                      content_tag('div', '', :class => "progress-bar #{progress_bar_color_class(total_pct)}", :title => titles[0]),
                       :class => 'progress',
                       :role => 'progressbar',
                       :style => "width: #{pcts[0]}%",
@@ -1632,7 +1633,7 @@ module ApplicationHelper
                       'aria-valuemax' => 100)
       end
       segments += content_tag('div',
-                    content_tag('div', '', :class => 'progress-bar bg-primary', :title => titles[1]),
+                    content_tag('div', '', :class => "progress-bar #{progress_bar_color_class(total_pct, :partial)}", :title => titles[1]),
                     :class => 'progress',
                     :role => 'progressbar',
                     :style => "width: #{pcts[1]}%",
@@ -1650,12 +1651,31 @@ module ApplicationHelper
       progress_class = "progress progress-#{pcts[0]}"
       progress_class += " progress-labeled" if has_legend
       content_tag('div',
-        content_tag('div', (has_legend ? legend : ''), :class => 'progress-bar bg-success', :style => bar_style, :title => titles[0]),
+        content_tag('div', (has_legend ? legend : ''), :class => "progress-bar #{progress_bar_color_class(pcts[0])}", :style => bar_style, :title => titles[0]),
         :class => progress_class,
         :role => 'progressbar',
         'aria-valuenow' => pcts[0],
         'aria-valuemin' => 0,
         'aria-valuemax' => 100).html_safe
+    end
+  end
+
+  # Returns the CSS class for progress bar color based on percentage.
+  # Color transitions from red (0%) through orange, yellow to green (100%).
+  def progress_bar_color_class(pct, segment = :closed)
+    return 'bg-primary' if segment == :partial
+
+    case pct
+    when 0..10   then 'bg-progress-0'
+    when 11..20  then 'bg-progress-10'
+    when 21..30  then 'bg-progress-20'
+    when 31..40  then 'bg-progress-30'
+    when 41..50  then 'bg-progress-40'
+    when 51..60  then 'bg-progress-50'
+    when 61..70  then 'bg-progress-60'
+    when 71..80  then 'bg-progress-70'
+    when 81..90  then 'bg-progress-80'
+    else              'bg-progress-90'
     end
   end
 

@@ -1569,7 +1569,7 @@ class IssuesControllerTest < Redmine::ControllerTest
     )
     assert_select 'table.issues td.done_ratio' do
       assert_select 'div.progress' do
-        assert_select 'div.progress-bar.bg-success[style=?]', 'width: 40%'
+        assert_select 'div.progress-bar[style=?]', 'width: 40%'
       end
     end
   end
