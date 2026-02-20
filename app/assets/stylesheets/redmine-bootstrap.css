@@ -1059,6 +1059,11 @@ div.progress-stacked {
   overflow: hidden;
 }
 
+div.progress .progress-bar {
+  height: 100%;
+  border-radius: 4px;
+}
+
 div.progress.progress-labeled,
 div.progress-stacked.progress-labeled {
   height: 1.25rem;
@@ -1070,7 +1075,6 @@ div.progress.progress-labeled .progress-bar {
   color: #fff;
   font-weight: 600;
   text-shadow: 0 0 2px rgba(0,0,0,0.3);
-  min-width: max-content;
   padding: 0 0.25em;
 }
 
