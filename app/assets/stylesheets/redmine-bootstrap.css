@@ -8,10 +8,10 @@
    ========================================================================== */
 
 :root {
-  /* Primary brand color - Modern indigo */
-  --rm-primary: #4f46e5;
-  --rm-primary-hover: #4338ca;
-  --rm-primary-light: #e0e7ff;
+  /* Primary brand color - Classic Redmine blue */
+  --rm-primary: #1864ab;
+  --rm-primary-hover: #155d97;
+  --rm-primary-light: #dbeafe;
 
   /* Secondary colors */
   --rm-secondary: #64748b;
@@ -23,24 +23,27 @@
   --rm-warning: #f59e0b;
   --rm-info: #3b82f6;
 
-  /* Neutrals */
-  --rm-gray-50: #f8fafc;
-  --rm-gray-100: #f1f5f9;
-  --rm-gray-200: #e2e8f0;
-  --rm-gray-300: #cbd5e1;
-  --rm-gray-400: #94a3b8;
-  --rm-gray-500: #64748b;
-  --rm-gray-600: #475569;
-  --rm-gray-700: #334155;
-  --rm-gray-800: #1e293b;
-  --rm-gray-900: #0f172a;
+  /* Neutrals - warm grays matching original Redmine */
+  --rm-gray-50: #f8f9fa;
+  --rm-gray-100: #f1f3f5;
+  --rm-gray-200: #e9ecef;
+  --rm-gray-300: #ced4da;
+  --rm-gray-400: #adb5bd;
+  --rm-gray-500: #868e96;
+  --rm-gray-600: #495057;
+  --rm-gray-700: #343a40;
+  --rm-gray-800: #212529;
+  --rm-gray-900: #1a1a2e;
 
   /* Layout */
-  --rm-body-bg: #f8fafc;
+  --rm-body-bg: #e8eaec;
   --rm-content-bg: #ffffff;
-  --rm-sidebar-bg: #f1f5f9;
-  --rm-header-bg: #1e293b;
-  --rm-navbar-bg: #0f172a;
+  --rm-sidebar-bg: #f8f9fa;
+  --rm-header-bg: #628DB6;
+  --rm-navbar-bg: #3E5B76;
+
+  /* Link hover - classic Redmine red */
+  --rm-link-hover: #c92a2a;
 
   /* Shadows */
   --rm-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -92,7 +95,7 @@
 
   /* Additional colors for satellite CSS files (gantt, scm, context menu, etc.) */
   --rm-white: #fff;
-  --rm-gray-900-rgb: 15, 23, 42;
+  --rm-gray-900-rgb: 26, 26, 46;
   --rm-blue-1: #dbeafe;
   --rm-blue-1-rgb: 219, 234, 254;
   --rm-blue-2: #bfdbfe;
@@ -110,7 +113,7 @@
 
   /* Override Bootstrap variables */
   --bs-primary: var(--rm-primary);
-  --bs-primary-rgb: 79, 70, 229;
+  --bs-primary-rgb: 24, 100, 171;
   --bs-secondary: var(--rm-secondary);
   --bs-success: var(--rm-success);
   --bs-danger: var(--rm-danger);
@@ -119,7 +122,7 @@
   --bs-body-bg: var(--rm-body-bg);
   --bs-body-color: var(--rm-gray-800);
   --bs-link-color: var(--rm-primary);
-  --bs-link-hover-color: var(--rm-primary-hover);
+  --bs-link-hover-color: var(--rm-link-hover);
   --bs-border-color: var(--rm-gray-200);
   --bs-border-radius: var(--rm-radius);
 }
@@ -144,7 +147,7 @@ a {
 }
 
 a:hover {
-  color: var(--rm-primary-hover);
+  color: var(--rm-link-hover);
   text-decoration: underline;
 }
 
@@ -244,7 +247,8 @@ h4 { font-size: 1.125rem; }
 
 /* Header */
 #header {
-  background: var(--rm-header-bg);
+  background: linear-gradient(180deg, #628DB6 30%, #356D92);
+  min-height: 8.7ex;
   padding: 1rem 1.5rem 0;
   position: relative;
 }
@@ -318,7 +322,7 @@ h4 { font-size: 1.125rem; }
 
 /* Main Menu / Project Tabs */
 #main-menu {
-  background: var(--rm-header-bg);
+  background: transparent;
   padding: 0 1.5rem;
   margin-top: 0;
   position: relative;
@@ -592,7 +596,7 @@ button[type="submit"]:hover,
 button[type="button"]:not(.btn-close):hover,
 .button:hover,
 a.button:hover {
-  background: var(--rm-gray-50);
+  background-color: var(--rm-gray-50);
   border-color: var(--rm-gray-400);
   text-decoration: none;
 }
@@ -775,7 +779,7 @@ table.list thead tr:first-child th {
 table.list th,
 table.issues th,
 .table th {
-  background: var(--rm-gray-50);
+  background: var(--rm-gray-200);
   padding: 0.25rem 0.5rem;
   font-size: 1rem;
   font-weight: 600;
@@ -783,7 +787,7 @@ table.issues th,
   letter-spacing: normal;
   color: var(--rm-gray-700);
   text-align: center;
-  border-bottom: 1px solid var(--rm-gray-200);
+  border-bottom: 2px solid var(--rm-gray-300);
 }
 
 table.list td,
@@ -1772,7 +1776,7 @@ fieldset#filters {
 }
 
 .jstElements button:hover {
-  background: var(--rm-gray-100);
+  background-color: var(--rm-gray-100);
   border-color: var(--rm-gray-400);
   color: var(--rm-gray-800);
 }
