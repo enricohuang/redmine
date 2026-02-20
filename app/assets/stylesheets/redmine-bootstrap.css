@@ -511,7 +511,7 @@ h4 { font-size: 1.125rem; }
 }
 
 #sidebar-switch-panel {
-  text-align: right;
+  text-align: left;
   margin-bottom: 0.5rem;
 }
 
@@ -2234,7 +2234,6 @@ h2 img { vertical-align: middle; }
 
 /* --- Collapsible sidebar --- */
 #main.nosidebar #sidebar { display: none; }
-#main.animate #sidebar { transition: width 0.25s ease, padding 0.25s ease; }
 #main.collapsedsidebar #sidebar { width: 28px; padding: 0.5rem 0 0 0; overflow: hidden; }
 #main.collapsedsidebar #sidebar-wrapper { display: none; }
 #main.collapsedsidebar #sidebar-switch-panel { text-align: center; margin-bottom: 0; }
