@@ -98,7 +98,7 @@ end %>
       <span class="label"><%= l(:field_labels) %>:</span>
       <span class="value" id="issue-labels">
         <% @issue.labels.order(:name).each do |label| %>
-          <span class="label-badge" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
+          <span class="badge label-badge" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
             <%= label.name %>
           </span>
         <% end %>

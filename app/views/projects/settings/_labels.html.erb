@@ -17,7 +17,7 @@
     <% @project.labels.order(:name).each do |label| %>
       <tr class="<%= cycle('odd', 'even') %>">
         <td class="name">
-          <span class="label-badge" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
+          <span class="badge label-badge" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
             <%= label.name %>
           </span>
         </td>

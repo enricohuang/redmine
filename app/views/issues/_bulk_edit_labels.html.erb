@@ -21,7 +21,7 @@
             (@issue_params[:label_ids].is_a?(Array) && @issue_params[:label_ids].include?(label.id.to_s)),
             :id => "issue_label_ids_#{label.id}",
             :onclick => "document.getElementById('issue_label_ids_none').checked = false; document.getElementById('issue_label_ids_clear').checked = false;" %>
-        <span class="label-badge label-badge-small" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
+        <span class="badge label-badge" style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
           <%= label.name %>
         </span>
       </label>

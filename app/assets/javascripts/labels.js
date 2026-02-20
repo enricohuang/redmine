@@ -65,13 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
     $badges.find('.tag-remove').on('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      var $badge = $(this).closest('.label-badge-tag');
+      var $badge = $(this).closest('.badge-label-tag');
       var id = parseInt($badge.data('label-id'), 10);
       removeLabel(id);
     });
 
     function addBadge(label) {
-      var $badge = $('<span class="label-badge label-badge-tag"></span>')
+      var $badge = $('<span class="badge label-badge badge-label-tag"></span>')
         .attr('data-label-id', label.id)
         .css({ 'background-color': label.color, 'color': label.textColor })
         .text(label.name);
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     $input.autocomplete('instance')._renderItem = function(ul, item) {
       var $li = $('<li>');
       if (item.type === 'existing') {
-        var $badge = $('<span class="label-badge label-badge-small"></span>')
+        var $badge = $('<span class="badge label-badge"></span>')
           .css({ 'background-color': item.labelObj.color, 'color': item.labelObj.textColor })
           .text(item.labelObj.name);
         $li.append($('<div>').append($badge));
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Click on container focuses input
     $container.on('click', function(e) {
-      if (!$(e.target).closest('.tag-remove').length && !$(e.target).closest('.label-badge-tag').length) {
+      if (!$(e.target).closest('.tag-remove').length && !$(e.target).closest('.badge-label-tag').length) {
         $input.focus();
       }
     });

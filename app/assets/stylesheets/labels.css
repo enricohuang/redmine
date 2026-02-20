@@ -3,23 +3,14 @@
  * Styles for issue labels feature
  */
 
-/* Bootstrap 4 style badges */
-.label-badge {
-  display: inline-block;
-  padding: .25em .4em;
-  font-size: 75%;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: baseline;
-  border-radius: .25rem;
-}
-
-/* Small badge for list view */
-.label-badge-small {
-  font-size: 75%;
-  padding: .25em .4em;
+/* Override Redmine .badge defaults for label badges */
+.badge.label-badge {
+  text-transform: none;
+  font-size: 0.75em;
+  padding: 0.35em 0.65em;
+  border-radius: 0.25rem;
+  bottom: auto;
+  position: static;
 }
 
 /* ========== Tag Input Widget ========== */
@@ -49,16 +40,10 @@
 }
 
 /* Individual tag badge (with close button) */
-.label-badge-tag {
+.badge-label-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: .25em .5em;
-  font-size: 85%;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-  border-radius: .25rem;
   user-select: none;
 }
 
@@ -115,7 +100,7 @@
 }
 
 /* Badge preview in dropdown */
-.tag-input-autocomplete .label-badge {
+.tag-input-autocomplete .badge {
   pointer-events: none;
 }
 

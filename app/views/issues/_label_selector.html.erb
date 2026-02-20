@@ -26,7 +26,7 @@
 
     <span class="tag-input-badges">
       <% assigned_labels.each do |label| %>
-        <span class="label-badge label-badge-tag" data-label-id="<%= label.id %>"
+        <span class="badge label-badge badge-label-tag" data-label-id="<%= label.id %>"
               style="background-color: <%= label.color %>; color: <%= label.text_color %>;">
           <%= label.name %>
           <span class="tag-remove" title="<%= l(:button_remove) %>">&times;</span>

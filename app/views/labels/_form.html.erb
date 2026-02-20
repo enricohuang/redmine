@@ -9,7 +9,7 @@
     <label for="label-color-input"><%= l(:field_color) %> <span class="required">*</span></label>
     <span class="label-color-picker">
       <%= f.color_field :color, :id => 'label-color-input' %>
-      <span id="label-preview" class="label-badge" style="background-color: <%= @label.color %>; color: <%= @label.text_color %>;">
+      <span id="label-preview" class="badge label-badge" style="background-color: <%= @label.color %>; color: <%= @label.text_color %>;">
         <%= @label.name.presence || 'Preview' %>
       </span>
     </span>
