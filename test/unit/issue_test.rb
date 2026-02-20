@@ -1930,6 +1930,58 @@ class IssueTest < ActiveSupport::TestCase
     assert_nil issue.category_id
   end
 
+  def test_move_to_another_project_should_reassign_labels_with_same_name
+    source_project = Project.find(1)
+    target_project = Project.find(2)
+    source_label = Label.create!(name: 'MoveTest1', color: '#d73a4a', project: source_project)
+    target_label = Label.create!(name: 'MoveTest1', color: '#ff0000', project: target_project)
+
+    issue = Issue.find(1)
+    issue.labels = [source_label]
+    issue.save!
+    assert_equal [source_label], issue.labels.to_a
+
+    issue.project = target_project
+    assert issue.save
+    issue.reload
+    assert_equal 2, issue.project_id
+    assert_equal [target_label], issue.labels.to_a
+  end
+
+  def test_move_to_another_project_should_drop_labels_without_same_name
+    source_project = Project.find(1)
+    target_project = Project.find(2)
+    source_label = Label.create!(name: 'MoveTestUnique', color: '#d73a4a', project: source_project)
+
+    issue = Issue.find(1)
+    issue.labels = [source_label]
+    issue.save!
+
+    issue.project = target_project
+    assert issue.save
+    issue.reload
+    assert_equal 2, issue.project_id
+    assert_empty issue.labels
+  end
+
+  def test_move_to_another_project_should_keep_matching_labels_and_drop_others
+    source_project = Project.find(1)
+    target_project = Project.find(2)
+    label_bug_src = Label.create!(name: 'MoveTest2', color: '#d73a4a', project: source_project)
+    label_urgent_src = Label.create!(name: 'MoveTest3', color: '#b60205', project: source_project)
+    label_bug_tgt = Label.create!(name: 'MoveTest2', color: '#ff0000', project: target_project)
+
+    issue = Issue.find(1)
+    issue.labels = [label_bug_src, label_urgent_src]
+    issue.save!
+
+    issue.project = target_project
+    assert issue.save
+    issue.reload
+    assert_equal 2, issue.project_id
+    assert_equal [label_bug_tgt], issue.labels.to_a
+  end
+
   def test_move_to_another_project_should_clear_fixed_version_when_not_shared
     issue = Issue.find(1)
     issue.update!(:fixed_version_id => 3)
