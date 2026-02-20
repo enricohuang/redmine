@@ -1749,7 +1749,7 @@ fieldset#filters {
   display: flex;
   flex-wrap: nowrap;
   gap: 2px;
-  padding: 0.5rem;
+  padding: 4px 0.5rem;
   background: var(--rm-gray-50);
   border: 1px solid var(--rm-gray-200);
   border-bottom: none;
