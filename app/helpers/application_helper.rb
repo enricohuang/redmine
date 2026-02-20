@@ -1617,6 +1617,7 @@ module ApplicationHelper
     titles = options[:titles].to_a
     titles[0] = "#{pcts[0]}%" if titles[0].blank?
     legend = options[:legend] || ''
+    has_legend = legend.present?
     if pcts[1] > 0
       # Stacked: multiple segments using .progress-stacked wrapper
       segments = ''.html_safe
@@ -1638,20 +1639,23 @@ module ApplicationHelper
                     'aria-valuenow' => pcts[1],
                     'aria-valuemin' => 0,
                     'aria-valuemax' => 100)
+      wrapper_class = "progress-stacked progress-#{pcts[0]}"
+      wrapper_class += " progress-labeled" if has_legend
       content_tag('div', segments,
-                  :class => "progress-stacked progress-#{pcts[0]}").html_safe +
-        content_tag('p', legend, :class => 'percent').html_safe
+                  :class => wrapper_class).html_safe +
+        (has_legend ? content_tag('p', legend, :class => 'percent').html_safe : ''.html_safe)
     else
       # Single bar: width on inner .progress-bar, aria on outer .progress
       bar_style = pcts[0] > 0 ? "width: #{pcts[0]}%" : nil
+      progress_class = "progress progress-#{pcts[0]}"
+      progress_class += " progress-labeled" if has_legend
       content_tag('div',
-        content_tag('div', '', :class => 'progress-bar bg-success', :style => bar_style, :title => titles[0]),
-        :class => "progress progress-#{pcts[0]}",
+        content_tag('div', (has_legend ? legend : ''), :class => 'progress-bar bg-success', :style => bar_style, :title => titles[0]),
+        :class => progress_class,
         :role => 'progressbar',
         'aria-valuenow' => pcts[0],
         'aria-valuemin' => 0,
-        'aria-valuemax' => 100).html_safe +
-        content_tag('p', legend, :class => 'percent').html_safe
+        'aria-valuemax' => 100).html_safe
     end
   end
 
