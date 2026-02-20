@@ -1617,29 +1617,29 @@ module ApplicationHelper
     titles = options[:titles].to_a
     titles[0] = "#{pcts[0]}%" if titles[0].blank?
     legend = options[:legend] || ''
-    content_tag(
-      'table',
-      content_tag(
-        'tr',
-        (if pcts[0] > 0
-           content_tag('td', '', :style => "width: #{pcts[0]}%;",
-                       :class => 'closed', :title => titles[0])
-         else
-           ''.html_safe
-         end) +
-        (if pcts[1] > 0
-           content_tag('td', '', :style => "width: #{pcts[1]}%;",
-                      :class => 'done', :title => titles[1])
-         else
-           ''.html_safe
-         end) +
-        (if pcts[2] > 0
-           content_tag('td', '', :style => "width: #{pcts[2]}%;",
-                                   :class => 'todo', :title => titles[2])
-         else
-           ''.html_safe
-         end)
-      ), :class => "progress progress-#{pcts[0]}").html_safe +
+    bars = ''.html_safe
+    if pcts[0] > 0
+      bars += content_tag('div', '',
+                          :class => 'progress-bar bg-success',
+                          :style => "width: #{pcts[0]}%",
+                          :role => 'progressbar',
+                          :title => titles[0],
+                          'aria-valuenow' => pcts[0],
+                          'aria-valuemin' => 0,
+                          'aria-valuemax' => 100)
+    end
+    if pcts[1] > 0
+      bars += content_tag('div', '',
+                          :class => 'progress-bar bg-primary',
+                          :style => "width: #{pcts[1]}%",
+                          :role => 'progressbar',
+                          :title => titles[1],
+                          'aria-valuenow' => pcts[1],
+                          'aria-valuemin' => 0,
+                          'aria-valuemax' => 100)
+    end
+    content_tag('div', bars,
+                :class => "progress progress-#{pcts[0]}").html_safe +
       content_tag('p', legend, :class => 'percent').html_safe
   end
 

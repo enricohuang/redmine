@@ -1048,27 +1048,19 @@ p.pagination span.current,
 }
 
 /* Progress bar */
-table.progress {
-  width: 100%;
+div.progress {
   height: 8px;
   background: var(--rm-gray-200);
   border-radius: 4px;
   overflow: hidden;
-  border: none;
-  box-shadow: none;
 }
 
-table.progress td {
-  padding: 0;
-  border: none;
+div.progress .progress-bar.bg-success {
+  background-color: var(--rm-success) !important;
 }
 
-table.progress td.closed {
-  background: var(--rm-success);
-}
-
-table.progress td.done {
-  background: var(--rm-primary);
+div.progress .progress-bar.bg-primary {
+  background-color: var(--rm-primary) !important;
 }
 
 /* Badges */
@@ -1527,7 +1519,7 @@ fieldset#filters {
   div#activity dl, #search-results { margin-inline-start: 0; }
 
   /* Version/roadmap */
-  .version-overview table.progress { inline-size: 75%; }
+  .version-overview div.progress { inline-size: 75%; }
   div#version-summary { float: none; inline-size: 100%; margin-inline-start: 0; }
   body.controller-versions.action-show div#roadmap .related-issues { inline-size: 100%; }
 
@@ -2257,7 +2249,7 @@ table.list td.attachments span.attachment-filename a.icon-download { visibility:
 table.list td.attachments span.attachment-filename:hover a.icon-download { visibility: visible; }
 table.list td.tick { width: 15%; }
 table.list td.reorder { width: 15%; white-space: nowrap; text-align: center; }
-table.list table.progress td { padding-inline-end: 0; border-top: none; }
+table.list div.progress { margin: 0; }
 table.list caption { text-align: start; padding: 0.5em 0.5em 0.5em 0; }
 table.list tr.overdue:not(.context-menu-selection) td.due_date { color: var(--rm-danger); }
 table.list thead.related-issues th { background-color: inherit; font-size: 11px; border: none; }
@@ -2284,7 +2276,7 @@ tr.issue td.subject, tr.issue td.parent-subject, tr.issue td.category,
 td.assigned_to, td.last_updated_by, tr.issue td.string, tr.issue td.text,
 tr.issue td.list, tr.issue td.relations, tr.issue td.parent, tr.issue td.watcher_users { white-space: normal; }
 tr.issue td.relations { text-align: start; }
-tr.issue td.done_ratio table.progress { margin-inline: auto; }
+tr.issue td.done_ratio div.progress { margin-inline: auto; }
 tr.issue td.relations span, tr.issue td.watcher_users a { white-space: nowrap; }
 tr.issue td.watcher_users ul { list-style: none; padding: 0; margin: 0; }
 tr.issue.created-by-me td.author { font-weight: bold; }
@@ -2938,12 +2930,10 @@ table.cal div.tooltip:hover span.tip { top: 25px; }
 img.ui-datepicker-trigger { cursor: pointer; vertical-align: middle; margin-inline-start: 4px; }
 
 /* --- Progress bar (extended) --- */
-table.progress { float: inline-start; margin: 1px 6px 1px 0; width: 80px; }
-table.progress td.todo { background: var(--rm-gray-300); }
+div.progress { float: inline-start; margin: 1px 6px 1px 0; width: 80px; }
 p.percent { font-size: 86%; margin: 0; }
 p.progress-info { clear: inline-start; font-size: 86%; margin-top: -4px; color: var(--rm-gray-500); }
-.version-overview table.progress { width: 40em; }
-.version-overview table.progress td { height: 1.2em; }
+.version-overview div.progress { width: 40em; height: 1.2em; }
 
 /* --- Tabs (extended, tab scroll buttons) --- */
 div.tabs-buttons {
