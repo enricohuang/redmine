@@ -1048,18 +1048,19 @@ p.pagination span.current,
 }
 
 /* Progress bar */
-div.progress {
+div.progress,
+div.progress-stacked {
   height: 8px;
   background: var(--rm-gray-200);
   border-radius: 4px;
   overflow: hidden;
 }
 
-div.progress .progress-bar.bg-success {
+.progress-bar.bg-success {
   background-color: var(--rm-success) !important;
 }
 
-div.progress .progress-bar.bg-primary {
+.progress-bar.bg-primary {
   background-color: var(--rm-primary) !important;
 }
 
@@ -1519,7 +1520,8 @@ fieldset#filters {
   div#activity dl, #search-results { margin-inline-start: 0; }
 
   /* Version/roadmap */
-  .version-overview div.progress { inline-size: 75%; }
+  .version-overview div.progress,
+  .version-overview div.progress-stacked { inline-size: 75%; }
   div#version-summary { float: none; inline-size: 100%; margin-inline-start: 0; }
   body.controller-versions.action-show div#roadmap .related-issues { inline-size: 100%; }
 
@@ -2930,10 +2932,12 @@ table.cal div.tooltip:hover span.tip { top: 25px; }
 img.ui-datepicker-trigger { cursor: pointer; vertical-align: middle; margin-inline-start: 4px; }
 
 /* --- Progress bar (extended) --- */
-div.progress { float: inline-start; margin: 1px 6px 1px 0; width: 80px; }
+div.progress,
+div.progress-stacked { float: inline-start; margin: 1px 6px 1px 0; width: 80px; }
 p.percent { font-size: 86%; margin: 0; }
 p.progress-info { clear: inline-start; font-size: 86%; margin-top: -4px; color: var(--rm-gray-500); }
-.version-overview div.progress { width: 40em; height: 1.2em; }
+.version-overview div.progress,
+.version-overview div.progress-stacked { width: 40em; height: 1.2em; }
 
 /* --- Tabs (extended, tab scroll buttons) --- */
 div.tabs-buttons {

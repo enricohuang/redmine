@@ -1617,30 +1617,42 @@ module ApplicationHelper
     titles = options[:titles].to_a
     titles[0] = "#{pcts[0]}%" if titles[0].blank?
     legend = options[:legend] || ''
-    bars = ''.html_safe
-    if pcts[0] > 0
-      bars += content_tag('div', '',
-                          :class => 'progress-bar bg-success',
-                          :style => "width: #{pcts[0]}%",
-                          :role => 'progressbar',
-                          :title => titles[0],
-                          'aria-valuenow' => pcts[0],
-                          'aria-valuemin' => 0,
-                          'aria-valuemax' => 100)
-    end
     if pcts[1] > 0
-      bars += content_tag('div', '',
-                          :class => 'progress-bar bg-primary',
-                          :style => "width: #{pcts[1]}%",
-                          :role => 'progressbar',
-                          :title => titles[1],
-                          'aria-valuenow' => pcts[1],
-                          'aria-valuemin' => 0,
-                          'aria-valuemax' => 100)
+      # Stacked: multiple segments using .progress-stacked wrapper
+      segments = ''.html_safe
+      if pcts[0] > 0
+        segments += content_tag('div',
+                      content_tag('div', '', :class => 'progress-bar bg-success', :title => titles[0]),
+                      :class => 'progress',
+                      :role => 'progressbar',
+                      :style => "width: #{pcts[0]}%",
+                      'aria-valuenow' => pcts[0],
+                      'aria-valuemin' => 0,
+                      'aria-valuemax' => 100)
+      end
+      segments += content_tag('div',
+                    content_tag('div', '', :class => 'progress-bar bg-primary', :title => titles[1]),
+                    :class => 'progress',
+                    :role => 'progressbar',
+                    :style => "width: #{pcts[1]}%",
+                    'aria-valuenow' => pcts[1],
+                    'aria-valuemin' => 0,
+                    'aria-valuemax' => 100)
+      content_tag('div', segments,
+                  :class => "progress-stacked progress-#{pcts[0]}").html_safe +
+        content_tag('p', legend, :class => 'percent').html_safe
+    else
+      # Single bar: width on inner .progress-bar, aria on outer .progress
+      bar_style = pcts[0] > 0 ? "width: #{pcts[0]}%" : nil
+      content_tag('div',
+        content_tag('div', '', :class => 'progress-bar bg-success', :style => bar_style, :title => titles[0]),
+        :class => "progress progress-#{pcts[0]}",
+        :role => 'progressbar',
+        'aria-valuenow' => pcts[0],
+        'aria-valuemin' => 0,
+        'aria-valuemax' => 100).html_safe +
+        content_tag('p', legend, :class => 'percent').html_safe
     end
-    content_tag('div', bars,
-                :class => "progress progress-#{pcts[0]}").html_safe +
-      content_tag('p', legend, :class => 'percent').html_safe
   end
 
   def checked_image(checked=true)

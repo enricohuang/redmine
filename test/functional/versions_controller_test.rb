@@ -213,7 +213,7 @@ class VersionsControllerTest < Redmine::ControllerTest
       assert_response :success
 
       assert_select 'div.version-overview' do
-        assert_select 'div.progress-98' do
+        assert_select 'div.progress-stacked.progress-98' do
           assert_select 'div.progress-bar.bg-success[title=?]', 'closed: 98%'
           assert_select 'div.progress-bar.bg-primary[title=?]', '% Done: 99%'
         end
