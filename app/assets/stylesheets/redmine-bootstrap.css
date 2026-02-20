@@ -1756,7 +1756,8 @@ fieldset#filters {
   border-radius: var(--rm-radius) var(--rm-radius) 0 0;
 }
 
-.jstElements button {
+.jstElements button,
+.jstElements button[type="button"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1773,9 +1774,11 @@ fieldset#filters {
   font-size: 0.875rem;
   color: var(--rm-gray-600);
   transition: all 0.15s ease;
+  box-shadow: none;
 }
 
-.jstElements button:hover {
+.jstElements button:hover,
+.jstElements button[type="button"]:hover {
   background-color: var(--rm-gray-100);
   border-color: var(--rm-gray-400);
   color: var(--rm-gray-800);
