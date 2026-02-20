@@ -1647,7 +1647,7 @@ module ApplicationHelper
         (has_legend ? content_tag('p', legend, :class => 'percent').html_safe : ''.html_safe)
     else
       # Single bar: width on inner .progress-bar, aria on outer .progress
-      bar_style = pcts[0] > 0 ? "width: #{pcts[0]}%" : nil
+      bar_style = "width: #{pcts[0]}%"
       progress_class = "progress progress-#{pcts[0]}"
       progress_class += " progress-labeled" if has_legend
       content_tag('div',

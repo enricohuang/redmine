@@ -1060,8 +1060,10 @@ div.progress-stacked {
 }
 
 div.progress .progress-bar {
+  width: 0;
   height: 100%;
   border-radius: 4px;
+  transition: width 0.3s ease;
 }
 
 div.progress.progress-labeled,
