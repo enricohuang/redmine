@@ -145,13 +145,15 @@ module Redmine
           if block_given?
             yield text, parameters, options
           else
-            link_to text, {:params => request.query_parameters.merge(parameters)}, options
+            css = parameters.key?(:per_page) ? nil : 'page-link'
+            link_to text, {:params => request.query_parameters.merge(parameters)}, (options || {}).merge(:class => css).compact
           end
         end
       end
 
       # Yields the given block with the text and parameters
       # for each pagination link and returns a string that represents the links
+      # Uses Bootstrap 5.3 pagination component markup
       def pagination_links_each(paginator, count=nil, options={}, &)
         options.assert_valid_keys :per_page_links
 
@@ -159,7 +161,7 @@ module Redmine
         per_page_links = false if count.nil?
         page_param = paginator.page_param
 
-        html = +'<ul class="pages">'
+        html = +'<ul class="pagination">'
 
         if paginator.multiple_pages?
           # \xc2\xab(utf-8) = &#171;
@@ -168,23 +170,23 @@ module Redmine
             html << content_tag('li',
                                 yield(text, {page_param => paginator.previous_page},
                                       :accesskey => accesskey(:previous)),
-                                :class => 'previous page')
+                                :class => 'page-item')
           else
-            html << content_tag('li', content_tag('span', text), :class => 'previous')
+            html << content_tag('li', content_tag('span', text, :class => 'page-link'), :class => 'page-item disabled')
           end
         end
 
         previous = nil
         paginator.linked_pages.each do |page|
           if previous && previous != page - 1
-            html << content_tag('li', content_tag('span', '&hellip;'.html_safe), :class => 'spacer')
+            html << content_tag('li', content_tag('span', '&hellip;'.html_safe, :class => 'page-link'), :class => 'page-item disabled')
           end
           if page == paginator.page
-            html << content_tag('li', content_tag('span', page.to_s), :class => 'current')
+            html << content_tag('li', content_tag('span', page.to_s, :class => 'page-link'), :class => 'page-item active')
           else
             html << content_tag('li',
                                 yield(page.to_s, {page_param => page}),
-                                :class => 'page')
+                                :class => 'page-item')
           end
           previous = page
         end
@@ -196,9 +198,9 @@ module Redmine
             html << content_tag('li',
                                 yield(text, {page_param => paginator.next_page},
                                       :accesskey => accesskey(:next)),
-                                :class => 'next page')
+                                :class => 'page-item')
           else
-            html << content_tag('li', content_tag('span', text), :class => 'next')
+            html << content_tag('li', content_tag('span', text, :class => 'page-link'), :class => 'page-item disabled')
           end
         end
         html << '</ul>'

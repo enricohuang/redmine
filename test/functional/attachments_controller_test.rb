@@ -290,8 +290,8 @@ class AttachmentsControllerTest < Redmine::ControllerTest
     get(:show, :params => {:id => 5, :type => 'inline'})
     assert_response :success
 
-    assert_select 'ul.pages li.next', :text => /next/i
-    assert_select 'ul.pages li.previous', :text => /previous/i
+    assert_select 'ul.pagination li.page-item', :text => /next/i
+    assert_select 'ul.pagination li.page-item', :text => /previous/i
   end
 
   def test_download_text_file

@@ -934,44 +934,43 @@ ul.tabs li a.selected,
   border-bottom-color: #fff;
 }
 
-/* Pagination */
-p.pagination,
-.pagination {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+/* Pagination (Bootstrap 5.3) */
+span.pagination {
+  margin-inline-start: 3px;
+  color: var(--rm-gray-500);
+  display: block;
+}
+
+span.pagination > span { white-space: nowrap; }
+
+span.pagination ul.pagination {
   margin: 0.75rem 0;
   font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: 0.125rem;
 }
 
-p.pagination a,
-p.pagination span.current,
-.pagination .page-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2rem;
-  height: 2rem;
-  padding: 0 0.5rem;
+span.pagination .page-link {
   color: var(--rm-gray-700);
-  background: #fff;
-  border: 1px solid var(--rm-gray-300);
+  border-color: var(--rm-gray-300);
   border-radius: var(--rm-radius-sm);
-  text-decoration: none;
-  transition: all 0.15s ease;
+  min-width: 2rem;
+  text-align: center;
 }
 
-p.pagination a:hover,
-.pagination .page-link:hover {
+span.pagination .page-link:hover {
   background: var(--rm-gray-50);
   border-color: var(--rm-gray-400);
 }
 
-p.pagination span.current,
-.pagination .page-item.active .page-link {
+span.pagination .page-item.active .page-link {
   color: #fff;
   background: var(--rm-primary);
   border-color: var(--rm-primary);
+}
+
+span.pagination .page-item.disabled .page-link {
+  color: var(--rm-gray-400);
 }
 
 /* Dropdowns */
@@ -1682,10 +1681,7 @@ fieldset#filters {
 
   /* Pagination */
   span.pagination { text-align: center; }
-  .pagination ul.pages li { display: none; }
-  .pagination ul.pages li.current,
-  .pagination ul.pages li.previous,
-  .pagination ul.pages li.next { display: inline-block; inline-size: 32%; overflow: hidden; }
+  span.pagination ul.pagination { justify-content: center; }
 
   /* Login form */
   #login-form { inline-size: 100%; margin-block-start: 2em; }
@@ -2609,8 +2605,6 @@ div.thumbnail { background: #fff; border: 2px solid var(--rm-gray-300); display:
 div.thumbnail img { margin: 3px; vertical-align: middle; }
 
 /* --- Pagination (extended) --- */
-span.pagination { margin-inline-start: 3px; color: var(--rm-gray-500); display: block; }
-span.pagination > span { white-space: nowrap; }
 .pagination .per-page span.selected { font-weight: bold; }
 .controller-attachments.action-show span.pagination, .controller-repositories.action-entry span.pagination { display: block; margin-top: 1.2em; }
 
@@ -3255,7 +3249,7 @@ th[role=columnheader]:not(.no-sort):hover:after { display: inline; opacity: 1; }
   #main { background: #fff; }
   #content { width: 99%; margin: 0; padding: 0; border: 0; background: #fff; overflow: visible !important; }
   #wiki_add_attachment { display: none; }
-  .hide-when-print, .pagination ul.pages, .pagination .per-page { display: none !important; }
+  .hide-when-print, span.pagination ul.pagination, span.pagination .per-page { display: none !important; }
   .autoscroll { overflow-x: visible; }
   table.list { margin-top: 0.5em; }
   table.list th, table.list td { border: 1px solid var(--rm-gray-400); }
