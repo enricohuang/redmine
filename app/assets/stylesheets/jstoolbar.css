@@ -22,7 +22,10 @@
 #content .jstTabs.tabs {
     margin-block-end: -1px;
 }
-#content .jstTabs.tabs ul {border-block-end: 0;}
+#content .jstTabs.tabs ul {
+    border-block-end: 0;
+    margin: 0;
+}
 #content .jstTabs.tabs li {
     block-size: 42px;
 }
@@ -52,7 +55,8 @@
 }
 .wiki-preview p.empty-preview {color: var(--rm-gray-600); font-style: italic; margin-block-start: 1em; text-align: center;}
 
-.jstElements button {
+.jstElements button,
+.jstElements button[type="button"] {
     margin-inline-end: 2px;
     inline-size : 24px;
     block-size: 24px;
@@ -145,11 +149,8 @@
 .jstElements button.jstb_unbq {
     background-image: url(/jstoolbar/indent-decrease.svg);
 }
-.jstElements button.jstb_pre::before {
-    content: "pre";
-    font-size: 10px;
-    color: var(--rm-gray-900);
-    font-weight: 700
+.jstElements button.jstb_pre {
+    background-image: url(/jstoolbar/pre.svg);
 }
 .jstElements button.jstb_precode {
     background-image: url(/jstoolbar/code.svg);
