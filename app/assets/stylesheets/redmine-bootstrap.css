@@ -958,6 +958,43 @@ span.pagination ul.pagination {
   gap: 0.125rem;
 }
 
+/* Legacy pagination markup compatibility (used by calendar/activity views) */
+span.pagination ul.pages {
+  margin: 0;
+  margin-inline: 0 5px;
+  padding: 0;
+  display: inline;
+  list-style: none;
+}
+
+span.pagination ul.pages li {
+  display: inline-block;
+  padding: 0;
+  margin-inline-start: -1px;
+  margin-block-end: 1em;
+  border: 1px solid var(--rm-gray-300);
+  border-radius: 0;
+  line-height: 2em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+span.pagination ul.pages li:first-child {
+  border-start-start-radius: var(--rm-radius-sm);
+  border-end-start-radius: var(--rm-radius-sm);
+}
+
+span.pagination ul.pages li:last-child {
+  border-start-end-radius: var(--rm-radius-sm);
+  border-end-end-radius: var(--rm-radius-sm);
+}
+
+span.pagination ul.pages li a,
+span.pagination ul.pages li span {
+  display: inline-block;
+  padding: 3px 8px;
+}
+
 span.pagination .page-link {
   color: var(--rm-gray-700);
   border-color: var(--rm-gray-300);
@@ -3031,6 +3068,17 @@ ul.cal {
 .cal .calbody.nwday:not(.other-month) { background-color: var(--rm-gray-100); }
 p.cal.legend span { display: flex; }
 .controller-calendars p.buttons { margin-top: unset; }
+.controller-calendars p.buttons label {
+  display: inline;
+  margin-inline-end: 0.25rem;
+}
+.controller-calendars p.buttons select {
+  display: inline-block;
+  width: auto;
+  min-width: 8rem;
+  max-width: none;
+  margin-inline-end: 0.5rem;
+}
 
 /* --- Tooltips (legacy) --- */
 .tooltip { position: relative; z-index: 24; }
