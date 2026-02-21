@@ -1446,6 +1446,31 @@ fieldset#filters {
   max-width: 300px;
 }
 
+#header [data-bs-toggle="offcanvas"] {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: var(--rm-radius);
+}
+
+#header [data-bs-toggle="offcanvas"]:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+#header [data-bs-toggle="offcanvas"] .bi {
+  font-size: 1.5rem;
+}
+
 .offcanvas-header {
   background: var(--rm-header-bg);
   color: #fff;
@@ -1523,6 +1548,10 @@ fieldset#filters {
     padding: 0.75rem 1rem;
   }
 
+  .splitcontent {
+    flex-wrap: wrap;
+  }
+
   .splitcontentleft, .splitcontentright, .splitcontenttop {
     inline-size: 100%;
     flex: auto;
@@ -1539,6 +1568,9 @@ fieldset#filters {
     margin-block-end: 0.5em;
     padding-inline-start: 0;
     white-space: normal;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
   }
 
   #content > .contextual > a,
@@ -1546,8 +1578,7 @@ fieldset#filters {
   p.buttons a {
     font-weight: bold;
     display: inline-flex;
-    margin: 5px 0;
-    margin-inline-end: 2px;
+    margin: 0;
     padding: 9px;
     border: 1px solid var(--rm-gray-400);
     border-radius: 3px;
@@ -1929,6 +1960,14 @@ span.badge,
   flex: 1;
 }
 
+@media (max-width: 991.98px) {
+  .splitcontent { flex-wrap: wrap; }
+  .splitcontent > div,
+  .splitcontentleft,
+  .splitcontentright,
+  .splitcontenttop { flex: 0 0 100%; }
+}
+
 /* Activity/Journal entries */
 #history,
 .journal {
@@ -2146,6 +2185,14 @@ div.news, .news-article {
 .autoscroll.table-responsive {
   overflow: visible;
   padding: 0;
+}
+
+@media (max-width: 991.98px) {
+  .autoscroll,
+  .autoscroll.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Remove the white block caused by rounded corners on table container */
@@ -2540,6 +2587,24 @@ label.no-css { font-weight: inherit; float: none; text-align: start; margin-inli
 .tabular.settings p { padding-inline-start: 300px; font-size: 93%; }
 .tabular.settings label { margin-inline-start: -300px; width: 295px; }
 .tabular.settings textarea, .tabular.settings .wiki-preview, .tabular.settings .jstTabs { width: 99%; }
+
+@media (max-width: 991.98px) {
+  /* Override tabular form layout for mobile (must come after desktop rules) */
+  .tabular p { padding-inline-start: 0; }
+  html > body .tabular p { overflow: visible; }
+  .tabular label { float: none; margin-inline-start: 0; width: 100%; text-align: start; display: block; }
+  .tabular input, .tabular select, .tabular textarea { width: 100%; max-width: 100%; }
+  .tabular input[type="checkbox"], .tabular input.date { width: auto; }
+  .tabular.settings p { padding-inline-start: 0; }
+  .tabular.settings label { margin-inline-start: 0; width: 100%; text-align: start; display: block; }
+  .tabular.settings textarea,
+  .tabular.settings .wiki-preview,
+  .tabular.settings .jstTabs { width: 100%; }
+  .tabular.settings input,
+  .tabular.settings select { width: 100%; max-width: 100%; }
+  .tabular.settings input[type="checkbox"] { width: auto; }
+}
+
 .settings.enabled_scm table { width: 100%; }
 .settings.enabled_scm td.scm_name { font-weight: bold; }
 fieldset.settings label { display: block; }
@@ -2668,6 +2733,12 @@ div.issue .attribute .value { overflow: auto; text-overflow: ellipsis; }
 div.issue .attribute.string_cf .value .wiki p { margin: 0; }
 div.issue .attribute.text_cf .value .wiki p:first-of-type { margin-top: 0; }
 div.issue.overdue .due-date .value { color: var(--rm-danger); }
+
+@media (max-width: 991.98px) {
+  div.issue .attributes .attribute { padding-inline-start: 0; min-height: auto; }
+  div.issue .attributes .attribute .label { float: none; margin-inline-start: 0; width: auto; display: block; }
+  div.issue .attribute .value { word-break: break-word; }
+}
 
 /* Sticky issue header */
 div#sticky-issue-header {

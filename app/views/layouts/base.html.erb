@@ -100,8 +100,8 @@
 <!-- Header -->
 <div id="header">
     <!-- Mobile menu toggle -->
-    <button class="btn btn-link text-white p-0 me-2 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#flyoutMenu" aria-controls="flyoutMenu" style="position: absolute; left: 1rem; top: 1rem;">
-      <i class="bi bi-list fs-4"></i>
+    <button class="d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#flyoutMenu" aria-controls="flyoutMenu" aria-label="Menu">
+      <i class="bi bi-list"></i>
     </button>
     <% if User.current.logged? || !Setting.login_required? %>
     <div id="quick-search">
