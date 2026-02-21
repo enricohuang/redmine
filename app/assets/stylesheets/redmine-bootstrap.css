@@ -53,6 +53,7 @@
   /* Border radius */
   --rm-radius: 0.5rem;
   --rm-radius-sm: 0.375rem;
+  --rm-radius-md: var(--rm-radius);
   --rm-radius-lg: 0.75rem;
 
   /* Extended palette (for avatars, markdown alerts, syntax, etc.) */
@@ -462,6 +463,8 @@ h4 { font-size: 1.125rem; }
   border-radius: 0 0 var(--rm-radius-lg) var(--rm-radius-lg);
   margin: 0 0.75rem 0.75rem;
   box-shadow: var(--rm-shadow);
+  overflow-x: auto;
+  min-width: 0; /* Prevents flex item from overflowing */
 }
 
 #main.nosidebar #content {
@@ -872,6 +875,7 @@ fieldset,
 
 fieldset {
   margin: 0 0 1rem;
+  min-width: inherit;
 }
 
 fieldset legend,
@@ -1084,6 +1088,9 @@ div.progress-stacked {
   background: var(--rm-gray-200);
   border-radius: 4px;
   overflow: hidden;
+  float: inline-start;
+  margin: 1px 6px 1px 0;
+  width: 80px;
 }
 
 div.progress .progress-bar {
@@ -1156,6 +1163,7 @@ span.badge-status {
 /* Wiki content */
 div.wiki {
   line-height: 1.75;
+  font-variant-numeric: proportional-nums;
 }
 
 .wiki h1 { font-size: 1.75rem; margin-top: 2rem; }
@@ -1352,10 +1360,13 @@ fieldset#filters {
   background: var(--rm-gray-50);
 }
 
-/* Filter row layout - prevent wrapping of values */
+/* Filter row layout */
 #filters-table .filter {
-  flex-wrap: nowrap;
+  margin: 5px 0 0;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 0 10px;
 }
 
 #filters-table .filter .values {
@@ -1378,6 +1389,7 @@ fieldset#filters {
   width: 28px;
   height: 28px;
   padding: 0;
+  margin-inline-end: 5px;
   cursor: pointer;
 }
 
@@ -1736,13 +1748,18 @@ fieldset#filters {
 }
 
 #project-jump .drdn-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  width: 100%;
+  height: 24px;
+  display: inline-block;
+  padding: 1.5px 18px 3px 6px;
   background: rgba(255, 255, 255, 0.1);
+  background-image: url(/chevron-down.svg);
+  background-repeat: no-repeat;
+  background-position: 98% 50%;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--rm-radius);
+  border-radius: 3px;
+  margin: 0 !important;
+  vertical-align: middle;
   color: #fff;
   font-size: 0.875rem;
   cursor: pointer;
@@ -1882,7 +1899,7 @@ span.badge,
 }
 
 .icon::before {
-  font-family: "bootstrap-icons";
+  font-family: "bootstrap-icons", sans-serif;
   font-size: 1em;
   line-height: 1;
 }
@@ -2028,6 +2045,7 @@ fieldset.collapsible > legend {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  cursor: pointer;
 }
 
 /* Loading/spinner enhancements */
@@ -2175,12 +2193,6 @@ div.news, .news-article {
    Table Responsiveness
    ========================================================================== */
 
-/* Wrap content area to allow horizontal scroll for wide tables */
-#content {
-  overflow-x: auto;
-  min-width: 0; /* Prevents flex item from overflowing */
-}
-
 /* Autoscroll wrapper styling */
 .autoscroll.table-responsive {
   overflow: visible;
@@ -2325,18 +2337,6 @@ div + .drdn-items { border-top: 1px solid var(--rm-gray-200); }
 
 /* Project jump extended */
 #project-jump.drdn { width: 200px; display: inline-block; }
-#project-jump .drdn-trigger {
-  width: 100%;
-  height: 24px;
-  display: inline-block;
-  padding: 1.5px 18px 3px 6px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 0 !important;
-  vertical-align: middle;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1) url(/chevron-down.svg) no-repeat 98% 50%;
-}
 #project-jump .drdn.expanded .drdn-trigger { background-image: url(/arrow_up.png); }
 #project-jump .drdn-items > * { color: var(--rm-gray-600) !important; }
 #project-jump .drdn-items > a:hover { background-color: var(--rm-primary); color: #fff !important; }
@@ -2548,7 +2548,6 @@ td.center { text-align: center; }
 
 /* --- Forms (extended) --- */
 select[multiple=multiple] { background: #fff; padding-inline-end: initial; height: auto; }
-fieldset { border: 1px solid var(--rm-gray-200); margin: 0; min-width: inherit; }
 legend { color: var(--rm-gray-800); }
 hr { width: 100%; height: 1px; background: var(--rm-gray-200); border: 0; }
 blockquote { font-style: italic; border-inline-start: 3px solid var(--rm-gray-300); padding-inline-start: 0.6em; margin-inline-start: 0; }
@@ -2776,15 +2775,12 @@ div#sticky-issue-header .subject { font-weight: bold; overflow: hidden; text-ove
 #issue-form .assign-to-me-link { padding-inline-start: 5px; }
 #issue-form fieldset, #bulk_edit_form fieldset { border-bottom: none; border-inline: none; }
 fieldset.collapsible { border-width: 1px 0 0 0; }
-fieldset.collapsible > legend { cursor: pointer; }
 fieldset#date-range p { margin: 2px 0; }
 #query_form_content > fieldset { min-width: 0; max-width: 100%; }
 #filters-table { float: inline-start; width: auto; }
 #filters-table .field { width: 230px; }
-#filters-table .filter { margin: 5px 0 0; display: flex; flex-wrap: wrap; gap: 0 10px; }
 #filters-table .filter .operator select { width: 120px; }
 #issue_is_private_wrap { float: inline-end; margin-inline-end: 1em; }
-.toggle-multiselect { margin-inline-end: 5px; cursor: pointer; }
 #update { margin-bottom: 1.4em; }
 #history p.nodata { display: none; }
 .controller-issues.action-show div.wiki a[name],
@@ -2901,7 +2897,6 @@ div.wiki a:target + h4, div.wiki a:target + h5, div.wiki a:target + h6 { backgro
 .wiki-update-info { text-align: end; color: var(--rm-gray-500); font-size: 90%; }
 
 /* Wiki content (extended) */
-div.wiki { font-variant-numeric: proportional-nums; }
 div.wiki table, div.wiki pre, div.wiki code, div.wiki ol > li::marker { font-variant-numeric: tabular-nums; }
 div.wiki table { border-collapse: collapse; margin-bottom: 1em; }
 div.wiki table, div.wiki td, div.wiki th { border: 1px solid var(--rm-gray-300); padding: 4px; }
@@ -3060,8 +3055,6 @@ table.cal div.tooltip:hover span.tip { top: 25px; }
 img.ui-datepicker-trigger { cursor: pointer; vertical-align: middle; margin-inline-start: 4px; }
 
 /* --- Progress bar (extended) --- */
-div.progress,
-div.progress-stacked { float: inline-start; margin: 1px 6px 1px 0; width: 80px; }
 p.percent { font-size: 86%; margin: 0; }
 p.progress-info { clear: inline-start; font-size: 86%; margin-top: -4px; color: var(--rm-gray-500); }
 .version-overview div.progress,
