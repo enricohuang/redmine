@@ -96,6 +96,17 @@ from .commands import (  # noqa: E402  (registration must follow app definition)
     bulk,
     group,
     ref,
+    # v3 — additional resource coverage
+    myaccount,
+    board,
+    message,
+    document,
+    file as file_cmd,
+    reaction,
+    activity,
+    query,
+    fulltext,
+    elasticsearch as elasticsearch_cmd,
 )
 
 # NOTE: do not pass `help=` to add_typer — that overrides the rich `help=`
@@ -132,6 +143,18 @@ app.add_typer(ref.priority_app, name="priority")
 app.add_typer(ref.enum_app, name="enumeration")
 app.add_typer(ref.cf_app, name="custom-field")
 app.add_typer(ref.role_app, name="role")
+
+# v3: additional workflow + fork-only commands
+app.add_typer(myaccount.app, name="myaccount")
+app.add_typer(board.app, name="board")
+app.add_typer(message.app, name="message")
+app.add_typer(document.app, name="document")
+app.add_typer(file_cmd.app, name="file")
+app.add_typer(reaction.app, name="reaction")
+app.add_typer(activity.app, name="activity")
+app.add_typer(query.app, name="query")
+app.add_typer(fulltext.app, name="fulltext")
+app.add_typer(elasticsearch_cmd.app, name="elasticsearch")
 
 help_cmd.register(app)
 

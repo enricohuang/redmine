@@ -5,6 +5,7 @@ hosts.yml shape:
     redmine.example.com:
       url: https://redmine.example.com
       user: alice                  # active user for this host
+      indexer_key: <KEY>           # optional: fork-only fulltext indexer key
       users:
         alice:
           api_key: <40-char>
@@ -15,6 +16,15 @@ hosts.yml shape:
 config.yml shape:
 
     default_host: redmine.example.com
+
+Design note — indexer key placement
+-----------------------------------
+The fork's attachment fulltext API authenticates with the server-wide
+`Setting.attachment_indexer_api_key`. Because that key belongs to the
+*instance* (not to a Redmine user), we store it at the host level —
+sibling to `url`/`users` — rather than per-user. One key is shared by
+every user that talks to that host. Env var `REDMINE_INDEXER_KEY` always
+wins so test/CI runs can bypass the file entirely.
 """
 
 from __future__ import annotations
@@ -81,24 +91,49 @@ def save_config(cfg: dict[str, Any]) -> None:
 
 @dataclass(frozen=True)
 class Credential:
-    """Resolved credential for a CLI invocation."""
+    """Resolved credential for a CLI invocation.
+
+    `indexer_key` is the optional fork-only `X-Redmine-Indexer-Key` value
+    (env var `REDMINE_INDEXER_KEY` or hosts.yml host-level `indexer_key`).
+    Most commands ignore it; only `redmine fulltext ...` uses it.
+    """
 
     host: str       # e.g. "redmine.example.com" (display key)
     url: str        # e.g. "https://redmine.example.com"
     user: str       # local label for the account (e.g. "alice")
     api_key: str
+    indexer_key: str | None = None
 
     @property
     def headers(self) -> dict[str, str]:
         return {"X-Redmine-API-Key": self.api_key}
+
+    @property
+    def indexer_headers(self) -> dict[str, str]:
+        """Headers for the fork-only fulltext indexer endpoints.
+
+        Raises AuthError if no indexer key is available.
+        """
+        if not self.indexer_key:
+            raise AuthError(
+                "no indexer key configured for this host. Set one with "
+                "`redmine auth login --url ... --indexer-key <KEY>` "
+                "or export REDMINE_INDEXER_KEY."
+            )
+        return {"X-Redmine-Indexer-Key": self.indexer_key}
 
 
 class AuthError(Exception):
     pass
 
 
-def add_user(host: str, url: str, user: str, api_key: str, *, make_active: bool = True) -> None:
-    """Add or replace a user under a host. Optionally set as active."""
+def add_user(host: str, url: str, user: str, api_key: str, *,
+             make_active: bool = True, indexer_key: str | None = None) -> None:
+    """Add or replace a user under a host. Optionally set as active.
+
+    `indexer_key` is host-scoped (sibling to `url`/`users`). Passing it
+    overwrites the existing host-level value; passing None leaves it.
+    """
     hosts = load_hosts()
     h = hosts.setdefault(host, {})
     h["url"] = url.rstrip("/")
@@ -106,11 +141,22 @@ def add_user(host: str, url: str, user: str, api_key: str, *, make_active: bool 
     users[user] = {"api_key": api_key}
     if make_active or "user" not in h:
         h["user"] = user
+    if indexer_key is not None:
+        h["indexer_key"] = indexer_key
     save_hosts(hosts)
 
     cfg = load_config()
     cfg.setdefault("default_host", host)
     save_config(cfg)
+
+
+def set_indexer_key(host: str, indexer_key: str) -> None:
+    """Store/replace the host-level indexer key without touching users."""
+    hosts = load_hosts()
+    if host not in hosts:
+        raise AuthError(f"no such host: {host}")
+    hosts[host]["indexer_key"] = indexer_key
+    save_hosts(hosts)
 
 
 def remove_user(host: str, user: str | None = None) -> None:
@@ -167,11 +213,14 @@ def resolve(host_override: str | None = None, user_override: str | None = None) 
       3. Env: REDMINE_HOST / REDMINE_USER
       4. config.yml: default_host + that host's active user
     """
+    env_indexer = os.environ.get("REDMINE_INDEXER_KEY") or None
+
     raw_url = os.environ.get("REDMINE_URL")
     raw_key = os.environ.get("REDMINE_API_KEY")
     if raw_url and raw_key:
         host = raw_url.split("://", 1)[-1].split("/", 1)[0]
-        return Credential(host=host, url=raw_url.rstrip("/"), user="(env)", api_key=raw_key)
+        return Credential(host=host, url=raw_url.rstrip("/"), user="(env)",
+                          api_key=raw_key, indexer_key=env_indexer)
 
     hosts = load_hosts()
     if not hosts:
@@ -201,4 +250,7 @@ def resolve(host_override: str | None = None, user_override: str | None = None) 
     if not api_key:
         raise AuthError(f"no api_key stored for {user}@{host}.")
 
-    return Credential(host=host, url=h["url"], user=user, api_key=api_key)
+    indexer_key = env_indexer or h.get("indexer_key")
+
+    return Credential(host=host, url=h["url"], user=user,
+                      api_key=api_key, indexer_key=indexer_key)

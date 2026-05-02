@@ -20,6 +20,10 @@ app = typer.Typer(
         "redmine project get mobile               # by identifier\n"
         "redmine project create --identifier docs --name 'Docs'\n"
         "redmine project update mobile --description 'Mobile app'\n"
+        "redmine project archive mobile           # hide from active project lists\n"
+        "redmine project unarchive mobile\n"
+        "redmine project close mobile             # read-only mode\n"
+        "redmine project reopen mobile\n"
         "redmine project delete docs -y\n"
         "```"
     ),
@@ -205,3 +209,73 @@ def delete_project(
         )
     c.delete(f"/projects/{id_or_identifier}.json")
     typer.echo(f"deleted {id_or_identifier}")
+
+
+@app.command(
+    "archive",
+    help=(
+        "Archive a project — hides it from active project lists. Reversible "
+        "via `redmine project unarchive`.\n\n"
+        "**Example:** `redmine project archive mobile`"
+    ),
+)
+def archive_project(
+    ctx: typer.Context,
+    id_or_identifier: str = typer.Argument(..., metavar="PROJECT"),
+):
+    """Archive a project (hides it from active project lists)."""
+    c = _client(ctx)
+    c.put(f"/projects/{id_or_identifier}/archive.json")
+    typer.echo(f"archived {id_or_identifier}")
+
+
+@app.command(
+    "unarchive",
+    help=(
+        "Unarchive a previously archived project.\n\n"
+        "**Example:** `redmine project unarchive mobile`"
+    ),
+)
+def unarchive_project(
+    ctx: typer.Context,
+    id_or_identifier: str = typer.Argument(..., metavar="PROJECT"),
+):
+    """Unarchive a previously archived project."""
+    c = _client(ctx)
+    c.put(f"/projects/{id_or_identifier}/unarchive.json")
+    typer.echo(f"unarchived {id_or_identifier}")
+
+
+@app.command(
+    "close",
+    help=(
+        "Close a project — puts it in read-only mode. Reversible via "
+        "`redmine project reopen`.\n\n"
+        "**Example:** `redmine project close mobile`"
+    ),
+)
+def close_project(
+    ctx: typer.Context,
+    id_or_identifier: str = typer.Argument(..., metavar="PROJECT"),
+):
+    """Close a project (puts it in read-only mode)."""
+    c = _client(ctx)
+    c.put(f"/projects/{id_or_identifier}/close.json")
+    typer.echo(f"closed {id_or_identifier}")
+
+
+@app.command(
+    "reopen",
+    help=(
+        "Reopen a previously closed project.\n\n"
+        "**Example:** `redmine project reopen mobile`"
+    ),
+)
+def reopen_project(
+    ctx: typer.Context,
+    id_or_identifier: str = typer.Argument(..., metavar="PROJECT"),
+):
+    """Reopen a previously closed project."""
+    c = _client(ctx)
+    c.put(f"/projects/{id_or_identifier}/reopen.json")
+    typer.echo(f"reopened {id_or_identifier}")

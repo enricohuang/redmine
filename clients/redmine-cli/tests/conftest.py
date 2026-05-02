@@ -148,7 +148,7 @@ def project(cli, session_id) -> dict:
         "--description", "auto-created by redmine-cli e2e suite",
         # Enable every module the suite touches; new tests should reuse this
         # session project rather than creating one of their own.
-        "--modules", "issue_tracking,wiki,news,time_tracking,boards,documents",
+        "--modules", "issue_tracking,wiki,news,time_tracking,boards,documents,files",
         "--json")
     # Fetch by identifier to capture the assigned numeric id.
     res = cli("project", "get", identifier, "--include", "", "--json")

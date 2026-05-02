@@ -28,14 +28,47 @@ class ElasticsearchSearchController < ApplicationController
     end
 
     @available_projects = User.current.projects.active.order(:name)
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: {
+          query: @question,
+          total_count: @result_count.to_i,
+          offset: @offset,
+          limit: @limit,
+          results: (@results || []).map do |r|
+            project = Project.find_by(id: r[:project_id])
+            {
+              type: r[:type],
+              id: r[:id],
+              title: r[:title],
+              content: r[:content],
+              score: r[:score],
+              project_id: r[:project_id],
+              project_name: project&.name,
+              project_identifier: project&.identifier,
+              created_on: r[:created_on],
+              updated_on: r[:updated_on]
+            }
+          end,
+          aggregations: @aggregations || {}
+        }
+      end
+    end
   end
 
   private
 
   def require_elasticsearch
     unless defined?(::RedmineElasticsearch) && ::RedmineElasticsearch.available?
-      flash[:error] = l(:error_elasticsearch_not_available)
-      redirect_to search_path
+      respond_to do |format|
+        format.html do
+          flash[:error] = l(:error_elasticsearch_not_available)
+          redirect_to search_path
+        end
+        format.json { render json: { error: 'elasticsearch_not_available' }, status: :service_unavailable }
+      end
     end
   end
 

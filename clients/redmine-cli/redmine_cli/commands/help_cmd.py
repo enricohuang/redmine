@@ -13,7 +13,6 @@ Each topic is a self-contained reference. See `help_text.py` for content.
 from __future__ import annotations
 
 import os
-import subprocess
 import sys
 from typing import Optional
 
@@ -83,63 +82,48 @@ def _list_topics() -> None:
 def _dump_all_help() -> None:
     """Walk the click command tree and print `--help` for every node.
 
-    Done by spawning subprocesses (`<argv0> ... --help`) so each node renders
-    exactly as a user would see it. The alternative (rendering programmatically
-    via click) drops the rich formatting and epilog.
+    Renders in-process via click's get_help() (no subprocess per command).
+    The CLI grew big enough — 32 top-level commands × ~6 subcommands each ≈
+    200 nodes — that subprocess-per-node took >60s. In-process is ~150x
+    faster and produces functionally equivalent output (same formatter,
+    same panels), at the cost of using the current TTY width instead of
+    re-resolving it for each child invocation.
     """
-    argv0 = sys.argv[0]
-    if not argv0 or not os.path.exists(argv0):
-        # Shouldn't happen — typer entry points always set argv[0]
-        argv0 = "redmine"
+    import click
+    from typer.main import get_command
 
     # Lazy-import to avoid a cycle with cli.py.
     from ..cli import app as root_app
+    root = get_command(root_app)
 
-    paths = list(_iter_command_paths(root_app))
-    for path in paths:
+    # Force consistent width and disable color so output is deterministic and
+    # pipeable. Using a real terminal width here would make the dump depend on
+    # the caller's window size, which is bad for `redmine help all > file`.
+    os.environ.setdefault("NO_COLOR", "1")
+
+    def render(cmd: click.Command, path: list[str]) -> None:
         header = "redmine " + " ".join(path) if path else "redmine"
-        typer.echo("=" * 78)
-        typer.echo(f"$ {header} --help")
-        typer.echo("=" * 78)
-        try:
-            result = subprocess.run(
-                [argv0, *path, "--help"],
-                capture_output=True, text=True, timeout=20,
-                env={**os.environ, "NO_COLOR": "1", "TERM": "dumb"},
-            )
-            sys.stdout.write(result.stdout)
-            if result.stderr:
-                sys.stderr.write(result.stderr)
-        except Exception as e:  # pragma: no cover
-            typer.echo(f"  (failed to invoke: {e})", err=True)
-        typer.echo("")
+        sys.stdout.write("=" * 78 + "\n")
+        sys.stdout.write(f"$ {header} --help\n")
+        sys.stdout.write("=" * 78 + "\n")
+        info_name = "redmine" if not path else path[-1]
+        with click.Context(cmd, info_name=info_name, parent=None,
+                           terminal_width=78, max_content_width=78) as ctx:
+            sys.stdout.write(cmd.get_help(ctx))
+        sys.stdout.write("\n\n")
 
-
-def _iter_command_paths(app):
-    """Yield ['issue'], ['issue','list'], ['issue','create'], ... for the whole tree.
-
-    Uses click's reflection on the underlying app. Skips the dump command itself
-    (no point) and the auth subtree's destructive forms aren't filtered — we
-    want them visible in --help.
-    """
-    import click
-
-    # Convert the typer.Typer to a click.Group via typer's machinery.
-    from typer.main import get_command
-    root = get_command(app)
-
-    def walk(cmd: click.Command, path: list[str]):
-        # Skip the root itself — we already print it explicitly first.
-        if path:
-            yield list(path)
+    def walk(cmd: click.Command, path: list[str]) -> None:
+        if path:  # skip rendering root again; we did it first
+            render(cmd, path)
         if isinstance(cmd, click.Group):
             for name, sub in sorted(cmd.commands.items()):
-                # Skip recursing into 'help' itself to avoid the dump being included.
+                # Don't recurse into 'help' itself (would re-emit this dump).
                 if path == [] and name == "help":
-                    yield ["help"]
+                    render(sub, ["help"])
                     continue
-                yield from walk(sub, path + [name])
+                walk(sub, path + [name])
 
-    # First yield the root --help
-    yield []
-    yield from walk(root, [])
+    render(root, [])
+    walk(root, [])
+
+

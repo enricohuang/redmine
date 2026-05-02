@@ -111,32 +111,29 @@ These are *not* in vanilla Redmine — they are unique to this fork:
 
 ## Confirmation before destructive actions
 
-Every `delete`-style command prompts unless `-y` / `--yes` is passed (`issue delete`, `project delete`, `wiki delete`, `label delete`, `version delete`, `news delete`, `category delete`, `member remove`, `webhook delete`, `bulk delete`, `group delete`, `time delete`, `relation delete`). When acting on the user's behalf in unattended mode, only pass `-y` if the user explicitly authorized that specific deletion.
+Every `delete`-style command (and `member remove`, `bulk delete`, `webhook delete`, `user delete`, etc.) prompts unless `-y` / `--yes` is passed. When acting on the user's behalf in unattended mode, only pass `-y` if the user explicitly authorized that specific deletion. `user delete` and `project delete` are particularly destructive — flag them.
 
 ## Other commands (look up via --help when needed)
 
-The CLI also covers these less common but documented resources. Don't memorise the flags — when the user asks for one, run `redmine <cmd> --help` (or `redmine help <topic>`) and pattern-match from the examples printed there:
+The CLI covers more than what this skill names. **Don't try to memorise everything** — when a request mentions an unfamiliar resource, run `redmine help all` (one Bash call → full surface) or `redmine <cmd> --help` to find the right verb and flags. Available top-level commands beyond the workflow set above:
 
-- **`time`** — log/list/edit/delete time entries
-- **`version`** — releases / milestones (per project)
-- **`news`** — project announcements
-- **`relation`** — link related issues (blocks, duplicates, precedes, ...)
-- **`category`** — per-project issue categories
-- **`member`** — project memberships (which user/group has which roles)
-- **`webhook`** — outbound webhooks (fork; needs `Setting.webhooks_enabled = 1`)
-- **`bulk`** — `bulk update` / `bulk delete` issues by ID list (fork endpoint, much faster than xargs)
-- **`group`** — user groups (admin-only)
-- **`tracker` / `status` / `priority` / `enumeration` / `custom-field` / `role`** — read-only listing for name → ID lookup
+- **Workflow**: `time`, `version`, `news`, `relation`, `category`, `member`
+- **Forum**: `board`, `message` (board topics + replies)
+- **Project content**: `document` (file-bearing knowledge entries), `file` (project file uploads)
+- **Admin**: `user create/update/delete`, `group`, `myaccount` (the active user's own profile), `project archive/unarchive/close/reopen`
+- **Fork-only**: `webhook`, `bulk`, `reaction` (one-per-user thumbs-up on issues/journals/messages/news/comments — not emoji-based), `fulltext` (attachment indexer; uses a separate `--indexer-key`), `elasticsearch` (ES-backed search; only available when ES is configured server-side)
+- **Read-only stream**: `activity` (project/global activity feed), `query` (saved queries)
+- **Read-only reference** (for name → ID lookup): `tracker`, `status`, `priority`, `enumeration`, `custom-field`, `role`
 
-For anything still not covered (boards, messages, documents, reactions, attachment fulltext, queries, files), drop to `curl` with the API key:
+If the user asks for an endpoint that's *still* not covered (e.g., a niche `repository add_related_issue` route), fall back to `curl` with the API key:
 
 ```bash
 KEY=$(redmine auth token)
 URL=$(redmine auth status | awk '/->/{print $3; exit}')
-curl -H "X-Redmine-API-Key: $KEY" "$URL/boards.json?limit=5"
+curl -H "X-Redmine-API-Key: $KEY" "$URL/some/endpoint.json"
 ```
 
-The fork's REST endpoints are documented at: https://github.com/enricohuang/redmine/wiki. If the user asks for an uncovered resource repeatedly, suggest extending the CLI in `clients/redmine-cli/redmine_cli/commands/`.
+The fork's REST endpoints are documented at: https://github.com/enricohuang/redmine/wiki. If a `curl`-only resource keeps coming up, suggest extending the CLI in `clients/redmine-cli/redmine_cli/commands/`.
 
 ## Reference
 

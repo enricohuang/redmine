@@ -11,12 +11,17 @@ from ..output import emit_list, emit_object
 app = typer.Typer(
     no_args_is_help=True,
     help=(
-        "Look up users. Listing requires admin on stock Redmine.\n\n"
+        "Look up and manage users. Listing and write operations require admin "
+        "on stock Redmine.\n\n"
         "**Examples:**\n\n"
         "```\n"
         "redmine user get current               # the active credential\n"
         "redmine user list --name alice\n"
         "redmine user get 7 --json\n"
+        "redmine user create --login alice --firstname Alice --lastname Smith \\\n"
+        "                    --mail alice@example.com --generate-password --send-information\n"
+        "redmine user update 7 --mail new@example.com\n"
+        "redmine user delete 7 -y\n"
         "```"
     ),
 )
@@ -94,3 +99,150 @@ def get_user(
     fields = ["id", "login", "firstname", "lastname", "mail", "admin",
               "created_on", "last_login_on", "memberships", "groups"]
     emit_object({f: data.get(f) for f in fields if f in data}, json_mode=False)
+
+
+@app.command(
+    "create",
+    help=(
+        "Create a user account (admin only).\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine user create --login alice --firstname Alice --lastname Smith \\\n"
+        "                    --mail alice@example.com --password 'TempPa55!'\n"
+        "redmine user create --login bob --firstname Bob --lastname Lee \\\n"
+        "                    --mail bob@example.com --generate-password --send-information\n"
+        "redmine user create --login svc --firstname Service --lastname Bot \\\n"
+        "                    --mail svc@example.com --admin --no-mail-notification\n"
+        "```\n\n"
+        "`--mail-notification` accepts: `all`, `selected`, `only_my_events`, "
+        "`only_assigned`, `only_owner`, `none`."
+    ),
+)
+def create_user(
+    ctx: typer.Context,
+    login: str = typer.Option(..., "--login"),
+    firstname: str = typer.Option(..., "--firstname"),
+    lastname: str = typer.Option(..., "--lastname"),
+    mail: str = typer.Option(..., "--mail"),
+    password: Optional[str] = typer.Option(None, "--password", help="Initial password (omit to require generation)."),
+    admin: bool = typer.Option(False, "--admin", help="Grant administrator privileges."),
+    auth_source_id: Optional[int] = typer.Option(None, "--auth-source-id", help="External auth source ID."),
+    mail_notification: Optional[str] = typer.Option(
+        None, "--mail-notification",
+        help="all, selected, only_my_events, only_assigned, only_owner, none.",
+    ),
+    must_change_passwd: Optional[bool] = typer.Option(
+        None, "--must-change-passwd/--no-must-change-passwd",
+        help="Force password change on first login.",
+    ),
+    generate_password: Optional[bool] = typer.Option(
+        None, "--generate-password/--no-generate-password",
+        help="Server generates a random password.",
+    ),
+    send_information: bool = typer.Option(
+        False, "--send-information",
+        help="Email the new user their account details (top-level form param).",
+    ),
+    json_mode: bool = typer.Option(False, "--json"),
+):
+    """Create a user account (admin only)."""
+    c = _client(ctx)
+    user_body: dict = {
+        "login": login,
+        "firstname": firstname,
+        "lastname": lastname,
+        "mail": mail,
+    }
+    if password is not None: user_body["password"] = password
+    if admin: user_body["admin"] = True
+    if auth_source_id is not None: user_body["auth_source_id"] = auth_source_id
+    if mail_notification is not None: user_body["mail_notification"] = mail_notification
+    if must_change_passwd is not None: user_body["must_change_passwd"] = must_change_passwd
+    if generate_password is not None: user_body["generate_password"] = generate_password
+    body: dict = {"user": user_body}
+    if send_information: body["send_information"] = True
+    data = c.post("/users.json", json=body)
+    obj = data.get("user", data)
+    if json_mode:
+        emit_object(obj, json_mode=True)
+    else:
+        emit_object({k: obj.get(k) for k in ("id", "login", "firstname", "lastname", "mail")},
+                    json_mode=False)
+
+
+@app.command(
+    "update",
+    help=(
+        "Update a user account (admin only). At least one field is required.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine user update 7 --mail new@example.com\n"
+        "redmine user update 7 --firstname Alicia --lastname Smithe\n"
+        "redmine user update 7 --admin --must-change-passwd\n"
+        "```"
+    ),
+)
+def update_user(
+    ctx: typer.Context,
+    id: int = typer.Argument(...),
+    login: Optional[str] = typer.Option(None, "--login"),
+    firstname: Optional[str] = typer.Option(None, "--firstname"),
+    lastname: Optional[str] = typer.Option(None, "--lastname"),
+    mail: Optional[str] = typer.Option(None, "--mail"),
+    password: Optional[str] = typer.Option(None, "--password"),
+    admin: Optional[bool] = typer.Option(None, "--admin/--no-admin"),
+    auth_source_id: Optional[int] = typer.Option(None, "--auth-source-id"),
+    mail_notification: Optional[str] = typer.Option(None, "--mail-notification"),
+    must_change_passwd: Optional[bool] = typer.Option(
+        None, "--must-change-passwd/--no-must-change-passwd",
+    ),
+    generate_password: Optional[bool] = typer.Option(
+        None, "--generate-password/--no-generate-password",
+    ),
+    send_information: bool = typer.Option(
+        False, "--send-information",
+        help="Email the user about the change (top-level form param).",
+    ),
+):
+    """Update a user account (admin only)."""
+    c = _client(ctx)
+    user_body: dict = {}
+    if login is not None: user_body["login"] = login
+    if firstname is not None: user_body["firstname"] = firstname
+    if lastname is not None: user_body["lastname"] = lastname
+    if mail is not None: user_body["mail"] = mail
+    if password is not None: user_body["password"] = password
+    if admin is not None: user_body["admin"] = admin
+    if auth_source_id is not None: user_body["auth_source_id"] = auth_source_id
+    if mail_notification is not None: user_body["mail_notification"] = mail_notification
+    if must_change_passwd is not None: user_body["must_change_passwd"] = must_change_passwd
+    if generate_password is not None: user_body["generate_password"] = generate_password
+    if not user_body:
+        typer.echo("nothing to update", err=True)
+        raise typer.Exit(code=2)
+    body: dict = {"user": user_body}
+    if send_information: body["send_information"] = True
+    c.put(f"/users/{id}.json", json=body)
+    typer.echo(f"updated user {id}")
+
+
+@app.command(
+    "delete",
+    help=(
+        "Delete a user account (admin only) — **irreversible**. The user's "
+        "issues, comments, and time entries are reassigned to an anonymous "
+        "user; their account is gone for good. Prompts unless `-y`.\n\n"
+        "**Example:** `redmine user delete 7 -y`"
+    ),
+)
+def delete_user(
+    ctx: typer.Context,
+    id: int = typer.Argument(...),
+    yes: bool = typer.Option(False, "-y", "--yes"),
+):
+    """Delete a user account (admin only, irreversible)."""
+    c = _client(ctx)
+    if not yes:
+        typer.confirm(f"Really delete user {id}? This is permanent.", abort=True)
+    c.delete(f"/users/{id}.json")
+    typer.echo(f"deleted user {id}")

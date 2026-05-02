@@ -29,6 +29,9 @@ app = typer.Typer(
         "redmine attachment attach ./screenshot.png -i 1234 --description 'before'\n"
         "redmine attachment upload ./big.zip                # returns token\n"
         "redmine attachment download 42 -o ./downloaded.bin\n"
+        "redmine attachment update 42 --description 'after'\n"
+        "redmine attachment thumbnail 42 -o thumb.png --size 64\n"
+        "redmine attachment delete 42 -y\n"
         "```\n\n"
         "Tutorial: `redmine help attachments`"
     ),
@@ -171,3 +174,89 @@ def download(
     out_path = output or Path(meta.get("filename", f"attachment-{id}"))
     out_path.write_bytes(resp.content)
     typer.echo(f"wrote {out_path} ({len(resp.content)} bytes)")
+
+
+@app.command(
+    "update",
+    help=(
+        "Update an attachment's filename and/or description. At least one of "
+        "`--filename` or `--description` must be provided.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine attachment update 42 --description 'after fix'\n"
+        "redmine attachment update 42 --filename screenshot-final.png\n"
+        "```"
+    ),
+)
+def update_attachment(
+    ctx: typer.Context,
+    id: int = typer.Argument(...),
+    filename: Optional[str] = typer.Option(None, "--filename", help="New filename for the attachment."),
+    description: Optional[str] = typer.Option(None, "--description", help="New per-attachment description."),
+):
+    """Update an attachment's filename and/or description."""
+    c = _client(ctx)
+    body: dict = {}
+    if filename is not None: body["filename"] = filename
+    if description is not None: body["description"] = description
+    if not body:
+        typer.echo("nothing to update", err=True)
+        raise typer.Exit(code=2)
+    c.patch(f"/attachments/{id}.json", json={"attachment": body})
+    typer.echo(f"updated attachment {id}")
+
+
+@app.command(
+    "delete",
+    help=(
+        "Delete an attachment by ID. Prompts unless `-y` is passed. No undo.\n\n"
+        "**Example:** `redmine attachment delete 42 -y`"
+    ),
+)
+def delete_attachment(
+    ctx: typer.Context,
+    id: int = typer.Argument(...),
+    yes: bool = typer.Option(False, "-y", "--yes"),
+):
+    """Delete an attachment by ID (irreversible)."""
+    c = _client(ctx)
+    if not yes:
+        typer.confirm(f"Really delete attachment {id}?", abort=True)
+    c.delete(f"/attachments/{id}.json")
+    typer.echo(f"deleted attachment {id}")
+
+
+@app.command(
+    "thumbnail",
+    help=(
+        "Download a PNG thumbnail of an image attachment. Requires the server "
+        "to have ImageMagick available; non-image attachments and servers "
+        "without thumbnail support will return an error.\n\n"
+        "Pass `-o PATH` to write to a file, or `-o -` for stdout. Optional "
+        "`--size` selects the thumbnail edge in pixels (e.g. 32, 64, 100, 200).\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine attachment thumbnail 42 -o thumb.png\n"
+        "redmine attachment thumbnail 42 -o thumb-64.png --size 64\n"
+        "redmine attachment thumbnail 42 -o - | feh -\n"
+        "```"
+    ),
+)
+def thumbnail(
+    ctx: typer.Context,
+    id: int = typer.Argument(...),
+    output: Path = typer.Option(..., "-o", "--output", help="Output path. Use '-' for stdout."),
+    size: Optional[int] = typer.Option(None, "--size", help="Thumbnail edge in pixels (e.g. 32, 64, 100, 200)."),
+):
+    """Download a PNG thumbnail of an image attachment."""
+    c = _client(ctx)
+    # Redmine route: GET /attachments/thumbnail/:id(/:size)
+    path = f"/attachments/thumbnail/{id}"
+    if size is not None:
+        path = f"{path}/{size}"
+    resp = c.request("GET", path, raw=True)
+    if str(output) == "-":
+        sys.stdout.buffer.write(resp.content)
+        return
+    output.write_bytes(resp.content)
+    typer.echo(f"wrote {output} ({len(resp.content)} bytes)")

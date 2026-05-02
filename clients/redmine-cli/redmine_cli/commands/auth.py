@@ -18,6 +18,7 @@ from ..config import (
     remove_user,
     resolve,
     set_default_host,
+    set_indexer_key,
     switch_user,
 )
 
@@ -65,26 +66,51 @@ def _verify(url: str, api_key: str) -> dict:
     "login",
     help=(
         "Add a credential. Interactive if `--url` or `--api-key` is missing.\n\n"
+        "Pass `--indexer-key` to also store the fork's fulltext-indexer key "
+        "(host-scoped — one key per Redmine instance, used by `redmine fulltext`). "
+        "It can be set independently from `--api-key` (e.g. login once with the "
+        "user key, then run again with `--indexer-key` to add it).\n\n"
         "**Examples:**\n\n"
         "```\n"
-        "redmine auth login                                    # interactive prompts\n"
-        "redmine auth login --url https://x.com --api-key K   # script-friendly\n"
+        "redmine auth login                                       # interactive prompts\n"
+        "redmine auth login --url https://x.com --api-key K       # script-friendly\n"
         "redmine auth login --url https://x.com --api-key K2 \\\n"
-        "                   --label readonly --no-set-default  # second account\n"
+        "                   --label readonly --no-set-default     # second account\n"
+        "redmine auth login --url https://x.com --indexer-key IDX # add indexer key\n"
         "```"
     ),
 )
 def login(
     url: Optional[str] = typer.Option(None, "--url", help="Redmine base URL (e.g. https://redmine.example.com)."),
-    api_key: Optional[str] = typer.Option(None, "--api-key", help="API key. If omitted, you'll be prompted."),
+    api_key: Optional[str] = typer.Option(None, "--api-key", help="API key. If omitted, you'll be prompted (unless --indexer-key is given alone)."),
+    indexer_key: Optional[str] = typer.Option(None, "--indexer-key", help="Fork-only fulltext indexer key (X-Redmine-Indexer-Key). Stored host-wide."),
     label: Optional[str] = typer.Option(None, "--label", help="Local label to identify this account (defaults to Redmine login)."),
     set_default: bool = typer.Option(True, "--set-default/--no-set-default", help="Make this the default host."),
     no_verify: bool = typer.Option(False, "--no-verify", help="Skip the /users/current.json verification step."),
 ):
-    """Add a credential. Interactive if --url or --api-key is missing."""
+    """Add a credential. Interactive if --url or --api-key is missing.
+
+    `--indexer-key` may be supplied with or without `--api-key`. If only
+    `--indexer-key` is given (host already exists), the indexer key is set
+    on the existing host without touching any user credentials.
+    """
     if not url:
         url = typer.prompt("Redmine URL").strip()
     url = url.rstrip("/")
+    host = _host_from_url(url)
+
+    # Indexer-key-only mode: the host must already exist; just set the key.
+    if indexer_key and not api_key:
+        hosts = load_hosts()
+        if host in hosts:
+            try:
+                set_indexer_key(host, indexer_key)
+            except AuthError as e:
+                die(str(e), code=2)
+            typer.echo(f"saved indexer key for {host}")
+            return
+        # Host doesn't exist yet — fall through and prompt for api_key.
+
     if not api_key:
         api_key = getpass.getpass("API key (input hidden): ").strip()
     if not api_key:
@@ -96,13 +122,13 @@ def login(
     else:
         login_name = "user"
 
-    host = _host_from_url(url)
     final_label = label or login_name
 
-    add_user(host, url, final_label, api_key, make_active=True)
+    add_user(host, url, final_label, api_key, make_active=True, indexer_key=indexer_key)
     if set_default:
         set_default_host(host)
-    typer.echo(f"saved {final_label}@{host} (default={set_default})")
+    extra = " +indexer-key" if indexer_key else ""
+    typer.echo(f"saved {final_label}@{host} (default={set_default}){extra}")
 
 
 @app.command(
@@ -123,6 +149,9 @@ def status():
     for host, h in hosts.items():
         marker = " (default)" if host == default else ""
         typer.echo(f"{host}{marker}  -> {h.get('url')}")
+        # Indexer-key presence (don't echo the key itself).
+        indexer_state = "yes" if h.get("indexer_key") else "no"
+        typer.echo(f"     indexer key: {indexer_state}")
         active = h.get("user")
         for u in h.get("users", {}):
             tag = " *" if u == active else "  "
