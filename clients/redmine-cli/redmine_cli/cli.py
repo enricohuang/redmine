@@ -85,17 +85,54 @@ from .commands import (  # noqa: E402  (registration must follow app definition)
     search,
     help_cmd,
     user as user_cmd,
+    # v2
+    time as time_cmd,
+    version as version_cmd,
+    news,
+    relation,
+    category,
+    member,
+    webhook,
+    bulk,
+    group,
+    ref,
 )
 
-app.add_typer(auth.app, name="auth", help="Manage Redmine credentials (multi-host).")
-app.add_typer(issue.app, name="issue", help="Create, list, update, delete issues.")
-app.add_typer(project.app, name="project", help="Manage projects.")
-app.add_typer(wiki.app, name="wiki", help="Manage wiki pages.")
-app.add_typer(journal.app, name="journal", help="Read and post issue comments (journals).")
-app.add_typer(attachment.app, name="attachment", help="Upload, fetch, and download attachments.")
-app.add_typer(label.app, name="label", help="Manage issue labels (fork feature).")
+# NOTE: do not pass `help=` to add_typer — that overrides the rich `help=`
+# (with examples) set on each sub-Typer. Without it, the root `--help`
+# command list falls back to the first line of each sub-Typer's help,
+# which is exactly the short description we want.
+app.add_typer(auth.app, name="auth")
+app.add_typer(issue.app, name="issue")
+app.add_typer(project.app, name="project")
+app.add_typer(wiki.app, name="wiki")
+app.add_typer(journal.app, name="journal")
+app.add_typer(attachment.app, name="attachment")
+app.add_typer(label.app, name="label")
 search.register(app)
-app.add_typer(user_cmd.app, name="user", help="Look up users.")
+app.add_typer(user_cmd.app, name="user")
+
+# v2: workflow
+app.add_typer(time_cmd.app, name="time")
+app.add_typer(version_cmd.app, name="version")
+app.add_typer(news.app, name="news")
+app.add_typer(relation.app, name="relation")
+app.add_typer(category.app, name="category")
+app.add_typer(member.app, name="member")
+
+# v2: admin / fork
+app.add_typer(webhook.app, name="webhook")
+app.add_typer(bulk.app, name="bulk")
+app.add_typer(group.app, name="group")
+
+# v2: read-only reference data (handy for name -> ID lookup)
+app.add_typer(ref.tracker_app, name="tracker")
+app.add_typer(ref.status_app, name="status")
+app.add_typer(ref.priority_app, name="priority")
+app.add_typer(ref.enum_app, name="enumeration")
+app.add_typer(ref.cf_app, name="custom-field")
+app.add_typer(ref.role_app, name="role")
+
 help_cmd.register(app)
 
 
