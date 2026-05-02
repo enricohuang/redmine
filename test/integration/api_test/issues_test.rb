@@ -379,6 +379,40 @@ class Redmine::ApiTest::IssuesTest < Redmine::ApiTest::Base
     assert_select 'issue>status[is_closed=false]'
   end
 
+  test "GET /issues/:id.json should include assigned labels" do
+    get '/issues/1.json'
+
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    labels = json['issue']['labels']
+    assert_kind_of Array, labels
+    assert_equal Issue.find(1).labels.pluck(:id).sort, labels.map { |l| l['id'] }.sort
+    labels.each do |l|
+      assert l.key?('name')
+      assert l.key?('color')
+    end
+  end
+
+  test "GET /issues.json?include=labels should include labels per issue" do
+    get '/issues.json?include=labels'
+
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    issue_one = json['issues'].find { |i| i['id'] == 1 }
+    assert_not_nil issue_one
+    assert_kind_of Array, issue_one['labels']
+    assert_equal Issue.find(1).labels.pluck(:id).sort,
+                 issue_one['labels'].map { |l| l['id'] }.sort
+  end
+
+  test "GET /issues.json without include=labels should omit labels" do
+    get '/issues.json'
+
+    assert_response :ok
+    json = ActiveSupport::JSON.decode(response.body)
+    json['issues'].each { |i| assert_nil i['labels'] }
+  end
+
   test "GET /issues/:id.xml?include=watchers should include watchers" do
     Watcher.create!(:user_id => 3, :watchable => Issue.find(1))
 
