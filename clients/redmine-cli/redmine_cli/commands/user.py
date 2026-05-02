@@ -8,7 +8,18 @@ import typer
 
 from ..output import emit_list, emit_object
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Look up users. Listing requires admin on stock Redmine.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine user get current               # the active credential\n"
+        "redmine user list --name alice\n"
+        "redmine user get 7 --json\n"
+        "```"
+    ),
+)
 
 
 def _client(ctx):
@@ -16,7 +27,18 @@ def _client(ctx):
     return get_client(ctx)
 
 
-@app.command("list")
+@app.command(
+    "list",
+    help=(
+        "List users (admin only on stock Redmine).\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine user list --name alice\n"
+        "redmine user list --status 1 --all --json | jq '.[] | {id, login}'\n"
+        "```\n\n"
+        "Status: `1`=active, `2`=registered (pending), `3`=locked."
+    ),
+)
 def list_users(
     ctx: typer.Context,
     name: Optional[str] = typer.Option(None, "--name", help="Substring filter on name/login/email."),
@@ -45,7 +67,18 @@ def list_users(
     )
 
 
-@app.command("get")
+@app.command(
+    "get",
+    help=(
+        "Get a user by ID, or pass `current` to look up the active credential.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine user get current               # who am I?\n"
+        "redmine user get 7\n"
+        "redmine user get 7 --include memberships,groups --json\n"
+        "```"
+    ),
+)
 def get_user(
     ctx: typer.Context,
     id: str = typer.Argument(..., help="User ID, or 'current' for the active credential."),

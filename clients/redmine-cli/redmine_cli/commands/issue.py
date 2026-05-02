@@ -14,7 +14,23 @@ from ..resolvers import (
 )
 from ._helpers import parse_id_list, parse_kv, read_text_input
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Create, list, update, delete issues.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine issue list -p mobile --status open --assignee me\n"
+        "redmine issue create -p mobile -t Bug -s 'Crash' --description-file bug.md\n"
+        "redmine issue update 1234 --status Resolved --note 'fixed in v2.3'\n"
+        "redmine issue update 1234 --note-file long.md\n"
+        "redmine issue delete 1234 -y\n"
+        "```\n\n"
+        "`--status`/`--tracker`/`--priority`/`--assignee`/`--category`/`--version` "
+        "accept names (e.g. `Resolved`) **or** numeric IDs.\n\n"
+        "Tutorial: `redmine help issues`"
+    ),
+)
 
 
 def _client(ctx: typer.Context):
@@ -34,7 +50,20 @@ def _project_for_issue(c, issue_id: int) -> str:
     return proj.get("identifier") or str(proj.get("id"))
 
 
-@app.command("list")
+@app.command(
+    "list",
+    help=(
+        "List issues. Defaults to **open** issues only — pass `--status '*'` for all.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine issue list -p mobile\n"
+        "redmine issue list -p mobile --status '*'\n"
+        "redmine issue list -p mobile --assignee me --json | jq '.[].id'\n"
+        "redmine issue list -p mobile --tracker Bug --priority High\n"
+        "redmine issue list -p mobile --include labels,journals --all\n"
+        "```"
+    ),
+)
 def list_issues(
     ctx: typer.Context,
     project: Optional[str] = typer.Option(None, "-p", "--project", help="Project ID or identifier."),
@@ -92,7 +121,19 @@ def list_issues(
     )
 
 
-@app.command("get")
+@app.command(
+    "get",
+    help=(
+        "Fetch one issue by ID. Default `--include` covers journals, attachments, "
+        "relations, watchers, children, allowed_statuses, labels.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine issue get 1234\n"
+        "redmine issue get 1234 --json | jq '.subject'\n"
+        "redmine issue get 1234 --include ''   # bare issue, no associations\n"
+        "```"
+    ),
+)
 def get_issue(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -122,7 +163,21 @@ def get_issue(
     emit_object({f: issue.get(f) for f in fields if f in issue}, json_mode=False)
 
 
-@app.command("create")
+@app.command(
+    "create",
+    help=(
+        "Create a new issue.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine issue create -p mobile -s 'Crash on login' -t Bug --priority High\n"
+        "redmine issue create -p mobile -s 'New feature' --description-file spec.md\n"
+        "cat body.md | redmine issue create -p mobile -s 'subj' --description -\n"
+        "redmine issue create -p mobile -s 'Tagged' --labels 1,2 --assignee alice\n"
+        "```\n\n"
+        "`--labels` takes comma-separated **IDs only** — find them with "
+        "`redmine label list -p PROJECT --json`."
+    ),
+)
 def create_issue(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project", help="Project ID or identifier."),
@@ -180,7 +235,20 @@ def create_issue(
         )
 
 
-@app.command("update")
+@app.command(
+    "update",
+    help=(
+        "Update an existing issue. PUT returns no body — exits 0 on success.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine issue update 1234 --status Resolved --note 'fixed in v2.3'\n"
+        "redmine issue update 1234 --assignee me --priority High\n"
+        "redmine issue update 1234 --note-file comment.md --private-notes\n"
+        "redmine issue update 1234 --labels 1,2,3              # replace label set\n"
+        "redmine issue update 1234 --project other-project     # cross-project move\n"
+        "```"
+    ),
+)
 def update_issue(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -243,7 +311,17 @@ def update_issue(
     typer.echo(f"updated #{id}")
 
 
-@app.command("delete")
+@app.command(
+    "delete",
+    help=(
+        "Delete an issue (irreversible). Prompts unless `-y` is passed.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine issue delete 1234       # prompts for confirmation\n"
+        "redmine issue delete 1234 -y    # skip confirmation\n"
+        "```"
+    ),
+)
 def delete_issue(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -257,7 +335,13 @@ def delete_issue(
     typer.echo(f"deleted #{id}")
 
 
-@app.command("watch")
+@app.command(
+    "watch",
+    help=(
+        "Add a watcher to an issue.\n\n"
+        "**Example:** `redmine issue watch 1234 --user-id 7`"
+    ),
+)
 def watch(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -269,7 +353,13 @@ def watch(
     typer.echo(f"watcher {user_id} added to #{id}")
 
 
-@app.command("unwatch")
+@app.command(
+    "unwatch",
+    help=(
+        "Remove a watcher from an issue.\n\n"
+        "**Example:** `redmine issue unwatch 1234 --user-id 7`"
+    ),
+)
 def unwatch(
     ctx: typer.Context,
     id: int = typer.Argument(...),

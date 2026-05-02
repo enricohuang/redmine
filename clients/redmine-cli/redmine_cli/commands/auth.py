@@ -21,7 +21,21 @@ from ..config import (
     switch_user,
 )
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Manage Redmine credentials (gh-style multi-host).\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine auth login --url https://redmine.example.com --api-key <KEY>\n"
+        "redmine auth status\n"
+        "redmine auth switch --host redmine.example.com --user readonly\n"
+        "redmine auth token                  # print active key\n"
+        "redmine auth logout --host redmine.example.com\n"
+        "```\n\n"
+        "Tutorial: `redmine help auth`"
+    ),
+)
 
 
 def _host_from_url(url: str) -> str:
@@ -47,7 +61,19 @@ def _verify(url: str, api_key: str) -> dict:
     return r.json().get("user", {})
 
 
-@app.command("login")
+@app.command(
+    "login",
+    help=(
+        "Add a credential. Interactive if `--url` or `--api-key` is missing.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine auth login                                    # interactive prompts\n"
+        "redmine auth login --url https://x.com --api-key K   # script-friendly\n"
+        "redmine auth login --url https://x.com --api-key K2 \\\n"
+        "                   --label readonly --no-set-default  # second account\n"
+        "```"
+    ),
+)
 def login(
     url: Optional[str] = typer.Option(None, "--url", help="Redmine base URL (e.g. https://redmine.example.com)."),
     api_key: Optional[str] = typer.Option(None, "--api-key", help="API key. If omitted, you'll be prompted."),
@@ -79,7 +105,13 @@ def login(
     typer.echo(f"saved {final_label}@{host} (default={set_default})")
 
 
-@app.command("status")
+@app.command(
+    "status",
+    help=(
+        "List configured hosts and their users. Active user is marked with `*`.\n\n"
+        "Exits non-zero if no hosts are configured."
+    ),
+)
 def status():
     """List configured hosts and their users."""
     hosts = load_hosts()
@@ -97,7 +129,13 @@ def status():
             typer.echo(f"   {tag} {u}")
 
 
-@app.command("switch")
+@app.command(
+    "switch",
+    help=(
+        "Change the active user for a host.\n\n"
+        "**Example:** `redmine auth switch --host redmine.example.com --user bob`"
+    ),
+)
 def switch(
     host: Optional[str] = typer.Option(None, "--host"),
     user: str = typer.Option(..., "--user", help="User label to make active."),
@@ -115,7 +153,17 @@ def switch(
     typer.echo(f"active user for {host} is now {user}")
 
 
-@app.command("logout")
+@app.command(
+    "logout",
+    help=(
+        "Remove a user — or an entire host — from the credential store.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine auth logout --host redmine.example.com               # whole host\n"
+        "redmine auth logout --host redmine.example.com --user bob    # one user\n"
+        "```"
+    ),
+)
 def logout(
     host: str = typer.Option(..., "--host"),
     user: Optional[str] = typer.Option(None, "--user", help="If omitted, removes the entire host."),
@@ -128,7 +176,15 @@ def logout(
     typer.echo(f"removed {user + '@' if user else ''}{host}")
 
 
-@app.command("token")
+@app.command(
+    "token",
+    help=(
+        "Print the active API key. Useful for piping into `curl`:\n\n"
+        "```\n"
+        "curl -H \"X-Redmine-API-Key: $(redmine auth token)\" $URL/foo.json\n"
+        "```"
+    ),
+)
 def token(
     host: Optional[str] = typer.Option(None, "--host"),
     user: Optional[str] = typer.Option(None, "--user"),
@@ -141,7 +197,14 @@ def token(
     typer.echo(cred.api_key)
 
 
-@app.command("set-default")
+@app.command(
+    "set-default",
+    help=(
+        "Set the default host (used when neither `--host` nor "
+        "`REDMINE_HOST` is given).\n\n"
+        "**Example:** `redmine auth set-default redmine.example.com`"
+    ),
+)
 def cmd_set_default(host: str = typer.Argument(...)):
     """Set the default host used when --host / REDMINE_HOST are not given."""
     try:

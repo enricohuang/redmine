@@ -8,7 +8,21 @@ import typer
 
 from ..output import emit_list, emit_object
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Manage project labels (fork feature). Labels are colored, "
+        "project-scoped tags assignable to issues via `issue create/update --labels`.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine label list -p mobile\n"
+        "redmine label create -p mobile --name 'v1-bug' --color '#e74c3c'\n"
+        "redmine label update 7 --name 'v1-bug-critical'\n"
+        "redmine label delete 7 -y\n"
+        "```\n\n"
+        "Tutorial: `redmine help labels`"
+    ),
+)
 
 
 def _client(ctx):
@@ -16,7 +30,13 @@ def _client(ctx):
     return get_client(ctx)
 
 
-@app.command("list")
+@app.command(
+    "list",
+    help=(
+        "List labels in a project.\n\n"
+        "**Example:** `redmine label list -p mobile --json | jq '.[] | {id, name}'`"
+    ),
+)
 def list_labels(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),
@@ -31,7 +51,13 @@ def list_labels(
     )
 
 
-@app.command("get")
+@app.command(
+    "get",
+    help=(
+        "Get a label by ID.\n\n"
+        "**Example:** `redmine label get 7 --json`"
+    ),
+)
 def get_label(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -42,7 +68,18 @@ def get_label(
     emit_object(data or {}, json_mode=json_mode)
 
 
-@app.command("create")
+@app.command(
+    "create",
+    help=(
+        "Create a label in a project. Color is a 6-digit hex like `#9b59b6`; "
+        "default is `#0052CC` if omitted.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine label create -p mobile --name 'needs-info'\n"
+        "redmine label create -p mobile --name 'v1-bug' --color '#e74c3c'\n"
+        "```"
+    ),
+)
 def create_label(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),
@@ -61,7 +98,13 @@ def create_label(
         typer.echo(f"created label '{name}' (id={obj.get('id')})")
 
 
-@app.command("update")
+@app.command(
+    "update",
+    help=(
+        "Rename or recolor a label.\n\n"
+        "**Example:** `redmine label update 7 --name 'critical' --color '#000000'`"
+    ),
+)
 def update_label(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -79,7 +122,14 @@ def update_label(
     typer.echo(f"updated label {id}")
 
 
-@app.command("delete")
+@app.command(
+    "delete",
+    help=(
+        "Delete a label (also removes it from any issues it's assigned to). "
+        "Prompts unless `-y` is passed.\n\n"
+        "**Example:** `redmine label delete 7 -y`"
+    ),
+)
 def delete_label(
     ctx: typer.Context,
     id: int = typer.Argument(...),

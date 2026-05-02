@@ -12,7 +12,21 @@ from ..output import emit_list
 def register(parent: typer.Typer) -> None:
     """Attach `search` as a single command on the parent app."""
 
-    @parent.command("search", help="Search issues, wiki, news, documents, etc.")
+    @parent.command(
+        "search",
+        help=(
+            "Search issues, wiki, news, documents, etc. Default scope is "
+            "all visible content; pass type flags to narrow.\n\n"
+            "**Examples:**\n\n"
+            "```\n"
+            "redmine search 'login crash'\n"
+            "redmine search 'login crash' -p mobile --issues\n"
+            "redmine search 'release notes' --wiki --news\n"
+            "redmine search 'TODO' --titles-only --json\n"
+            "```\n\n"
+            "Tutorial: `redmine help search`"
+        ),
+    )
     def search(
         ctx: typer.Context,
         query: str = typer.Argument(..., help="Search query."),

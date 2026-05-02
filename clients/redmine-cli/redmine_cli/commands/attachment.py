@@ -18,7 +18,21 @@ import typer
 
 from ..output import emit_object
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Upload, fetch, and download attachments. The Redmine API is two-step "
+        "(upload → token, then attach token to issue/wiki); this CLI exposes "
+        "both the high-level `attach` and low-level `upload`.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine attachment attach ./screenshot.png -i 1234 --description 'before'\n"
+        "redmine attachment upload ./big.zip                # returns token\n"
+        "redmine attachment download 42 -o ./downloaded.bin\n"
+        "```\n\n"
+        "Tutorial: `redmine help attachments`"
+    ),
+)
 
 
 def _client(ctx):
@@ -26,7 +40,17 @@ def _client(ctx):
     return get_client(ctx)
 
 
-@app.command("upload")
+@app.command(
+    "upload",
+    help=(
+        "Upload a file and print the resulting upload token. The token can "
+        "then be passed in `uploads:` arrays on issue/wiki create or update "
+        "calls (useful for ad-hoc `curl` workflows).\n\n"
+        "Most users want `redmine attachment attach` instead, which uploads "
+        "**and** attaches in one shot.\n\n"
+        "**Example:** `redmine attachment upload ./big.zip --json`"
+    ),
+)
 def upload(
     ctx: typer.Context,
     file: Path = typer.Argument(..., exists=True, dir_okay=False, readable=True),
@@ -49,7 +73,18 @@ def upload(
         typer.echo(upload.get("token", ""))
 
 
-@app.command("attach")
+@app.command(
+    "attach",
+    help=(
+        "Upload a file and attach it to an issue in one shot.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine attachment attach ./bug.png -i 1234\n"
+        "redmine attachment attach ./bug.png -i 1234 --description 'before/after'\n"
+        "redmine attachment attach ./fix.patch -i 1234 -n 'Patch attached'\n"
+        "```"
+    ),
+)
 def attach(
     ctx: typer.Context,
     file: Path = typer.Argument(..., exists=True, dir_okay=False, readable=True),
@@ -77,7 +112,13 @@ def attach(
     typer.echo(f"attached {fname} to #{issue}")
 
 
-@app.command("get")
+@app.command(
+    "get",
+    help=(
+        "Fetch attachment metadata.\n\n"
+        "**Example:** `redmine attachment get 42 --json`"
+    ),
+)
 def get_attachment(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -98,7 +139,19 @@ def get_attachment(
     )
 
 
-@app.command("download")
+@app.command(
+    "download",
+    help=(
+        "Download an attachment by ID. Defaults to the original filename in "
+        "the current directory; pass `-o` for a custom path or `-o -` for stdout.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine attachment download 42                    # writes ./<original-name>\n"
+        "redmine attachment download 42 -o ./out.bin\n"
+        "redmine attachment download 42 -o - | sha256sum\n"
+        "```"
+    ),
+)
 def download(
     ctx: typer.Context,
     id: int = typer.Argument(...),

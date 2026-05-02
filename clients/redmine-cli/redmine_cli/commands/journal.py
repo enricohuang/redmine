@@ -10,7 +10,22 @@ import typer
 from ..output import emit_list, emit_object
 from ._helpers import read_text_input
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Read and post issue comments (journals) — uses the fork's direct "
+        "journal API. Use this when you only want to comment, without changing "
+        "anything else on the issue.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine journal list -i 1234\n"
+        "redmine journal create -i 1234 -n 'Looking into this'\n"
+        "redmine journal create -i 1234 --file analysis.md --private\n"
+        "redmine journal update 88 -n 'edited: corrected typo'\n"
+        "```\n\n"
+        "Tutorial: `redmine help journals`"
+    ),
+)
 
 
 def _client(ctx):
@@ -18,7 +33,13 @@ def _client(ctx):
     return get_client(ctx)
 
 
-@app.command("list")
+@app.command(
+    "list",
+    help=(
+        "List comments/journals on an issue.\n\n"
+        "**Example:** `redmine journal list -i 1234 --json | jq '.[].notes'`"
+    ),
+)
 def list_journals(
     ctx: typer.Context,
     issue: int = typer.Option(..., "-i", "--issue"),
@@ -42,7 +63,13 @@ def list_journals(
     )
 
 
-@app.command("get")
+@app.command(
+    "get",
+    help=(
+        "Fetch a single journal entry by ID.\n\n"
+        "**Example:** `redmine journal get 88 --json`"
+    ),
+)
 def get_journal(
     ctx: typer.Context,
     id: int = typer.Argument(...),
@@ -61,7 +88,19 @@ def get_journal(
     )
 
 
-@app.command("create")
+@app.command(
+    "create",
+    help=(
+        "Add a comment to an issue (fork direct API). For long bodies, use "
+        "`--file` or `-` (stdin).\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine journal create -i 1234 -n 'Quick note'\n"
+        "redmine journal create -i 1234 --file analysis.md\n"
+        "redmine journal create -i 1234 -n 'internal' --private\n"
+        "```"
+    ),
+)
 def create_journal(
     ctx: typer.Context,
     issue: int = typer.Option(..., "-i", "--issue"),
@@ -85,7 +124,13 @@ def create_journal(
         typer.echo(f"comment added to #{issue} (journal id={j.get('id')})")
 
 
-@app.command("update")
+@app.command(
+    "update",
+    help=(
+        "Edit an existing comment.\n\n"
+        "**Example:** `redmine journal update 88 -n 'edited' --public`"
+    ),
+)
 def update_journal(
     ctx: typer.Context,
     id: int = typer.Argument(...),

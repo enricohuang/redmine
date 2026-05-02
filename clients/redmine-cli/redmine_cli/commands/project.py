@@ -10,7 +10,20 @@ import typer
 from ..output import emit_list, emit_object
 from ._helpers import parse_id_list, read_text_input
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Manage projects.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine project list\n"
+        "redmine project get mobile               # by identifier\n"
+        "redmine project create --identifier docs --name 'Docs'\n"
+        "redmine project update mobile --description 'Mobile app'\n"
+        "redmine project delete docs -y\n"
+        "```"
+    ),
+)
 
 
 def _client(ctx):
@@ -18,7 +31,18 @@ def _client(ctx):
     return get_client(ctx)
 
 
-@app.command("list")
+@app.command(
+    "list",
+    help=(
+        "List visible projects.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine project list\n"
+        "redmine project list --all --json | jq '.[] | {id, identifier, name}'\n"
+        "redmine project list --include trackers,issue_categories\n"
+        "```"
+    ),
+)
 def list_projects(
     ctx: typer.Context,
     include: Optional[str] = typer.Option(None, "--include", help="trackers,issue_categories,enabled_modules,..."),
@@ -42,7 +66,18 @@ def list_projects(
     )
 
 
-@app.command("get")
+@app.command(
+    "get",
+    help=(
+        "Fetch a project by numeric ID or identifier.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine project get mobile\n"
+        "redmine project get 1\n"
+        "redmine project get mobile --include enabled_modules,trackers\n"
+        "```"
+    ),
+)
 def get_project(
     ctx: typer.Context,
     id_or_identifier: str = typer.Argument(..., metavar="PROJECT"),
@@ -66,7 +101,20 @@ def get_project(
     emit_object({f: obj.get(f) for f in fields if f in obj}, json_mode=False)
 
 
-@app.command("create")
+@app.command(
+    "create",
+    help=(
+        "Create a project.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine project create --identifier docs --name 'Docs'\n"
+        "redmine project create --identifier api --name API \\\n"
+        "                       --modules issue_tracking,wiki,news --public\n"
+        "redmine project create --identifier sub --name Sub --parent docs\n"
+        "```\n\n"
+        "Identifier must be URL-safe (lowercase, dashes — no spaces)."
+    ),
+)
 def create_project(
     ctx: typer.Context,
     identifier: str = typer.Option(..., "--identifier", help="URL-safe identifier (lowercase, dashes)."),
@@ -102,7 +150,13 @@ def create_project(
         emit_object({k: obj.get(k) for k in ("id", "identifier", "name")}, json_mode=False)
 
 
-@app.command("update")
+@app.command(
+    "update",
+    help=(
+        "Update a project.\n\n"
+        "**Example:** `redmine project update mobile --description 'New copy'`"
+    ),
+)
 def update_project(
     ctx: typer.Context,
     id_or_identifier: str = typer.Argument(..., metavar="PROJECT"),
@@ -129,7 +183,14 @@ def update_project(
     typer.echo(f"updated {id_or_identifier}")
 
 
-@app.command("delete")
+@app.command(
+    "delete",
+    help=(
+        "Delete a project — **wipes all its issues, wiki, attachments, etc.** "
+        "Prompts unless `-y` is passed. No undo.\n\n"
+        "**Example:** `redmine project delete docs -y`"
+    ),
+)
 def delete_project(
     ctx: typer.Context,
     id_or_identifier: str = typer.Argument(..., metavar="PROJECT"),

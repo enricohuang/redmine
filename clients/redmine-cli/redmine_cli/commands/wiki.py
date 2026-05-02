@@ -11,7 +11,21 @@ import typer
 from ..output import emit_list, emit_object
 from ._helpers import read_text_input
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    no_args_is_help=True,
+    help=(
+        "Manage wiki pages.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine wiki list -p docs\n"
+        "redmine wiki get -p docs Home --text > home.md   # body to file\n"
+        "redmine wiki update -p docs Home --file home.md --comment 'edit'\n"
+        "redmine wiki rename -p docs Home --to Index --no-redirect\n"
+        "redmine wiki protect -p docs Index --on\n"
+        "```\n\n"
+        "Tutorial: `redmine help wiki`"
+    ),
+)
 
 
 def _client(ctx):
@@ -19,7 +33,13 @@ def _client(ctx):
     return get_client(ctx)
 
 
-@app.command("list")
+@app.command(
+    "list",
+    help=(
+        "List wiki pages in a project.\n\n"
+        "**Example:** `redmine wiki list -p docs --json | jq '.[].title'`"
+    ),
+)
 def list_pages(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project", help="Project ID or identifier."),
@@ -42,7 +62,21 @@ def list_pages(
     )
 
 
-@app.command("get")
+@app.command(
+    "get",
+    help=(
+        "Get a wiki page. Use `--text` to print only the markdown body — handy "
+        "for round-trip editing.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine wiki get -p docs Home --text > home.md   # body only\n"
+        "redmine wiki get -p docs Home --json             # full metadata\n"
+        "redmine wiki get -p docs Home --version 3        # historical version\n"
+        "```\n\n"
+        "Page title is the URL-safe form (PascalCase, no spaces). Discover via "
+        "`redmine wiki list`."
+    ),
+)
 def get_page(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),
@@ -77,7 +111,21 @@ def get_page(
     )
 
 
-@app.command("update")
+@app.command(
+    "update",
+    help=(
+        "Create or update a wiki page (PUT). Body must come from `--text`, "
+        "`--file`, or `-` (stdin).\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine wiki update -p docs Home --file home.md --comment 'typo fix'\n"
+        "echo '# Hi' | redmine wiki update -p docs New --file -\n"
+        "redmine wiki update -p docs Home --file home.md --expected-version 7\n"
+        "```\n\n"
+        "`--expected-version` enables optimistic concurrency: fails if the page "
+        "moved on past the version you read."
+    ),
+)
 def update_page(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),
@@ -103,7 +151,13 @@ def update_page(
     typer.echo(f"saved {project}/{title}")
 
 
-@app.command("delete")
+@app.command(
+    "delete",
+    help=(
+        "Delete a wiki page (irreversible). Prompts unless `-y` is passed.\n\n"
+        "**Example:** `redmine wiki delete -p docs OldPage -y`"
+    ),
+)
 def delete_page(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),
@@ -119,7 +173,13 @@ def delete_page(
 
 # ---- Fork-specific endpoints --------------------------------------------------
 
-@app.command("history")
+@app.command(
+    "history",
+    help=(
+        "List historical versions of a page (fork-only endpoint).\n\n"
+        "**Example:** `redmine wiki history -p docs Home --json`"
+    ),
+)
 def history(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),
@@ -143,7 +203,18 @@ def history(
     )
 
 
-@app.command("rename")
+@app.command(
+    "rename",
+    help=(
+        "Rename a wiki page (fork-only endpoint).\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine wiki rename -p docs Home --to Index                 # leaves redirect\n"
+        "redmine wiki rename -p docs Home --to Index --no-redirect\n"
+        "redmine wiki rename -p docs Home --to Sub --new-parent Index\n"
+        "```"
+    ),
+)
 def rename(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),
@@ -163,7 +234,18 @@ def rename(
     typer.echo(f"{project}/{title} -> {project}/{new_title}")
 
 
-@app.command("protect")
+@app.command(
+    "protect",
+    help=(
+        "Protect or unprotect a wiki page (fork-only endpoint). "
+        "Protected pages can only be edited by users with `protect_wiki_pages`.\n\n"
+        "**Examples:**\n\n"
+        "```\n"
+        "redmine wiki protect -p docs Home --on\n"
+        "redmine wiki protect -p docs Home --off\n"
+        "```"
+    ),
+)
 def protect(
     ctx: typer.Context,
     project: str = typer.Option(..., "-p", "--project"),

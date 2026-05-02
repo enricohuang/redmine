@@ -13,7 +13,28 @@ from .config import AuthError, Credential, resolve
 app = typer.Typer(
     add_completion=False,
     no_args_is_help=True,
-    help="Command-line client for Redmine. Use `redmine auth login` to start.",
+    # Markdown mode lets us render fenced code blocks verbatim in `help=`
+    # text — which is what we want for shell examples. (Note: typer's epilog
+    # rendering still collapses newlines regardless of mode, so examples go
+    # in `help=`, not `epilog=`. See `redmine help` for tutorial-grade docs.)
+    rich_markup_mode="markdown",
+    help=(
+        "Command-line client for Redmine.\n\n"
+        "**Get started:**\n\n"
+        "```\n"
+        "redmine auth login --url <URL> --api-key <KEY>\n"
+        "redmine issue list -p PROJECT\n"
+        "redmine issue create -p PROJECT -s 'subject' --description-file body.md\n"
+        "redmine wiki get -p PROJECT TITLE --text > page.md\n"
+        "```\n\n"
+        "**Discover more:**\n\n"
+        "```\n"
+        "redmine help               # list topic tutorials\n"
+        "redmine help getting-started\n"
+        "redmine help all           # full --help for every command in one shot\n"
+        "redmine <cmd> --help       # individual command flags + examples\n"
+        "```\n"
+    ),
 )
 
 
@@ -62,6 +83,7 @@ from .commands import (  # noqa: E402  (registration must follow app definition)
     attachment,
     label,
     search,
+    help_cmd,
     user as user_cmd,
 )
 
@@ -74,6 +96,7 @@ app.add_typer(attachment.app, name="attachment", help="Upload, fetch, and downlo
 app.add_typer(label.app, name="label", help="Manage issue labels (fork feature).")
 search.register(app)
 app.add_typer(user_cmd.app, name="user", help="Look up users.")
+help_cmd.register(app)
 
 
 def main():

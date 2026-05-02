@@ -7,6 +7,22 @@ description: Use when the user asks to create, edit, comment on, search, or clos
 
 The `redmine` CLI is a thin wrapper around the Redmine REST API of this fork (Issues, Projects, Wiki, Journals, Attachments, Labels, Search, Users, plus fork-specific endpoints). Use it instead of writing ad-hoc `curl` calls — it handles auth, pagination, error mapping, and JSON output for piping to `jq`.
 
+## Discovery (when this skill isn't enough)
+
+The CLI ships its own help system. Use it when you've forgotten a flag, hit an unfamiliar resource, or want to confirm exact syntax before acting:
+
+```bash
+redmine help                    # list topic tutorials
+redmine help <topic>            # focused tutorial: auth, issues, wiki, attachments,
+                                #   labels, journals, search, automation,
+                                #   troubleshooting, getting-started, reference
+redmine help all                # full --help for every command, in one bash call
+                                # (preferred over many separate --help calls)
+redmine <cmd> --help            # individual command, with examples
+```
+
+Reach for `redmine help all` when you need a CLI-wide refresher (one Bash call → full surface). Reach for `redmine help <topic>` when you know the workflow but not the commands. Reach for `--help` on a single command when you're picking flags.
+
 ## Setup check
 
 Before any Redmine command, verify auth is configured:
