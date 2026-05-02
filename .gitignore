@@ -19,6 +19,7 @@
 /db/*.sqlite3-*
 /db/schema.rb
 /files/*
+/files_migration/
 /lib/redmine/scm/adapters/mercurial/redminehelper.pyc
 /lib/redmine/scm/adapters/mercurial/redminehelper.pyo
 /log/*.log*
@@ -46,3 +47,10 @@
 
 /node_modules
 yarn-error.log
+
+# Python tooling under clients/
+**/__pycache__/
+*.pyc
+clients/*/.venv/
+clients/*/.pytest_cache/
+clients/*/*.egg-info/
