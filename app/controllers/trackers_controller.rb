@@ -21,9 +21,9 @@ class TrackersController < ApplicationController
   layout 'admin'
   self.main_menu = false
 
-  before_action :require_admin, :except => :index
-  before_action :require_admin_or_api_request, :only => :index
-  accept_api_auth :index
+  before_action :require_admin, :except => [:index, :show]
+  before_action :require_admin_or_api_request, :only => [:index, :show]
+  accept_api_auth :index, :show, :create, :update, :destroy, :fields
 
   def index
     @trackers = Tracker.sorted.preload(:default_status).to_a
@@ -31,6 +31,16 @@ class TrackersController < ApplicationController
       format.html {render :layout => false if request.xhr?}
       format.api
     end
+  end
+
+  def show
+    @tracker = Tracker.find(params[:id])
+    respond_to do |format|
+      format.html {redirect_to trackers_path}
+      format.api
+    end
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
   def new
@@ -51,12 +61,22 @@ class TrackersController < ApplicationController
       if params[:copy_workflow_from].present? && (copy_from = Tracker.find_by_id(params[:copy_workflow_from]))
         @tracker.copy_workflow_rules(copy_from)
       end
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to trackers_path
-      return
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          redirect_to trackers_path
+        end
+        format.api {render :action => 'show', :status => :created, :location => tracker_url(@tracker)}
+      end
+    else
+      respond_to do |format|
+        format.html do
+          new
+          render :action => 'new'
+        end
+        format.api {render_validation_errors(@tracker)}
+      end
     end
-    new
-    render :action => 'new'
   end
 
   def edit
@@ -74,6 +94,7 @@ class TrackersController < ApplicationController
           redirect_to trackers_path(:page => params[:page])
         end
         format.js {head :ok}
+        format.api {render_api_ok}
       end
     else
       respond_to do |format|
@@ -82,6 +103,7 @@ class TrackersController < ApplicationController
           render :action => 'edit'
         end
         format.js {head :unprocessable_content}
+        format.api {render_validation_errors(@tracker)}
       end
     end
   end
@@ -90,8 +112,15 @@ class TrackersController < ApplicationController
     @tracker = Tracker.find(params[:id])
     if @tracker.issues.empty?
       @tracker.destroy
-      redirect_to trackers_path
+      respond_to do |format|
+        format.html {redirect_to trackers_path}
+        format.api {render_api_ok}
+      end
     else
+      if api_request?
+        render_api_errors l(:error_can_not_delete_tracker_html, :projects => '')
+        return
+      end
       projects = Project.joins(:issues).where(issues: {tracker_id: @tracker.id}).sorted.distinct
       links = projects.map do |p|
         view_context.link_to(p, project_issues_path(p, set_filter: 1, tracker_id: @tracker.id, status_id: '*'))
@@ -100,23 +129,44 @@ class TrackersController < ApplicationController
       @trackers = Tracker.sorted.preload(:default_status).to_a
       render :index
     end
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
   def fields
-    if request.post? && params[:trackers]
+    if (request.post? || request.patch? || request.put?) && params[:trackers]
+      unsaved_trackers = []
       params[:trackers].each do |tracker_id, tracker_params|
         tracker = Tracker.find_by_id(tracker_id)
         if tracker
           tracker.core_fields = tracker_params[:core_fields]
           tracker.custom_field_ids = tracker_params[:custom_field_ids]
-          tracker.save
+          unsaved_trackers << tracker unless tracker.save
         end
       end
-      flash[:notice] = l(:notice_successful_update)
-      redirect_to fields_trackers_path
+      respond_to do |format|
+        if unsaved_trackers.empty?
+          format.html do
+            flash[:notice] = l(:notice_successful_update)
+            redirect_to fields_trackers_path
+          end
+          format.api {render_api_ok}
+        else
+          format.html do
+            @trackers = Tracker.sorted.to_a
+            @custom_fields = IssueCustomField.sorted
+            render :fields
+          end
+          format.api {render_validation_errors(unsaved_trackers)}
+        end
+      end
       return
     end
     @trackers = Tracker.sorted.to_a
     @custom_fields = IssueCustomField.sorted
+    respond_to do |format|
+      format.html
+      format.api
+    end
   end
 end

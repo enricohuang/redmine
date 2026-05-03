@@ -1,0 +1,23 @@
+api.tracker do
+  api.id @tracker.id
+  api.name @tracker.name
+  api.default_status(:id => @tracker.default_status.id, :name => @tracker.default_status.name) if @tracker.default_status
+  api.description @tracker.description
+  api.is_in_roadmap @tracker.is_in_roadmap?
+  api.position @tracker.position
+  api.array :enabled_standard_fields do
+    @tracker.core_fields.each do |field|
+      api.field field
+    end
+  end
+  api.array :custom_fields do
+    @tracker.custom_fields.each do |field|
+      api.custom_field :id => field.id, :name => field.name
+    end
+  end
+  api.array :projects do
+    @tracker.projects.each do |project|
+      api.project :id => project.id, :name => project.name, :identifier => project.identifier
+    end
+  end
+end

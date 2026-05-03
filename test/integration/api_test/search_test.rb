@@ -66,6 +66,23 @@ class Redmine::ApiTest::SearchTest < Redmine::ApiTest::Base
     end
   end
 
+  test "GET /search.json with project_id should scope results to that project" do
+    issue_in_project = Issue.generate!(:project_id => 1, :subject => 'searchapi_project_scope')
+    issue_in_other_project = Issue.generate!(:project_id => 3, :subject => 'searchapi_project_scope')
+
+    get(
+      '/search.json',
+      :params => {:q => 'searchapi_project_scope', :project_id => 'ecookbook', :issues => '1'},
+      :headers => credentials('admin')
+    )
+
+    assert_response :success
+    json = ActiveSupport::JSON.decode(response.body)
+    ids = json['results'].pluck('id')
+    assert_includes ids, issue_in_project.id
+    assert_not_includes ids, issue_in_other_project.id
+  end
+
   test "GET /search.xml should paginate" do
     issue = (0..10).map {Issue.generate! :subject => 'search_with_limited_results'}.reverse.map(&:id)
 

@@ -1,0 +1,11 @@
+api.array :permissions do
+  @workflow_permissions.each do |permission|
+    api.permission do
+      api.tracker_id permission.tracker_id
+      api.role_id permission.role_id
+      api.old_status_id permission.old_status_id
+      api.field_name permission.field_name
+      api.rule permission.rule
+    end
+  end
+end

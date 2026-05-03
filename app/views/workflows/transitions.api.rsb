@@ -1,0 +1,12 @@
+api.array :transitions do
+  @transitions.each do |transition|
+    api.transition do
+      api.tracker_id transition.tracker_id
+      api.role_id transition.role_id
+      api.old_status_id transition.old_status_id
+      api.new_status_id transition.new_status_id
+      api.author transition.author?
+      api.assignee transition.assignee?
+    end
+  end
+end

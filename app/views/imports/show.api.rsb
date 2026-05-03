@@ -1,0 +1,88 @@
+api.import do
+  api.id @import.id
+  api.identifier @import.to_param
+  api.type @import.class.name
+  api.filename @import.filename
+  api.user :id => @import.user.id, :name => @import.user.name
+  api.state @import_state
+  api.finished @import.finished?
+  api.total_items @import.total_items
+  api.processed_items @processed_count
+  api.saved_items @saved_count
+  api.unsaved_items @unsaved_count
+  api.current @current if defined?(@current) && @current
+  api.file_available @import.file_exists?
+  api.preview_error @import_preview_error if @import_preview_error.present?
+
+  api.options do
+    api.array :separators do
+      api.separator ','
+      api.separator ';'
+    end
+    api.array :wrappers do
+      api.wrapper '"'
+      api.wrapper "'"
+    end
+    api.array :encodings do
+      Setting::ENCODINGS.each do |encoding|
+        api.encoding encoding
+      end
+    end
+    api.array :date_formats do
+      Import::DATE_FORMATS.each do |date_format|
+        api.date_format date_format
+      end
+    end
+  end
+
+  api.array :settings do
+    (@import.settings || {}).sort_by {|name, _value| name.to_s}.each do |name, value|
+      api.setting :name => name do
+        case value
+        when Hash
+          api.array :entries do
+            value.sort_by {|entry_name, _entry_value| entry_name.to_s}.each do |entry_name, entry_value|
+              api.entry :name => entry_name, :value => entry_value
+            end
+          end
+        when Array
+          api.array :values do
+            value.each do |entry_value|
+              api.value entry_value
+            end
+          end
+        else
+          api.value value
+        end
+      end
+    end
+  end
+
+  api.array :headers do
+    @import_headers.each do |header|
+      api.header header
+    end
+  end
+
+  api.array :sample_rows do
+    @import_sample_rows.each_with_index do |row, index|
+      api.row :index => index do
+        api.array :values do
+          row.each do |value|
+            api.value value
+          end
+        end
+      end
+    end
+  end
+
+  api.array :items do
+    @import.items.order(:position).each do |item|
+      attrs = {:id => item.id, :position => item.position}
+      attrs[:object_id] = item.obj_id if item.obj_id.present?
+      attrs[:unique_id] = item.unique_id if item.unique_id.present?
+      attrs[:message] = item.message if item.message.present?
+      api.item attrs
+    end
+  end
+end

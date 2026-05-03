@@ -76,12 +76,15 @@ def _trigger_reindex():
     time.sleep(0.5)
 
 
-def _search_for(needle: str, project_id: str, limit: int = 25) -> list[dict]:
+def _search_for(needle: str, project_id: str | None = None, limit: int = 25) -> list[dict]:
+    params = {"q": needle, "per_page": limit}
+    if project_id:
+        params["project_ids[]"] = [project_id]
     r = requests.get(
         f"{REDMINE_URL}/elasticsearch_search.json",
         headers={"X-Redmine-API-Key": REDMINE_API_KEY,
                  "Accept": "application/json"},
-        params={"q": needle, "project_id": project_id, "per_page": limit},
+        params=params,
         timeout=10,
     )
     r.raise_for_status()
@@ -173,6 +176,45 @@ def test_search_type_filter_excludes_other_types(cli, project, unique):
             )
     finally:
         cli("issue", "delete", str(obj["id"]), "-y")
+
+
+def test_search_project_scope_excludes_other_projects(cli, project, unique):
+    """`-p PROJECT` must not broaden to all visible projects."""
+    other_project = f"e2e-es-scope-{unique}"
+    other_issue = None
+    cli("project", "create",
+        "--identifier", other_project,
+        "--name", f"es scope {unique}",
+        "--modules", "issue_tracking",
+        "--json")
+    try:
+        subj = f"esscopeonly{unique}"
+        other_issue = cli("issue", "create",
+                          "-p", other_project,
+                          "-s", subj,
+                          "--json").json()
+
+        # Wait until the other project's issue is visible in the global ES
+        # index; otherwise an empty scoped result would not prove filtering.
+        deadline = time.time() + 15
+        while time.time() < deadline:
+            if any(r.get("id") == other_issue["id"] for r in _search_for(subj)):
+                break
+            time.sleep(1)
+        else:
+            pytest.fail(
+                f"issue {other_issue['id']} did not appear in global ES search "
+                "within 15s"
+            )
+
+        res = cli("elasticsearch", "search", subj,
+                  "-p", project["identifier"], "--json")
+        data = res.json()
+        assert all(r.get("id") != other_issue["id"] for r in data.get("results", []))
+    finally:
+        if other_issue:
+            cli("issue", "delete", str(other_issue["id"]), "-y", check=False)
+        cli("project", "delete", other_project, "-y", check=False)
 
 
 def test_search_no_match_returns_empty_results(cli, project):

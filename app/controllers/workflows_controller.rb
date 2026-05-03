@@ -23,6 +23,7 @@ class WorkflowsController < ApplicationController
   before_action :find_trackers_roles_and_statuses_for_edit, only: [:edit, :update, :permissions, :update_permissions]
 
   before_action :require_admin
+  accept_api_auth :index, :transitions, :update_transitions, :permissions, :update_permissions, :duplicate
 
   def index
     @roles = Role.sorted.select(&:consider_workflow?)
@@ -42,6 +43,60 @@ class WorkflowsController < ApplicationController
     end
   end
 
+  def transitions
+    @trackers = api_workflow_trackers
+    @roles = api_workflow_roles
+    @transitions = WorkflowTransition.
+      where(:tracker_id => @trackers.map(&:id), :role_id => @roles.map(&:id)).
+      order(:tracker_id, :role_id, :old_status_id, :new_status_id, :author, :assignee).
+      to_a
+
+    respond_to do |format|
+      format.api
+      format.html {redirect_to edit_workflows_path}
+    end
+  end
+
+  def update_transitions
+    unless api_request?
+      render_404
+      return
+    end
+
+    rows = Array.wrap(params[:transitions])
+    tracker_ids = api_workflow_scope_ids(:tracker_id, rows)
+    role_ids = api_workflow_scope_ids(:role_id, rows)
+
+    if tracker_ids.blank? || role_ids.blank?
+      render_api_errors 'tracker_id and role_id scope is required'
+      return
+    end
+
+    missing = missing_workflow_references(tracker_ids, role_ids, rows, :new_status_id)
+    if missing.present?
+      render_api_errors missing
+      return
+    end
+
+    WorkflowTransition.transaction do
+      WorkflowTransition.where(:tracker_id => tracker_ids, :role_id => role_ids).delete_all
+      rows.each do |row|
+        WorkflowTransition.create!(
+          :tracker_id => row[:tracker_id],
+          :role_id => row[:role_id],
+          :old_status_id => row[:old_status_id].to_i,
+          :new_status_id => row[:new_status_id],
+          :author => ActiveRecord::Type::Boolean.new.cast(row[:author]),
+          :assignee => ActiveRecord::Type::Boolean.new.cast(row[:assignee])
+        )
+      end
+    end
+
+    render_api_ok
+  rescue ActiveRecord::RecordInvalid => e
+    render_validation_errors e.record
+  end
+
   def update
     if @roles && @trackers && params[:transitions]
       transitions = params[:transitions].deep_dup
@@ -57,6 +112,19 @@ class WorkflowsController < ApplicationController
   end
 
   def permissions
+    if api_request?
+      @trackers = api_workflow_trackers
+      @roles = api_workflow_roles
+      @workflow_permissions = WorkflowPermission.
+        where(:tracker_id => @trackers.map(&:id), :role_id => @roles.map(&:id)).
+        order(:tracker_id, :role_id, :old_status_id, :field_name, :rule).
+        to_a
+      respond_to do |format|
+        format.api
+      end
+      return
+    end
+
     if @roles && @trackers
       @fields = (Tracker::CORE_FIELDS_ALL - @trackers.map(&:disabled_core_fields).reduce(:&)).map do |field|
         [field, l("field_#{field.delete_suffix('_id')}")]
@@ -68,6 +136,11 @@ class WorkflowsController < ApplicationController
   end
 
   def update_permissions
+    if api_request?
+      update_api_permissions
+      return
+    end
+
     if @roles && @trackers && params[:permissions]
       permissions = params[:permissions].deep_dup
       permissions.each_value do |rule_by_status_id|
@@ -87,13 +160,25 @@ class WorkflowsController < ApplicationController
     find_sources_and_targets
     if params[:source_tracker_id].blank? || params[:source_role_id].blank? ||
       (@source_tracker.nil? && @source_role.nil?)
+      if api_request?
+        render_api_errors l(:error_workflow_copy_source)
+        return
+      end
       flash.now[:error] = l(:error_workflow_copy_source)
       render :copy
     elsif @target_trackers.blank? || @target_roles.blank?
+      if api_request?
+        render_api_errors l(:error_workflow_copy_target)
+        return
+      end
       flash.now[:error] = l(:error_workflow_copy_target)
       render :copy
     else
       WorkflowRule.copy(@source_tracker, @source_role, @target_trackers, @target_roles)
+      if api_request?
+        render_api_ok
+        return
+      end
       flash[:notice] = l(:notice_successful_update)
       redirect_to copy_workflows_path(
         :source_tracker_id => @source_tracker,
@@ -103,6 +188,83 @@ class WorkflowsController < ApplicationController
   end
 
   private
+
+  def update_api_permissions
+    rows = Array.wrap(params[:permissions])
+    tracker_ids = api_workflow_scope_ids(:tracker_id, rows)
+    role_ids = api_workflow_scope_ids(:role_id, rows)
+
+    if tracker_ids.blank? || role_ids.blank?
+      render_api_errors 'tracker_id and role_id scope is required'
+      return
+    end
+
+    missing = missing_workflow_references(tracker_ids, role_ids, rows, :old_status_id)
+    if missing.present?
+      render_api_errors missing
+      return
+    end
+
+    WorkflowPermission.transaction do
+      WorkflowPermission.where(:tracker_id => tracker_ids, :role_id => role_ids).delete_all
+      rows.each do |row|
+        WorkflowPermission.create!(
+          :tracker_id => row[:tracker_id],
+          :role_id => row[:role_id],
+          :old_status_id => row[:old_status_id],
+          :field_name => row[:field_name],
+          :rule => row[:rule]
+        )
+      end
+    end
+
+    render_api_ok
+  rescue ActiveRecord::RecordInvalid => e
+    render_validation_errors e.record
+  end
+
+  def api_workflow_trackers
+    ids = api_workflow_param_ids(:tracker_id)
+    ids.present? ? Tracker.where(:id => ids).sorted.to_a : Tracker.sorted.to_a
+  end
+
+  def api_workflow_roles
+    ids = api_workflow_param_ids(:role_id)
+    if ids.present?
+      Role.where(:id => ids).sorted.to_a
+    else
+      Role.sorted.select(&:consider_workflow?)
+    end
+  end
+
+  def api_workflow_scope_ids(key, rows)
+    ids = api_workflow_param_ids(key)
+    ids = rows.filter_map {|row| row[key].presence}.map(&:to_i).uniq if ids.blank?
+    ids
+  end
+
+  def api_workflow_param_ids(key)
+    value = params[key] || params[:"#{key}s"]
+    ids = Array.wrap(value).flat_map {|item| item.to_s.split(',')}.reject(&:blank?)
+    return [] if ids == ['all']
+
+    ids.map(&:to_i).reject(&:zero?).uniq
+  end
+
+  def missing_workflow_references(tracker_ids, role_ids, rows, status_key)
+    messages = []
+    found_tracker_ids = Tracker.where(:id => tracker_ids).pluck(:id)
+    found_role_ids = Role.where(:id => role_ids).pluck(:id)
+    status_ids = rows.filter_map {|row| row[status_key].to_i if row[status_key].present?}.uniq
+    status_ids |= rows.filter_map {|row| row[:old_status_id].to_i if row[:old_status_id].present?}.uniq
+    status_ids.delete(0)
+    found_status_ids = IssueStatus.where(:id => status_ids).pluck(:id)
+
+    messages << "Unknown tracker_id: #{(tracker_ids - found_tracker_ids).join(', ')}" unless (tracker_ids - found_tracker_ids).empty?
+    messages << "Unknown role_id: #{(role_ids - found_role_ids).join(', ')}" unless (role_ids - found_role_ids).empty?
+    messages << "Unknown status_id: #{(status_ids - found_status_ids).join(', ')}" unless (status_ids - found_status_ids).empty?
+    messages
+  end
 
   def find_sources_and_targets
     @roles = Role.sorted.select(&:consider_workflow?)

@@ -31,6 +31,8 @@ class AdminController < ApplicationController
   helper :projects_queries
   helper :projects
 
+  accept_api_auth :info, :test_email, :default_configuration
+
   def index
     @no_configuration_data = Redmine::DefaultData::Loader::no_data?
   end
@@ -54,10 +56,23 @@ class AdminController < ApplicationController
     if request.post?
       begin
         Redmine::DefaultData::Loader::load(params[:lang])
-        flash[:notice] = l(:notice_default_data_loaded)
+        respond_to do |format|
+          format.html do
+            flash[:notice] = l(:notice_default_data_loaded)
+            redirect_to admin_path
+          end
+          format.api {render_api_ok}
+        end
       rescue => e
-        flash[:error] = l(:error_can_t_load_default_data, ERB::Util.h(e.message))
+        respond_to do |format|
+          format.html do
+            flash[:error] = l(:error_can_t_load_default_data, ERB::Util.h(e.message))
+            redirect_to admin_path
+          end
+          format.api {render_api_errors l(:error_can_t_load_default_data, :value => e.message)}
+        end
       end
+      return
     end
     redirect_to admin_path
   end
@@ -65,11 +80,23 @@ class AdminController < ApplicationController
   def test_email
     begin
       Mailer.deliver_test_email(User.current)
-      flash[:notice] = l(:notice_email_sent, ERB::Util.h(User.current.mail))
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_email_sent, ERB::Util.h(User.current.mail))
+          redirect_to settings_path(:tab => 'notifications')
+        end
+        format.api {render_api_ok}
+      end
     rescue => e
-      flash[:error] = l(:notice_email_error, ERB::Util.h(Redmine::CodesetUtil.replace_invalid_utf8(e.message.dup)))
+      message = Redmine::CodesetUtil.replace_invalid_utf8(e.message.dup)
+      respond_to do |format|
+        format.html do
+          flash[:error] = l(:notice_email_error, ERB::Util.h(message))
+          redirect_to settings_path(:tab => 'notifications')
+        end
+        format.api {render_api_errors l(:notice_email_error, :value => message)}
+      end
     end
-    redirect_to settings_path(:tab => 'notifications')
   end
 
   def info
@@ -82,5 +109,10 @@ class AdminController < ApplicationController
       [:text_gs_available,             Redmine::Thumbnail.gs_available?]
     ]
     @checklist << [:text_default_active_job_queue_changed, Rails.application.config.active_job.queue_adapter != :async] if Rails.env.production?
+
+    respond_to do |format|
+      format.html
+      format.api
+    end
   end
 end

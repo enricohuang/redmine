@@ -21,11 +21,11 @@ class EnumerationsController < ApplicationController
   layout 'admin'
   self.main_menu = false
 
-  before_action :require_admin, :except => :index
-  before_action :require_admin_or_api_request, :only => :index
+  before_action :require_admin, :except => [:index, :show]
+  before_action :require_admin_or_api_request, :only => [:index, :show]
   before_action :build_new_enumeration, :only => [:new, :create]
-  before_action :find_enumeration, :only => [:edit, :update, :destroy]
-  accept_api_auth :index
+  before_action :find_enumeration, :only => [:show, :edit, :update, :destroy]
+  accept_api_auth :index, :show, :create, :update, :destroy
 
   helper :custom_fields
 
@@ -46,12 +46,34 @@ class EnumerationsController < ApplicationController
   def new
   end
 
+  def show
+    @klass = Enumeration.get_subclass(params[:type])
+    if @klass.nil? || !@enumeration.is_a?(@klass)
+      render_404
+      return
+    end
+
+    respond_to do |format|
+      format.html {redirect_to enumerations_path}
+      format.api
+    end
+  end
+
   def create
     if request.post? && @enumeration.save
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to enumerations_path
+      @klass = @enumeration.class
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          redirect_to enumerations_path
+        end
+        format.api {render :action => 'show', :status => :created, :location => enumeration_url(@enumeration)}
+      end
     else
-      render :action => 'new'
+      respond_to do |format|
+        format.html {render :action => 'new'}
+        format.api {render_validation_errors(@enumeration)}
+      end
     end
   end
 
@@ -59,6 +81,8 @@ class EnumerationsController < ApplicationController
   end
 
   def update
+    return unless ensure_enumeration_type_matches
+
     if @enumeration.update(enumeration_params)
       respond_to do |format|
         format.html do
@@ -66,24 +90,38 @@ class EnumerationsController < ApplicationController
           redirect_to enumerations_path
         end
         format.js {head :ok}
+        format.api {render_api_ok}
       end
     else
       respond_to do |format|
         format.html {render :action => 'edit'}
         format.js {head :unprocessable_content}
+        format.api {render_validation_errors(@enumeration)}
       end
     end
   end
 
   def destroy
+    return unless ensure_enumeration_type_matches
+
     if !@enumeration.in_use?
       # No associated objects
       @enumeration.destroy
-      redirect_to enumerations_path
+      respond_to do |format|
+        format.html {redirect_to enumerations_path}
+        format.api {render_api_ok}
+      end
       return
     elsif params[:reassign_to_id].present? && (reassign_to = @enumeration.class.find_by_id(params[:reassign_to_id].to_i))
       @enumeration.destroy(reassign_to)
-      redirect_to enumerations_path
+      respond_to do |format|
+        format.html {redirect_to enumerations_path}
+        format.api {render_api_ok}
+      end
+      return
+    end
+    if api_request?
+      render_api_errors 'Unable to delete enumeration'
       return
     end
     @enumerations = @enumeration.class.system.to_a - [@enumeration]
@@ -105,6 +143,18 @@ class EnumerationsController < ApplicationController
     @enumeration = Enumeration.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render_404
+  end
+
+  def ensure_enumeration_type_matches
+    return true if params[:type].blank?
+
+    klass = Enumeration.get_subclass(params[:type])
+    if klass && @enumeration.is_a?(klass)
+      true
+    else
+      render_404
+      false
+    end
   end
 
   def enumeration_params

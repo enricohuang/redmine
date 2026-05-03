@@ -336,6 +336,69 @@ def _search():
     """
 
 
+@topic("imports", "CSV import state machine: upload, settings, mapping, run.")
+def _imports():
+    """
+    # Imports
+
+    The fork exposes Redmine's CSV import wizard as a JSON state machine. The
+    CLI keeps the same stages but avoids browser redirects.
+
+    ## Issue import flow
+
+        redmine import create --type issues --file issues.csv --project 1
+        redmine import settings 42 --separator ';' --encoding ISO-8859-1
+        redmine import auto-map 42 --json
+        redmine import mapping 42 --map project_id=1 --map subject=1 --map tracker=13
+        redmine import run 42
+        redmine import status 42 --json
+
+    `create` returns a stable numeric import ID. Use that ID for the rest of
+    the workflow. `run` may process a chunk; repeat until `state` is `finished`.
+
+    ## Mapping values
+
+    Mapping values are server import values:
+
+        --map subject=1          # use CSV column index 1
+        --map tracker=13         # use CSV column index 13
+        --map tracker=value:2    # constant tracker ID 2
+        --map project_id=1       # target project ID
+
+    For complex mappings, use a JSON file:
+
+        redmine import mapping 42 --mapping-file mapping.json
+    """
+
+
+@topic("repository", "Bounded repository browsing and changeset reads.")
+def _repository():
+    """
+    # Repository
+
+    Repository commands are read-only and bounded. They expose directory
+    entries and changeset metadata/file-change lists, but intentionally do not
+    expose raw file content or unbounded diffs.
+
+    ## Browse entries
+
+        redmine repository entries -p demo --repository 10
+        redmine repository entries -p demo --repository 10 --path app/models --limit 50
+        redmine repository entries -p demo --repository 10 --revision 4 --json
+
+    If `--repository` is omitted for `entries`, Redmine's default project
+    repository is used.
+
+    ## Changesets
+
+        redmine repository revisions -p demo --repository 10 --limit 20
+        redmine repository revision -p demo --repository 10 4 --json
+
+    File changes are returned only when the API user has `browse_repository`.
+    Changeset metadata requires `view_changesets`.
+    """
+
+
 @topic("automation", "Piping, IDs from names, batch jobs, CI patterns.")
 def _automation():
     """
@@ -443,6 +506,8 @@ def _reference():
         wiki         get / update / delete + history / rename / protect (fork)
         journal      list / get / create / update (fork direct API)
         attachment   upload / attach (issue) / get / download
+        import       CSV import create / settings / mapping / run / status
+        repository   bounded repository entries / revisions / revision
         label        list / get / create / update / delete (fork)
         search       global search across types
         user         list / get  (admin-only on stock Redmine)
@@ -470,5 +535,5 @@ def _reference():
         redmine help <topic>
 
     Topics:  getting-started auth issues wiki attachments labels journals
-             search automation troubleshooting reference
+             search imports repository automation troubleshooting reference
     """

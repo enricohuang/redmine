@@ -37,6 +37,16 @@ class ElasticsearchSearchHelperTest < Redmine::HelperTest
     assert [true, false].include?(result)
   end
 
+  def test_sanitize_es_result_fragment_removes_unsafe_html_and_keeps_highlights
+    fragment = '<script>alert(1)</script><span class="highlight">match</span><img src=x onerror=alert(1)>'
+    sanitized = sanitize_es_result_fragment(fragment)
+
+    assert_includes sanitized, '<span class="highlight">match</span>'
+    assert_no_match %r{<script}, sanitized
+    assert_no_match %r{<img}, sanitized
+    assert_no_match /onerror/, sanitized
+  end
+
   # es_result_url tests
   def test_es_result_url_for_issue
     result = { type: 'issue', id: 1 }
@@ -172,13 +182,13 @@ class ElasticsearchSearchHelperTest < Redmine::HelperTest
   end
 
   def test_es_result_meta_includes_assignee_for_issues
-    result = { type: 'issue', id: 1 }
     record = Issue.find(1)
+    record.assigned_to = User.find(2)
+    result = { type: 'issue', id: record.id }
     meta = es_result_meta(result, record)
 
-    if record.assigned_to
-      assert meta.include?('search-meta-assignee')
-    end
+    assert_includes meta, 'search-meta-assignee'
+    assert_includes meta, record.assigned_to.name
   end
 
   def test_es_result_meta_includes_time

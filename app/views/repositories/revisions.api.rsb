@@ -1,0 +1,14 @@
+api.array :changesets, api_meta(:total_count => @changeset_count,
+                                :offset => @changeset_pages.offset,
+                                :limit => @changeset_pages.per_page) do
+  @changesets.each do |changeset|
+    api.changeset :id => changeset.id,
+                  :revision => changeset.revision,
+                  :identifier => changeset.identifier,
+                  :scmid => changeset.scmid,
+                  :committed_on => changeset.committed_on,
+                  :author => changeset.author.to_s,
+                  :committer => changeset.committer,
+                  :comments => changeset.comments
+  end
+end

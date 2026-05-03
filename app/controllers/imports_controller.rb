@@ -28,6 +28,8 @@ class ImportsController < ApplicationController
   helper :issues
   helper :queries
 
+  accept_api_auth :create, :show, :settings, :mapping, :run
+
   def new
     @import = import_type.new
   end
@@ -39,32 +41,64 @@ class ImportsController < ApplicationController
     @import.set_default_settings(:project_id => params[:project_id])
 
     if @import.save
-      redirect_to import_settings_path(@import)
+      respond_to do |format|
+        format.html {redirect_to import_settings_path(@import)}
+        format.api do
+          prepare_import_api_response
+          render :action => 'show', :status => :created, :location => import_url(@import.id)
+        end
+      end
     else
-      render :action => 'new'
+      respond_to do |format|
+        format.html {render :action => 'new'}
+        format.api {render_validation_errors(@import)}
+      end
     end
   end
 
   def show
+    respond_to do |format|
+      format.html
+      format.api {prepare_import_api_response}
+    end
   end
 
   def settings
-    if request.post? && @import.parse_file
+    if import_update_request?
+      @import.parse_file
       if @import.total_items == 0
-        flash.now[:error] = l(:error_no_data_in_file)
+        respond_to do |format|
+          format.html {flash.now[:error] = l(:error_no_data_in_file)}
+          format.api {render_api_errors l(:error_no_data_in_file)}
+        end
       else
-        redirect_to import_mapping_path(@import)
+        respond_to do |format|
+          format.html {redirect_to import_mapping_path(@import)}
+          format.api do
+            prepare_import_api_response
+            render :action => 'show'
+          end
+        end
       end
+      return
     end
 
+    respond_to do |format|
+      format.html
+      format.api {prepare_import_api_response}
+    end
   rescue CSV::MalformedCSVError, EncodingError => e
-    if e.is_a?(CSV::MalformedCSVError) && !e.message.include?('Invalid byte sequence')
-      flash.now[:error] = l(:error_invalid_csv_file_or_settings, e.message)
-    else
-      flash.now[:error] = l(:error_invalid_file_encoding, :encoding => ERB::Util.h(@import.settings['encoding']))
+    message = import_file_error_message(e)
+    respond_to do |format|
+      format.html {flash.now[:error] = message}
+      format.api {render_api_errors message}
     end
   rescue SystemCallError => e
-    flash.now[:error] = l(:error_can_not_read_import_file)
+    message = import_file_error_message(e)
+    respond_to do |format|
+      format.html {flash.now[:error] = message}
+      format.api {render_api_errors message}
+    end
   end
 
   def mapping
@@ -72,7 +106,15 @@ class ImportsController < ApplicationController
 
     if request.get?
       auto_map_fields
-    elsif request.post?
+      @import.save! if api_request?
+      respond_to do |format|
+        format.html
+        format.api do
+          prepare_import_api_response
+          render :action => 'show'
+        end
+      end
+    elsif import_update_request?
       respond_to do |format|
         format.html do
           if params[:previous]
@@ -82,6 +124,10 @@ class ImportsController < ApplicationController
           end
         end
         format.js # updates mapping form on project or tracker change
+        format.api do
+          prepare_import_api_response
+          render :action => 'show'
+        end
       end
     end
   end
@@ -101,7 +147,17 @@ class ImportsController < ApplicationController
           end
         end
         format.js
+        format.api do
+          prepare_import_api_response
+          render :action => 'show'
+        end
       end
+      return
+    end
+
+    respond_to do |format|
+      format.html
+      format.api {prepare_import_api_response}
     end
   end
 
@@ -116,23 +172,42 @@ class ImportsController < ApplicationController
   private
 
   def find_import
-    @import = Import.where(:user_id => User.current.id, :filename => params[:id]).first
+    @import = find_current_user_import
     if @import.nil?
       render_404
       return
     elsif @import.finished? && action_name != 'show'
-      redirect_to import_path(@import)
+      if api_request?
+        prepare_import_api_response
+        render :action => 'show'
+      else
+        redirect_to import_path(@import)
+      end
       return
     end
-    update_from_params if request.post?
+    update_from_params if import_update_request?
+  end
+
+  def find_current_user_import
+    scope = Import.where(:user_id => User.current.id)
+    if api_request? && /\A\d+\z/.match?(params[:id].to_s)
+      scope.find_by(:id => params[:id]) || scope.find_by(:filename => params[:id])
+    else
+      scope.find_by(:filename => params[:id])
+    end
   end
 
   def update_from_params
-    if params[:import_settings].present?
+    import_settings = params[:import_settings] || params[:settings]
+    if import_settings.present?
       @import.settings ||= {}
-      @import.settings.merge!(params[:import_settings].to_unsafe_hash)
+      @import.settings.merge!(import_settings.to_unsafe_hash)
       @import.save!
     end
+  end
+
+  def import_update_request?
+    request.post? || request.put? || request.patch?
   end
 
   def max_items_per_request
@@ -168,6 +243,50 @@ class ImportsController < ApplicationController
           end
         type && type < Import ? type : nil
       end
+  end
+
+  def prepare_import_api_response
+    @import_state = import_state
+    @processed_count = @import.items.count
+    @saved_count = @import.saved_items.count
+    @unsaved_count = @import.unsaved_items.count
+    @import_headers = []
+    @import_sample_rows = []
+    @import_preview_error = nil
+
+    if @import.file_exists?
+      begin
+        @import_headers = @import.headers
+        @import_sample_rows = @import.first_rows
+      rescue CSV::MalformedCSVError, EncodingError, SystemCallError => e
+        @import_preview_error = import_file_error_message(e)
+      end
+    end
+  end
+
+  def import_state
+    return 'finished' if @import.finished?
+    return 'running' if @import.items.exists?
+    return 'empty' if @import.total_items == 0
+    return 'mapped' if mapped_import?
+    return 'settings_validated' if @import.total_items.present?
+
+    'uploaded'
+  end
+
+  def mapped_import?
+    mapping = @import.mapping
+    mapping.present? && (mapping.keys.map(&:to_s) - ['project_id']).present?
+  end
+
+  def import_file_error_message(exception)
+    if exception.is_a?(CSV::MalformedCSVError) && !exception.message.include?('Invalid byte sequence')
+      l(:error_invalid_csv_file_or_settings, exception.message)
+    elsif exception.is_a?(EncodingError) || exception.is_a?(CSV::MalformedCSVError)
+      l(:error_invalid_file_encoding, :encoding => ERB::Util.h(@import.settings['encoding']))
+    else
+      l(:error_can_not_read_import_file)
+    end
   end
 
   def auto_map_fields

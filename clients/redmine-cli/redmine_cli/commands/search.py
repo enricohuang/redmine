@@ -48,7 +48,7 @@ def register(parent: typer.Typer) -> None:
         from ..cli import get_client
         c = get_client(ctx)
         params: dict = {"q": query}
-        if project: params["project_id"] = project
+        path = f"/projects/{project}/search.json" if project else "/search.json"
         if scope: params["scope"] = scope
         for flag, key in [
             (issues, "issues"), (news, "news"), (documents, "documents"),
@@ -61,10 +61,10 @@ def register(parent: typer.Typer) -> None:
         if open_issues: params["open_issues"] = 1
 
         if all_pages:
-            items = list(c.paginate("/search.json", key="results", page_size=limit, **params))
+            items = list(c.paginate(path, key="results", page_size=limit, **params))
         else:
             params["limit"] = limit
-            items = c.get("/search.json", **params).get("results", [])
+            items = c.get(path, **params).get("results", [])
 
         emit_list(
             items,

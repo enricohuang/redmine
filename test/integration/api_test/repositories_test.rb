@@ -20,6 +20,77 @@
 require_relative '../../test_helper'
 
 class Redmine::ApiTest::RepositoriesTest < Redmine::ApiTest::Base
+  def teardown
+    FileUtils.rm_rf(@filesystem_repository_path) if @filesystem_repository_path
+    super
+  end
+
+  test 'GET /projects/:id/repository/:repository_id/entries.json should list repository entries with a limit' do
+    with_filesystem_repository do |repository|
+      get(
+        "/projects/1/repository/#{repository.identifier_param}/entries.json",
+        :params => {:limit => 1},
+        :headers => credentials('admin')
+      )
+    end
+
+    assert_response :success
+    repository_json = json_response['repository']
+    assert_equal 2, repository_json['entries_total_count']
+    assert_equal 1, repository_json['entries_limit']
+    assert_equal 1, repository_json['entries'].size
+    assert_includes %w[dir test.txt], repository_json['entries'].first['name']
+  end
+
+  test 'GET /projects/:id/repository/:repository_id/entries.json should support path query parameter' do
+    with_filesystem_repository do |repository|
+      get(
+        "/projects/1/repository/#{repository.identifier_param}/entries.json",
+        :params => {:path => 'dir'},
+        :headers => credentials('admin')
+      )
+    end
+
+    assert_response :success
+    repository_json = json_response['repository']
+    assert_equal 'dir', repository_json['path']
+    assert_equal 1, repository_json['entries_total_count']
+    assert_equal ['child.txt'], repository_json['entries'].map {|entry| entry['name']}
+  end
+
+  test 'GET /projects/:id/repository/:repository_id/revisions.json should return changesets' do
+    get '/projects/1/repository/10/revisions.json', :headers => credentials('jsmith')
+
+    assert_response :success
+    json = json_response
+    assert_operator json['total_count'], :>, 0
+    revisions = json['changesets'].map {|changeset| changeset['revision']}
+    assert_includes revisions, '4'
+  end
+
+  test 'GET /projects/:id/repository/:repository_id/revisions/:rev.json should return changeset filechanges' do
+    get '/projects/1/repository/10/revisions/1.json', :headers => credentials('jsmith')
+
+    assert_response :success
+    changeset = json_response['changeset']
+    assert_equal '1', changeset['revision']
+    assert_equal 2, changeset['filechanges_total_count']
+    assert_equal %w[A A], changeset['filechanges'].map {|change| change['action']}
+    assert_includes changeset['filechanges'].map {|change| change['path']}, '/test/some/path/in/the/repo'
+  end
+
+  test 'GET /projects/:id/repository/:repository_id/revisions/:rev.json should hide filechanges without browse permission' do
+    Role.find(1).remove_permission! :browse_repository
+    Role.find(1).add_permission! :view_changesets
+
+    get '/projects/1/repository/10/revisions/1.json', :headers => credentials('jsmith')
+
+    assert_response :success
+    changeset = json_response['changeset']
+    assert_equal 0, changeset['filechanges_total_count']
+    assert_equal [], changeset['filechanges']
+  end
+
   test 'POST /projects/:id/repository/:repository_id/revisions/:rev/issues.xml should add related issue' do
     changeset = Changeset.find(103)
     assert_equal [], changeset.issue_ids
@@ -97,5 +168,30 @@ class Redmine::ApiTest::RepositoriesTest < Redmine::ApiTest::Base
     end
     assert_response :no_content
     assert_equal [1], changeset.reload.issue_ids
+  end
+
+  private
+
+  def json_response
+    ActiveSupport::JSON.decode(response.body)
+  end
+
+  def with_filesystem_repository
+    @filesystem_repository_path = Rails.root.join('tmp/test/api_filesystem_repository').to_s
+    FileUtils.rm_rf(@filesystem_repository_path)
+    FileUtils.mkdir_p(File.join(@filesystem_repository_path, 'dir'))
+    File.write(File.join(@filesystem_repository_path, 'test.txt'), "hello\n")
+    File.write(File.join(@filesystem_repository_path, 'dir', 'child.txt'), "child\n")
+
+    with_settings :enabled_scm => (Setting.enabled_scm + ['Filesystem']).uniq do
+      repository =
+        Repository::Filesystem.create!(
+          :project => Project.find(1),
+          :identifier => 'api-fs',
+          :url => @filesystem_repository_path,
+          :path_encoding => ''
+        )
+      yield repository
+    end
   end
 end

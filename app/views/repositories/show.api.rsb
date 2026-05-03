@@ -1,0 +1,55 @@
+api.repository do
+  api.id @repository.id
+  api.name @repository.name
+  api.identifier @repository.identifier if @repository.identifier.present?
+  api.type @repository.class.name
+  api.project :id => @project.id, :name => @project.name, :identifier => @project.identifier
+  api.path @path
+  api.revision @rev if @rev.present?
+  api.entries_total_count @entry_count
+  api.entries_offset @entry_offset
+  api.entries_limit @entry_limit
+
+  api.array :entries do
+    @entries.each do |entry|
+      attrs = {
+        :name => entry.name,
+        :path => entry.path,
+        :kind => entry.kind
+      }
+      attrs[:size] = entry.size if entry.size
+      api.entry attrs do
+        if entry.changeset
+          api.changeset :id => entry.changeset.id,
+                        :revision => entry.changeset.revision,
+                        :identifier => entry.changeset.identifier,
+                        :committed_on => entry.changeset.committed_on
+        elsif entry.lastrev
+          api.last_revision do
+            lastrev = entry.lastrev
+            if lastrev.respond_to?(:identifier)
+              api.identifier lastrev.identifier
+            else
+              api.identifier lastrev.to_s
+            end
+            api.revision lastrev.revision if lastrev.respond_to?(:revision)
+            api.name lastrev.name if lastrev.respond_to?(:name)
+            api.author entry.author if entry.author.present?
+            api.committed_on lastrev.time if lastrev.respond_to?(:time)
+          end
+        end
+      end
+    end
+  end
+
+  api.array :latest_changesets do
+    @changesets.each do |changeset|
+      api.changeset :id => changeset.id,
+                    :revision => changeset.revision,
+                    :identifier => changeset.identifier,
+                    :committed_on => changeset.committed_on,
+                    :author => changeset.author.to_s,
+                    :comments => changeset.comments
+    end
+  end
+end

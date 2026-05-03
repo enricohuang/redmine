@@ -29,7 +29,7 @@ class TimelogController < ApplicationController
   before_action :find_optional_project, :only => [:index, :report]
 
   accept_atom_auth :index
-  accept_api_auth :index, :show, :create, :update, :destroy
+  accept_api_auth :index, :show, :create, :update, :destroy, :report, :bulk_update
 
   rescue_from Query::StatementInvalid, :with => :query_statement_invalid
   rescue_from Query::QueryError, :with => :query_error
@@ -80,6 +80,7 @@ class TimelogController < ApplicationController
 
     respond_to do |format|
       format.html {render :layout => !request.xhr?}
+      format.api
       format.csv do
         send_data(report_to_csv(@report), :type => 'text/csv; header=present',
                   :filename => 'timelog.csv')
@@ -215,8 +216,13 @@ class TimelogController < ApplicationController
     end
 
     if unsaved_time_entries.empty?
-      flash[:notice] = l(:notice_successful_update) unless saved_time_entries.empty?
-      redirect_back_or_default project_time_entries_path(@projects.first)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_update) unless saved_time_entries.empty?
+          redirect_back_or_default project_time_entries_path(@projects.first)
+        end
+        format.api {render_api_ok}
+      end
     else
       @saved_time_entries = @time_entries
       @unsaved_time_entries = unsaved_time_entries
@@ -224,8 +230,13 @@ class TimelogController < ApplicationController
         preload(:project => :time_entry_activities).
         preload(:user).to_a
 
-      bulk_edit
-      render :action => 'bulk_edit'
+      respond_to do |format|
+        format.html do
+          bulk_edit
+          render :action => 'bulk_edit'
+        end
+        format.api {render_validation_errors(unsaved_time_entries)}
+      end
     end
   end
 

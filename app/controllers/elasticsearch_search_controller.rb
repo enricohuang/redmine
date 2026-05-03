@@ -14,7 +14,8 @@ class ElasticsearchSearchController < ApplicationController
     @search_in = params[:search_in] || 'all' # all, title, content
     @types = params[:types] || []
     @types = available_types if @types.empty?
-    @project_ids = params[:project_ids] || []
+    @project_ids = normalized_project_ids
+    return if performed?
     @date_from = params[:date_from].presence
     @date_to = params[:date_to].presence
     @sort_by = params[:sort_by] || 'relevance' # relevance, date_desc, date_asc
@@ -60,6 +61,16 @@ class ElasticsearchSearchController < ApplicationController
 
   private
 
+  def normalized_project_ids
+    raw_project_ids = params[:project_ids].presence || params[:project_id].presence
+    Array.wrap(raw_project_ids).flat_map {|value| value.to_s.split(',')}.reject(&:blank?).map do |project_id|
+      Project.find(project_id).id
+    end.uniq
+  rescue ActiveRecord::RecordNotFound
+    render_404
+    []
+  end
+
   def require_elasticsearch
     unless defined?(::RedmineElasticsearch) && ::RedmineElasticsearch.available?
       respond_to do |format|
@@ -91,7 +102,7 @@ class ElasticsearchSearchController < ApplicationController
   def search_options
     {
       types: @types,
-      project_ids: @project_ids.reject(&:blank?).map(&:to_i),
+      project_ids: @project_ids,
       project: @project,
       search_in: @search_in,
       date_from: @date_from,

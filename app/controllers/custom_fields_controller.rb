@@ -23,8 +23,8 @@ class CustomFieldsController < ApplicationController
 
   before_action :require_admin
   before_action :build_new_custom_field, :only => [:new, :create]
-  before_action :find_custom_field, :only => [:edit, :update, :destroy]
-  accept_api_auth :index
+  before_action :find_custom_field, :only => [:show, :edit, :update, :destroy]
+  accept_api_auth :index, :show, :create, :update, :destroy
 
   def index
     respond_to do |format|
@@ -39,6 +39,13 @@ class CustomFieldsController < ApplicationController
     end
   end
 
+  def show
+    respond_to do |format|
+      format.html {redirect_to edit_custom_field_path(@custom_field)}
+      format.api
+    end
+  end
+
   def new
     @custom_field.field_format = 'string' if @custom_field.field_format.blank?
     @custom_field.default_value = nil
@@ -46,15 +53,23 @@ class CustomFieldsController < ApplicationController
 
   def create
     if @custom_field.save
-      flash[:notice] = l(:notice_successful_create)
       call_hook(:controller_custom_fields_new_after_save, :params => params, :custom_field => @custom_field)
-      if params[:continue]
-        redirect_to new_custom_field_path({:type => @custom_field.type})
-      else
-        redirect_to custom_fields_path({:tab => @custom_field.type})
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          if params[:continue]
+            redirect_to new_custom_field_path({:type => @custom_field.type})
+          else
+            redirect_to custom_fields_path({:tab => @custom_field.type})
+          end
+        end
+        format.api {render :action => 'show', :status => :created, :location => custom_field_url(@custom_field)}
       end
     else
-      render :action => 'new'
+      respond_to do |format|
+        format.html {render :action => 'new'}
+        format.api {render_validation_errors(@custom_field)}
+      end
     end
   end
 
@@ -71,11 +86,13 @@ class CustomFieldsController < ApplicationController
           redirect_back_or_default edit_custom_field_path(@custom_field)
         end
         format.js {head :ok}
+        format.api {render_api_ok}
       end
     else
       respond_to do |format|
         format.html {render :action => 'edit'}
         format.js {head :unprocessable_content}
+        format.api {render_validation_errors(@custom_field)}
       end
     end
   end
@@ -85,10 +102,19 @@ class CustomFieldsController < ApplicationController
       if @custom_field.destroy
         flash[:notice] = l(:notice_successful_delete)
       end
+      respond_to do |format|
+        format.html {redirect_to custom_fields_path(:tab => @custom_field.class.name)}
+        format.api {render_api_ok}
+      end
     rescue
-      flash[:error] = l(:error_can_not_delete_custom_field)
+      respond_to do |format|
+        format.html do
+          flash[:error] = l(:error_can_not_delete_custom_field)
+          redirect_to custom_fields_path(:tab => @custom_field.class.name)
+        end
+        format.api {render_api_errors l(:error_can_not_delete_custom_field)}
+      end
     end
-    redirect_to custom_fields_path(:tab => @custom_field.class.name)
   end
 
   private

@@ -1,0 +1,15 @@
+api.plugin_setting do
+  api.id @plugin.id
+  api.name @plugin.name
+  api.configurable @plugin.configurable?
+  api.array :settings do
+    @plugin_settings.each do |setting|
+      api.setting do
+        api.name setting[:name]
+        api.value setting[:value] unless setting[:sensitive]
+        api.sensitive setting[:sensitive]
+        api.has_value setting[:has_value] if setting[:sensitive]
+      end
+    end
+  end
+end

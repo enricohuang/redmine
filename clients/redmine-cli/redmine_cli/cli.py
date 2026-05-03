@@ -106,6 +106,8 @@ from .commands import (  # noqa: E402  (registration must follow app definition)
     activity,
     query,
     fulltext,
+    import_cmd,
+    repository,
     elasticsearch as elasticsearch_cmd,
 )
 
@@ -154,6 +156,8 @@ app.add_typer(reaction.app, name="reaction")
 app.add_typer(activity.app, name="activity")
 app.add_typer(query.app, name="query")
 app.add_typer(fulltext.app, name="fulltext")
+app.add_typer(import_cmd.app, name="import")
+app.add_typer(repository.app, name="repository")
 app.add_typer(elasticsearch_cmd.app, name="elasticsearch")
 
 help_cmd.register(app)

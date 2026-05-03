@@ -24,7 +24,7 @@ class RolesController < ApplicationController
   before_action :require_admin, :except => [:index, :show]
   before_action :require_admin_or_api_request, :only => [:index, :show]
   before_action :find_role, :only => [:show, :edit, :update, :destroy]
-  accept_api_auth :index, :show
+  accept_api_auth :index, :show, :create, :update, :destroy, :permissions, :update_permissions
 
   include RolesHelper
 
@@ -37,7 +37,12 @@ class RolesController < ApplicationController
         render :layout => false if request.xhr?
       end
       format.api do
-        @roles = Role.givable.to_a
+        @roles =
+          if params[:include_builtin].present? && User.current.admin?
+            Role.sorted.to_a
+          else
+            Role.givable.to_a
+          end
       end
     end
   end
@@ -66,11 +71,21 @@ class RolesController < ApplicationController
       if params[:copy_workflow_from].present? && (copy_from = Role.find_by_id(params[:copy_workflow_from]))
         @role.copy_workflow_rules(copy_from)
       end
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to roles_path
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          redirect_to roles_path
+        end
+        format.api {render :action => 'show', :status => :created, :location => role_url(@role)}
+      end
     else
-      @roles = Role.sorted.to_a
-      render :action => 'new'
+      respond_to do |format|
+        format.html do
+          @roles = Role.sorted.to_a
+          render :action => 'new'
+        end
+        format.api {render_validation_errors(@role)}
+      end
     end
   end
 
@@ -86,19 +101,29 @@ class RolesController < ApplicationController
           redirect_to roles_path(:page => params[:page])
         end
         format.js {head :ok}
+        format.api {render_api_ok}
       end
     else
       respond_to do |format|
         format.html {render :action => 'edit'}
         format.js   {head :unprocessable_content}
+        format.api  {render_validation_errors(@role)}
       end
     end
   end
 
   def destroy
     @role.destroy
-    redirect_to roles_path
+    respond_to do |format|
+      format.html {redirect_to roles_path}
+      format.api {render_api_ok}
+    end
   rescue
+    if api_request?
+      render_api_errors l(:error_can_not_remove_role)
+      return
+    end
+
     flash.now[:error] = l(:error_can_not_remove_role)
 
     if @role.members.present?
@@ -124,17 +149,31 @@ class RolesController < ApplicationController
       format.csv do
         send_data(permissions_to_csv(@roles, @permissions), :type => 'text/csv; header=present', :filename => 'permissions.csv')
       end
+      format.api
     end
   end
 
   def update_permissions
+    unless params[:permissions].present?
+      respond_to do |format|
+        format.html {redirect_to roles_path}
+        format.api {render_api_errors 'permissions is required'}
+      end
+      return
+    end
+
     @roles = Role.where(:id => params[:permissions].keys)
     @roles.each do |role|
       role.permissions = params[:permissions][role.id.to_s]
       role.save
     end
-    flash[:notice] = l(:notice_successful_update)
-    redirect_to roles_path
+    respond_to do |format|
+      format.html do
+        flash[:notice] = l(:notice_successful_update)
+        redirect_to roles_path
+      end
+      format.api {render_api_ok}
+    end
   end
 
   private

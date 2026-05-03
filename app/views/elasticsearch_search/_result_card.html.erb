@@ -11,7 +11,7 @@
     </div>
     <div class="search-result-title-row">
       <%= es_type_badge(result, record) %>
-      <%= link_to result[:title].to_s.html_safe, es_result_url(result), class: 'search-result-title' %>
+      <%= link_to sanitize_es_result_fragment(result[:title]), es_result_url(result), class: 'search-result-title' %>
       <% if record.is_a?(Issue) %>
         <%= issue_status_pill(record) %>
       <% end %>
@@ -21,7 +21,7 @@
   <div class="search-result-body">
     <% if result[:content].present? %>
       <p class="search-result-snippet">
-        <%= result[:content].html_safe %>
+        <%= sanitize_es_result_fragment(result[:content]) %>
       </p>
     <% end %>
 

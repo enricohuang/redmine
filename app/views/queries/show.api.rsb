@@ -1,0 +1,15 @@
+api.query do
+  api.id @query.id
+  api.name @query.name
+  api.description @query.description
+  api.type @query.type
+  api.is_public @query.is_public?
+  api.visibility @query.visibility
+  api.project_id @query.project_id
+  api.filters @query.filters
+  api.column_names @query.column_names
+  api.totalable_names @query.totalable_names
+  api.sort_criteria @query.sort_criteria
+  api.group_by @query.group_by
+  api.display_type @query.display_type
+end

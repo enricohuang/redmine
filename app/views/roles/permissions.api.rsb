@@ -1,0 +1,23 @@
+api.array :roles do
+  @roles.each do |role|
+    api.role do
+      api.id role.id
+      api.name role.name
+      api.builtin role.builtin
+      api.array :permissions do
+        role.permissions.each do |permission|
+          api.permission permission.to_s
+        end
+      end
+    end
+  end
+end
+
+api.array :available_permissions do
+  @permissions.each do |permission|
+    api.permission do
+      api.name permission.name.to_s
+      api.project_module permission.project_module.to_s if permission.project_module
+    end
+  end
+end

@@ -1,0 +1,18 @@
+api.time_entry_report do
+  api.array :criteria do
+    @report.criteria.each do |criteria|
+      api.criteria criteria
+    end
+  end
+  api.array :periods do
+    @report.periods.each do |period|
+      api.period period.to_s
+    end
+  end
+  api.total_hours @report.total_hours
+  api.array :hours do
+    @report.hours.each do |row|
+      api.row row
+    end
+  end
+end

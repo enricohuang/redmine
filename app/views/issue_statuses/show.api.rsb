@@ -1,0 +1,8 @@
+api.issue_status do
+  api.id @issue_status.id
+  api.name @issue_status.name
+  api.is_closed @issue_status.is_closed
+  api.description @issue_status.description
+  api.position @issue_status.position
+  api.default_done_ratio @issue_status.default_done_ratio
+end

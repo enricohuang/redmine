@@ -1,0 +1,13 @@
+api.array :settings do
+  @settings.each do |setting|
+    api.setting do
+      api.name setting[:name]
+      api.value setting[:value] unless setting[:sensitive]
+      api.sensitive setting[:sensitive]
+      api.has_value setting[:has_value] if setting[:sensitive]
+      api.format setting[:format] if setting[:format].present?
+      api.serialized setting[:serialized]
+      api.security_notifications setting[:security_notifications]
+    end
+  end
+end

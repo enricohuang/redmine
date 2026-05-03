@@ -64,4 +64,88 @@ class Redmine::ApiTest::RolesTest < Redmine::ApiTest::Base
       end
     end
   end
+
+  test "GET /roles.json with include_builtin should return built-in roles for admin" do
+    get '/roles.json', :params => {:include_builtin => '1'}, :headers => credentials('admin')
+
+    assert_response :success
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 5, json['roles'].size
+    assert json['roles'].any? {|role| role['id'] == 4 && role['name'] == 'Non member'}
+    assert json['roles'].any? {|role| role['id'] == 5 && role['name'] == 'Anonymous'}
+  end
+
+  test "POST /roles.json should require admin API user" do
+    post(
+      '/roles.json',
+      :params => {:role => {:name => 'Support'}},
+      :headers => credentials('jsmith')
+    )
+
+    assert_response :forbidden
+  end
+
+  test "POST /roles.json should create role" do
+    assert_difference 'Role.count' do
+      post(
+        '/roles.json',
+        :params => {:role => {:name => 'Support', :permissions => %w[view_issues add_issues]}},
+        :headers => credentials('admin')
+      )
+    end
+
+    assert_response :created
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 'Support', json['role']['name']
+    assert_includes json['role']['permissions'], 'view_issues'
+  end
+
+  test "PUT /roles/:id.json should update role" do
+    put(
+      '/roles/2.json',
+      :params => {:role => {:name => 'Developer API'}},
+      :headers => credentials('admin')
+    )
+
+    assert_response :no_content
+    assert_equal 'Developer API', Role.find(2).name
+  end
+
+  test "DELETE /roles/:id.json should delete unused role" do
+    role = Role.create!(:name => 'Unused')
+
+    assert_difference 'Role.count', -1 do
+      delete "/roles/#{role.id}.json", :headers => credentials('admin')
+    end
+
+    assert_response :no_content
+  end
+
+  test "DELETE /roles/:id.json should reject role in use" do
+    assert_no_difference 'Role.count' do
+      delete '/roles/1.json', :headers => credentials('admin')
+    end
+
+    assert_response :unprocessable_content
+  end
+
+  test "GET /roles/permissions.json should export permissions" do
+    get '/roles/permissions.json', :headers => credentials('admin')
+
+    assert_response :success
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_kind_of Array, json['roles']
+    assert_kind_of Array, json['available_permissions']
+  end
+
+  test "PUT /roles/permissions.json should update permissions" do
+    put(
+      '/roles/permissions.json',
+      :params => {:permissions => {'3' => %w[view_issues add_issues]}},
+      :headers => credentials('admin')
+    )
+
+    assert_response :no_content
+    assert_equal [:view_issues, :add_issues], Role.find(3).permissions
+  end
 end

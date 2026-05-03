@@ -24,11 +24,23 @@ class AuthSourcesController < ApplicationController
 
   before_action :require_admin
   before_action :build_new_auth_source, :only => [:new, :create]
-  before_action :find_auth_source, :only => [:edit, :update, :test_connection, :destroy]
+  before_action :find_auth_source, :only => [:show, :edit, :update, :test_connection, :destroy]
+  accept_api_auth :index, :show, :create, :update, :test_connection, :destroy, :autocomplete_for_new_user
   require_sudo_mode :update, :destroy
 
   def index
     @auth_source_pages, @auth_sources = paginate AuthSource, :per_page => 25
+    respond_to do |format|
+      format.html
+      format.api
+    end
+  end
+
+  def show
+    respond_to do |format|
+      format.html {redirect_to edit_auth_source_path(@auth_source)}
+      format.api
+    end
   end
 
   def new
@@ -37,11 +49,21 @@ class AuthSourcesController < ApplicationController
 
   def create
     if @auth_source.save
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to auth_sources_path
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          redirect_to auth_sources_path
+        end
+        format.api {render :action => 'show', :status => :created, :location => auth_source_url(@auth_source)}
+      end
     else
-      no_store
-      render :action => 'new'
+      respond_to do |format|
+        format.html do
+          no_store
+          render :action => 'new'
+        end
+        format.api {render_validation_errors(@auth_source)}
+      end
     end
   end
 
@@ -52,32 +74,64 @@ class AuthSourcesController < ApplicationController
   def update
     @auth_source.safe_attributes = params[:auth_source]
     if @auth_source.save
-      flash[:notice] = l(:notice_successful_update)
-      redirect_to auth_sources_path
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_update)
+          redirect_to auth_sources_path
+        end
+        format.api {render_api_ok}
+      end
     else
-      no_store
-      render :action => 'edit'
+      respond_to do |format|
+        format.html do
+          no_store
+          render :action => 'edit'
+        end
+        format.api {render_validation_errors(@auth_source)}
+      end
     end
   end
 
   def test_connection
     begin
       @auth_source.test_connection
-      flash[:notice] = l(:notice_successful_connection)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_connection)
+          redirect_to auth_sources_path
+        end
+        format.api {render_api_ok}
+      end
     rescue => e
-      flash[:error] = l(:error_unable_to_connect, e.message)
+      respond_to do |format|
+        format.html do
+          flash[:error] = l(:error_unable_to_connect, :value => e.message)
+          redirect_to auth_sources_path
+        end
+        format.api {render_api_errors l(:error_unable_to_connect, :value => e.message)}
+      end
     end
-    redirect_to auth_sources_path
   end
 
   def destroy
     unless @auth_source.users.exists?
       @auth_source.destroy
-      flash[:notice] = l(:notice_successful_delete)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_delete)
+          redirect_to auth_sources_path
+        end
+        format.api {render_api_ok}
+      end
     else
-      flash[:error] = l(:error_can_not_delete_auth_source)
+      respond_to do |format|
+        format.html do
+          flash[:error] = l(:error_can_not_delete_auth_source)
+          redirect_to auth_sources_path
+        end
+        format.api {render_api_errors l(:error_can_not_delete_auth_source)}
+      end
     end
-    redirect_to auth_sources_path
   end
 
   def autocomplete_for_new_user

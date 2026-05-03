@@ -106,8 +106,8 @@ Rails.application.routes.draw do
         :defaults => {:type => 'UserImport'}, :as => 'new_users_import'
   post  '/imports', :to => 'imports#create', :as => 'imports'
   get   '/imports/:id', :to => 'imports#show', :as => 'import'
-  match '/imports/:id/settings', :to => 'imports#settings', :via => [:get, :post], :as => 'import_settings'
-  match '/imports/:id/mapping', :to => 'imports#mapping', :via => [:get, :post], :as => 'import_mapping'
+  match '/imports/:id/settings', :to => 'imports#settings', :via => [:get, :post, :put, :patch], :as => 'import_settings'
+  match '/imports/:id/mapping', :to => 'imports#mapping', :via => [:get, :post, :put, :patch], :as => 'import_mapping'
   match '/imports/:id/run', :to => 'imports#run', :via => [:get, :post], :as => 'import_run'
 
   match 'my/account', :controller => 'my', :action => 'account', :via => [:get, :put]
@@ -269,8 +269,8 @@ Rails.application.routes.draw do
   post '/issues/new', :to => 'issues#new'
   match '/issues', :controller => 'issues', :action => 'destroy', :via => :delete
 
-  resources :queries, :except => [:show]
   get '/queries/filter', :to => 'queries#filter', :as => 'queries_filter'
+  resources :queries
 
   resources :news, :only => [:index, :show, :edit, :update, :destroy, :create, :new]
   match '/news/:id/comments', :to => 'comments#create', :via => :post
@@ -313,6 +313,8 @@ Rails.application.routes.draw do
   get 'projects/:id/repository/:repository_id/graph', :to => 'repositories#graph'
   post 'projects/:id/repository/:repository_id/fetch_changesets', :to => 'repositories#fetch_changesets'
 
+  get 'projects/:id/repository/:repository_id/entries', :to => 'repositories#show'
+  get 'projects/:id/repository/:repository_id/revisions/:rev/entries', :to => 'repositories#show'
   get 'projects/:id/repository/:repository_id/revisions/:rev', :to => 'repositories#revision'
   get 'projects/:id/repository/:repository_id/revision', :to => 'repositories#revision'
   post   'projects/:id/repository/:repository_id/revisions/:rev/issues', :to => 'repositories#add_related_issue'
@@ -381,27 +383,31 @@ Rails.application.routes.draw do
   post 'groups/:id/users', :to => 'groups#add_users', :id => /\d+/, :as => 'group_users'
   delete 'groups/:id/users/:user_id', :to => 'groups#remove_user', :id => /\d+/, :as => 'group_user'
 
-  resources :trackers, :except => :show do
+  resources :trackers do
     collection do
-      match 'fields', :via => [:get, :post]
+      match 'fields', :via => [:get, :post, :put, :patch]
     end
   end
-  resources :issue_statuses, :except => :show do
+  resources :issue_statuses do
     collection do
       post 'update_issue_done_ratio'
     end
   end
-  resources :custom_fields, :except => :show do
+  resources :custom_fields do
     resources :enumerations, :controller => 'custom_field_enumerations', :except => [:show, :new, :edit]
     put 'enumerations', :to => 'custom_field_enumerations#update_each'
   end
   resources :roles do
     collection do
       get 'permissions'
-      post 'permissions', :to => 'roles#update_permissions'
+      match 'permissions', :to => 'roles#update_permissions', :via => [:post, :put, :patch]
     end
   end
   resources :enumerations, :except => :show
+  get 'enumerations/:type/:id', :to => 'enumerations#show'
+  post 'enumerations/:type', :to => 'enumerations#create'
+  match 'enumerations/:type/:id', :to => 'enumerations#update', :via => [:put, :patch]
+  delete 'enumerations/:type/:id', :to => 'enumerations#destroy'
   match 'enumerations/:type', :to => 'enumerations#index', :via => :get
 
   resources :labels, :only => [:show, :update, :destroy]
@@ -424,6 +430,7 @@ Rails.application.routes.draw do
   resources :auth_sources do
     member do
       get 'test_connection', :as => 'try_connection'
+      post 'test_connection'
     end
     collection do
       get 'autocomplete_for_new_user'
@@ -432,18 +439,24 @@ Rails.application.routes.draw do
 
   resources :workflows, only: [:index] do
     collection do
+      get 'transitions'
+      put 'transitions', :to => 'workflows#update_transitions'
+      patch 'transitions', :to => 'workflows#update_transitions'
       get 'edit'
       patch 'update'
       get 'permissions'
+      put 'permissions', :to => 'workflows#update_permissions'
       patch 'update_permissions'
       get 'copy'
+      post 'copy', :to => 'workflows#duplicate'
       post 'duplicate'
     end
   end
 
   match 'settings', :controller => 'settings', :action => 'index', :via => :get
-  match 'settings/edit', :controller => 'settings', :action => 'edit', :via => [:get, :post]
-  match 'settings/plugin/:id', :controller => 'settings', :action => 'plugin', :via => [:get, :post], :as => 'plugin_settings'
+  match 'settings', :controller => 'settings', :action => 'edit', :via => [:put, :patch]
+  match 'settings/edit', :controller => 'settings', :action => 'edit', :via => [:get, :post, :put, :patch]
+  match 'settings/plugin/:id', :controller => 'settings', :action => 'plugin', :via => [:get, :post, :put, :patch], :as => 'plugin_settings'
 
   match 'sys/projects', :to => 'sys#projects', :via => :get
   match 'sys/projects/:id/repository', :to => 'sys#create_project_repository', :via => :post

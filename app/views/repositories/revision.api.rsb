@@ -1,0 +1,47 @@
+api.changeset do
+  api.id @changeset.id
+  api.revision @changeset.revision
+  api.identifier @changeset.identifier
+  api.scmid @changeset.scmid
+  api.committed_on @changeset.committed_on
+  api.author @changeset.author.to_s
+  api.committer @changeset.committer
+  api.comments @changeset.comments
+  api.repository :id => @repository.id, :name => @repository.name
+  api.project :id => @project.id, :name => @project.name, :identifier => @project.identifier
+  api.user :id => @changeset.user.id, :name => @changeset.user.name if @changeset.user
+  api.filechanges_total_count @filechange_count
+  api.filechanges_offset 0
+  api.filechanges_limit @filechange_limit
+
+  api.array :parents do
+    @changeset.parents.each do |changeset|
+      api.changeset :id => changeset.id,
+                    :revision => changeset.revision,
+                    :identifier => changeset.identifier
+    end
+  end
+
+  api.array :children do
+    @changeset.children.each do |changeset|
+      api.changeset :id => changeset.id,
+                    :revision => changeset.revision,
+                    :identifier => changeset.identifier
+    end
+  end
+
+  api.array :issues do
+    @changeset.issues.visible.each do |issue|
+      api.issue :id => issue.id, :subject => issue.subject
+    end
+  end
+
+  api.array :filechanges do
+    @filechanges.each do |change|
+      attrs = {:action => change.action, :path => change.path}
+      attrs[:from_path] = change.from_path if change.from_path.present?
+      attrs[:from_revision] = change.from_revision if change.from_revision.present?
+      api.filechange attrs
+    end
+  end
+end

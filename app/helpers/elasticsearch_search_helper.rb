@@ -3,10 +3,21 @@
 module ElasticsearchSearchHelper
   include SearchHelper
 
+  ES_HIGHLIGHT_TAGS = %w[mark span].freeze
+  ES_HIGHLIGHT_ATTRIBUTES = %w[class].freeze
+
   def elasticsearch_available?
     RedmineElasticsearch.available?
   rescue
     false
+  end
+
+  def sanitize_es_result_fragment(fragment)
+    sanitize(
+      fragment.to_s,
+      :tags => ES_HIGHLIGHT_TAGS,
+      :attributes => ES_HIGHLIGHT_ATTRIBUTES
+    )
   end
 
   def advanced_search_link

@@ -23,41 +23,85 @@ class CustomFieldEnumerationsController < ApplicationController
 
   before_action :require_admin
   before_action :find_custom_field
-  before_action :find_enumeration, :only => :destroy
+  before_action :find_enumeration, :only => [:update, :destroy]
+
+  accept_api_auth :index, :create, :update, :update_each, :destroy
 
   helper :custom_fields
 
   def index
     @values = @custom_field.enumerations.order(:position)
+    respond_to do |format|
+      format.html
+      format.api
+    end
   end
 
   def create
     @value = @custom_field.enumerations.build
     @value.attributes = enumeration_params
-    @value.save
-    respond_to do |format|
-      format.html {redirect_to custom_field_enumerations_path(@custom_field)}
-      format.js
+    if @value.save
+      respond_to do |format|
+        format.html {redirect_to custom_field_enumerations_path(@custom_field)}
+        format.js
+        format.api {render :action => 'show', :status => :created, :location => custom_field_enumeration_url(@custom_field, @value)}
+      end
+    else
+      respond_to do |format|
+        format.html {redirect_to custom_field_enumerations_path(@custom_field)}
+        format.js
+        format.api {render_validation_errors(@value)}
+      end
+    end
+  end
+
+  def update
+    @value.attributes = enumeration_params
+    if @value.save
+      respond_to do |format|
+        format.html {redirect_to custom_field_enumerations_path(@custom_field)}
+        format.api {render_api_ok}
+      end
+    else
+      respond_to do |format|
+        format.html {redirect_to custom_field_enumerations_path(@custom_field)}
+        format.api {render_validation_errors(@value)}
+      end
     end
   end
 
   def update_each
     saved = CustomFieldEnumeration.update_each(@custom_field, update_each_params)
-    if saved
-      flash[:notice] = l(:notice_successful_update)
+    respond_to do |format|
+      if saved
+        format.html do
+          flash[:notice] = l(:notice_successful_update)
+          redirect_to :action => 'index'
+        end
+        format.api {render_api_ok}
+      else
+        format.html {redirect_to :action => 'index'}
+        format.api {render_api_errors 'Unable to update custom field enumerations'}
+      end
     end
-    redirect_to :action => 'index'
   end
 
   def destroy
     reassign_to = @custom_field.enumerations.find_by_id(params[:reassign_to_id])
     if reassign_to.nil? && @value.in_use?
+      if api_request?
+        render_api_errors 'Unable to delete custom field enumeration'
+        return
+      end
       @enumerations = @custom_field.enumerations - [@value]
       render :action => 'destroy'
       return
     end
     @value.destroy(reassign_to)
-    redirect_to custom_field_enumerations_path(@custom_field)
+    respond_to do |format|
+      format.html {redirect_to custom_field_enumerations_path(@custom_field)}
+      format.api {render_api_ok}
+    end
   end
 
   private

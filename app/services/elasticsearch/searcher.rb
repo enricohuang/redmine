@@ -122,35 +122,9 @@ module Elasticsearch
               }
             },
             # Nested journal search (for issues)
-            {
-              nested: {
-                path: 'issue_fields.journals',
-                query: {
-                  match: {
-                    'issue_fields.journals.notes': {
-                      query: query,
-                      operator: options[:all_words] ? 'and' : 'or'
-                    }
-                  }
-                },
-                score_mode: 'max'
-              }
-            },
+            public_journal_notes_query(query),
             # Nested custom_fields search
-            {
-              nested: {
-                path: 'custom_fields',
-                query: {
-                  match: {
-                    'custom_fields.value': {
-                      query: query,
-                      operator: options[:all_words] ? 'and' : 'or'
-                    }
-                  }
-                },
-                score_mode: 'max'
-              }
-            },
+            public_custom_fields_query(query),
             # Nested attachments search - filename
             {
               nested: {
@@ -249,6 +223,58 @@ module Elasticsearch
         },
         pre_tags: ['<span class="highlight">'],
         post_tags: ['</span>']
+      }
+    end
+
+    def public_journal_notes_query(query)
+      {
+        nested: {
+          path: 'issue_fields.journals',
+          query: {
+            bool: {
+              must: [
+                {
+                  match: {
+                    'issue_fields.journals.notes': {
+                      query: query,
+                      operator: options[:all_words] ? 'and' : 'or'
+                    }
+                  }
+                }
+              ],
+              filter: [
+                { term: { 'issue_fields.journals.is_private': false } }
+              ]
+            }
+          },
+          score_mode: 'max'
+        }
+      }
+    end
+
+    def public_custom_fields_query(query)
+      {
+        nested: {
+          path: 'custom_fields',
+          query: {
+            bool: {
+              must: [
+                {
+                  match: {
+                    'custom_fields.value': {
+                      query: query,
+                      operator: options[:all_words] ? 'and' : 'or'
+                    }
+                  }
+                }
+              ],
+              filter: [
+                { term: { 'custom_fields.visible': true } }
+              ]
+            }
+          },
+          score_mode: 'max'
+        }
       }
     end
 

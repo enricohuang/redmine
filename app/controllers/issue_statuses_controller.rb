@@ -21,9 +21,9 @@ class IssueStatusesController < ApplicationController
   layout 'admin'
   self.main_menu = false
 
-  before_action :require_admin, :except => :index
-  before_action :require_admin_or_api_request, :only => :index
-  accept_api_auth :index
+  before_action :require_admin, :except => [:index, :show]
+  before_action :require_admin_or_api_request, :only => [:index, :show]
+  accept_api_auth :index, :show, :create, :update, :destroy, :update_issue_done_ratio
 
   def index
     @issue_statuses = IssueStatus.sorted.to_a
@@ -31,6 +31,16 @@ class IssueStatusesController < ApplicationController
       format.html {render :layout => false if request.xhr?}
       format.api
     end
+  end
+
+  def show
+    @issue_status = IssueStatus.find(params[:id])
+    respond_to do |format|
+      format.html {redirect_to issue_statuses_path}
+      format.api
+    end
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
   def new
@@ -41,10 +51,18 @@ class IssueStatusesController < ApplicationController
     @issue_status = IssueStatus.new
     @issue_status.safe_attributes = params[:issue_status]
     if @issue_status.save
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to issue_statuses_path
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          redirect_to issue_statuses_path
+        end
+        format.api {render :action => 'show', :status => :created, :location => issue_status_url(@issue_status)}
+      end
     else
-      render :action => 'new'
+      respond_to do |format|
+        format.html {render :action => 'new'}
+        format.api {render_validation_errors(@issue_status)}
+      end
     end
   end
 
@@ -62,29 +80,50 @@ class IssueStatusesController < ApplicationController
           redirect_to issue_statuses_path(:page => params[:page])
         end
         format.js {head :ok}
+        format.api {render_api_ok}
       end
     else
       respond_to do |format|
         format.html {render :action => 'edit'}
         format.js {head :unprocessable_content}
+        format.api {render_validation_errors(@issue_status)}
       end
     end
   end
 
   def destroy
     IssueStatus.find(params[:id]).destroy
-    redirect_to issue_statuses_path
+    respond_to do |format|
+      format.html {redirect_to issue_statuses_path}
+      format.api {render_api_ok}
+    end
   rescue => e
-    flash[:error] = l(:error_unable_delete_issue_status, ERB::Util.h(e.message))
-    redirect_to issue_statuses_path
+    respond_to do |format|
+      format.html do
+        flash[:error] = l(:error_unable_delete_issue_status, ERB::Util.h(e.message))
+        redirect_to issue_statuses_path
+      end
+      format.api {render_api_errors l(:error_unable_delete_issue_status, :value => e.message)}
+    end
   end
 
   def update_issue_done_ratio
     if request.post? && IssueStatus.update_issue_done_ratios
-      flash[:notice] = l(:notice_issue_done_ratios_updated)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_issue_done_ratios_updated)
+          redirect_to issue_statuses_path
+        end
+        format.api {render_api_ok}
+      end
     else
-      flash[:error] =  l(:error_issue_done_ratios_not_updated)
+      respond_to do |format|
+        format.html do
+          flash[:error] =  l(:error_issue_done_ratios_not_updated)
+          redirect_to issue_statuses_path
+        end
+        format.api {render_api_errors l(:error_issue_done_ratios_not_updated)}
+      end
     end
-    redirect_to issue_statuses_path
   end
 end

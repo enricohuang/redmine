@@ -1,0 +1,11 @@
+api.admin_info do
+  api.array :checklist do
+    @checklist.each do |key, passed|
+      api.check do
+        api.key key.to_s
+        api.label l(key)
+        api.passed passed
+      end
+    end
+  end
+end

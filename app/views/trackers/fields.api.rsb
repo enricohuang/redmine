@@ -1,0 +1,18 @@
+api.array :trackers do
+  @trackers.each do |tracker|
+    api.tracker do
+      api.id tracker.id
+      api.name tracker.name
+      api.array :enabled_standard_fields do
+        tracker.core_fields.each do |field|
+          api.field field
+        end
+      end
+      api.array :custom_fields do
+        tracker.custom_fields.each do |field|
+          api.custom_field :id => field.id, :name => field.name
+        end
+      end
+    end
+  end
+end

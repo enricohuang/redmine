@@ -1,0 +1,6 @@
+api.custom_field_enumeration do
+  api.id @value.id
+  api.name @value.name
+  api.active @value.active?
+  api.position @value.position
+end

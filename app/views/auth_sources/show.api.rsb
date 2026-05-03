@@ -1,0 +1,20 @@
+api.auth_source do
+  api.id @auth_source.id
+  api.type @auth_source.type
+  api.name @auth_source.name
+  api.auth_method_name @auth_source.auth_method_name
+  api.host @auth_source.host
+  api.port @auth_source.port
+  api.account @auth_source.account
+  api.base_dn @auth_source.base_dn
+  api.attr_login @auth_source.attr_login
+  api.attr_firstname @auth_source.attr_firstname
+  api.attr_lastname @auth_source.attr_lastname
+  api.attr_mail @auth_source.attr_mail
+  api.onthefly_register @auth_source.onthefly_register?
+  api.tls @auth_source.tls?
+  api.verify_peer @auth_source.verify_peer?
+  api.filter @auth_source.filter
+  api.timeout @auth_source.timeout
+  api.has_account_password @auth_source.account_password.present?
+end

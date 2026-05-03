@@ -11,8 +11,8 @@ import pytest
 
 EXPECTED_TOPICS = {
     "getting-started", "auth", "issues", "wiki", "attachments",
-    "labels", "journals", "search", "automation", "troubleshooting",
-    "reference",
+    "labels", "journals", "search", "imports", "repository",
+    "automation", "troubleshooting", "reference",
 }
 
 
@@ -67,6 +67,15 @@ def test_help_all_dumps_every_command(cli):
         "$ redmine journal --help",
         "$ redmine attachment --help",
         "$ redmine attachment attach --help",
+        "$ redmine import --help",
+        "$ redmine import create --help",
+        "$ redmine import settings --help",
+        "$ redmine import mapping --help",
+        "$ redmine import run --help",
+        "$ redmine repository --help",
+        "$ redmine repository entries --help",
+        "$ redmine repository revisions --help",
+        "$ redmine repository revision --help",
         "$ redmine label --help",
         "$ redmine search --help",
         "$ redmine user --help",
@@ -80,6 +89,21 @@ def test_individual_help_includes_examples(cli):
     res = cli("issue", "create", "--help")
     assert "Examples" in res.stdout, "issue create --help should show an Examples section"
     assert "redmine issue create" in res.stdout, "examples should reference the command"
+
+
+@pytest.mark.parametrize(
+    ("args", "needle"),
+    [
+        (("import", "--help"), "redmine import create"),
+        (("import", "mapping", "--help"), "--map project_id=1"),
+        (("repository", "--help"), "redmine repository entries"),
+        (("repository", "revision", "--help"), "redmine repository revision"),
+    ],
+)
+def test_new_api_command_help_includes_examples(cli, args, needle):
+    res = cli(*args)
+    assert "Examples" in res.stdout or "**Examples:**" in res.stdout
+    assert needle in res.stdout
 
 
 def test_top_level_help_advertises_help_command(cli):

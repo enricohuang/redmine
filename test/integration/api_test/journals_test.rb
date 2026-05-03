@@ -226,6 +226,35 @@ class Redmine::ApiTest::JournalsTest < Redmine::ApiTest::Base
     assert_response :forbidden
   end
 
+  test "POST /issues/:issue_id/journals.json should not create notes on invisible issue" do
+    issue = Issue.find(1)
+    issue.update_columns(:is_private => true, :assigned_to_id => nil, :author_id => 1)
+    assert_not issue.visible?(User.find_by_login('dlopper'))
+
+    assert_no_difference 'Journal.count' do
+      post '/issues/1/journals.json',
+           :params => {:journal => {:notes => 'Should not be created'}},
+           :headers => credentials('dlopper')
+    end
+
+    assert_response :not_found
+  end
+
+  test "POST /issues/:issue_id/journals.json should honor tracker specific note permission" do
+    role = Role.find(1)
+    role.permissions_all_trackers = {'add_issue_notes' => '0'}
+    role.permissions_tracker_ids = {'add_issue_notes' => ['2']}
+    role.save!
+
+    assert_no_difference 'Journal.count' do
+      post '/issues/1/journals.json',
+           :params => {:journal => {:notes => 'Wrong tracker'}},
+           :headers => credentials('jsmith')
+    end
+
+    assert_response :forbidden
+  end
+
   # Update tests
 
   test "PUT /journals/:id.json should update journal notes and return updated data" do

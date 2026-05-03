@@ -272,7 +272,22 @@ class AttachmentsController < ApplicationController
   end
 
   def read_authorize
-    @attachment.visible? ? true : deny_access
+    return true if @attachment.visible? || indexer_download_authorized?
+
+    deny_access
+  end
+
+  def indexer_download_authorized?
+    return false unless action_name == 'download'
+    return false unless Setting.attachment_indexer_api_enabled?
+    return false unless @attachment.can_fulltext_index?
+
+    indexer_key = Setting.attachment_indexer_api_key
+    provided_key = request.headers['X-Redmine-Indexer-Key'] || params[:indexer_key]
+
+    indexer_key.present? &&
+      provided_key.present? &&
+      ActiveSupport::SecurityUtils.secure_compare(indexer_key.to_s, provided_key.to_s)
   end
 
   def update_authorize

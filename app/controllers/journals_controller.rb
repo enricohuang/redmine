@@ -162,7 +162,7 @@ class JournalsController < ApplicationController
   end
 
   def find_issue
-    @issue = Issue.find(params[:issue_id] || params[:id])
+    @issue = Issue.visible.find(params[:issue_id] || params[:id])
     @project = @issue.project
   rescue ActiveRecord::RecordNotFound
     render_404
@@ -174,7 +174,7 @@ class JournalsController < ApplicationController
   end
 
   def authorize_view
-    unless @issue.nil? || User.current.allowed_to?(:view_issues, @project)
+    unless @issue.nil? || @issue.visible?(User.current)
       deny_access
       return false
     end
@@ -182,7 +182,7 @@ class JournalsController < ApplicationController
   end
 
   def authorize_create
-    unless User.current.allowed_to?(:add_issue_notes, @project)
+    unless @issue&.visible?(User.current) && @issue.notes_addable?(User.current)
       deny_access
       return false
     end

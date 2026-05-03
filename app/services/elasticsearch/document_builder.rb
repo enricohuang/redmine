@@ -151,6 +151,7 @@ module Elasticsearch
       def build_journals(issue)
         issue.journals.filter_map do |journal|
           next if journal.notes.blank?
+          next if journal.private_notes?
 
           {
             id: journal.id,
@@ -168,11 +169,13 @@ module Elasticsearch
         record.custom_field_values.filter_map do |cfv|
           next if cfv.value.blank?
           next unless cfv.custom_field&.searchable?
+          next unless cfv.custom_field.visible?
 
           {
             id: cfv.custom_field_id,
             name: cfv.custom_field.name,
-            value: cfv.value.is_a?(Array) ? cfv.value.join(' ') : cfv.value.to_s
+            value: cfv.value.is_a?(Array) ? cfv.value.join(' ') : cfv.value.to_s,
+            visible: true
           }
         end
       end

@@ -227,4 +227,29 @@ class Redmine::ApiTest::TimeEntriesTest < Redmine::ApiTest::Base
     assert_equal 'application/xml', @response.media_type
     assert_select 'errors'
   end
+
+  test "GET /time_entries/report.json should return time report" do
+    get(
+      '/time_entries/report.json',
+      :params => {:criteria => ['project'], :columns => 'month'},
+      :headers => credentials('jsmith')
+    )
+
+    assert_response :success
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_kind_of Hash, json['time_entry_report']
+    assert_kind_of Array, json['time_entry_report']['hours']
+    assert json['time_entry_report'].key?('total_hours')
+  end
+
+  test "POST /time_entries/bulk_update.json should update editable entries" do
+    post(
+      '/time_entries/bulk_update.json',
+      :params => {:ids => [2], :time_entry => {:comments => 'Bulk API update'}},
+      :headers => credentials('jsmith')
+    )
+
+    assert_response :no_content
+    assert_equal 'Bulk API update', TimeEntry.find(2).comments
+  end
 end

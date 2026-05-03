@@ -62,11 +62,20 @@ module Elasticsearch
         }
       when 'content'
         {
-          multi_match: {
-            query: query,
-            fields: ['content', 'issue_fields.journals.notes', 'custom_fields.value'],
-            type: 'best_fields',
-            fuzziness: 'AUTO'
+          bool: {
+            should: [
+              {
+                multi_match: {
+                  query: query,
+                  fields: ['content'],
+                  type: 'best_fields',
+                  fuzziness: 'AUTO'
+                }
+              },
+              public_journal_notes_query(query),
+              public_custom_fields_query(query)
+            ],
+            minimum_should_match: 1
           }
         }
       else # 'all'
@@ -84,20 +93,13 @@ module Elasticsearch
               {
                 multi_match: {
                   query: query,
-                  fields: ['title^2', 'content', 'custom_fields.value', 'attachments.filename'],
+                  fields: ['title^2', 'content', 'attachments.filename'],
                   type: 'best_fields',
                   fuzziness: 'AUTO'
                 }
               },
-              {
-                nested: {
-                  path: 'issue_fields.journals',
-                  query: {
-                    match: { 'issue_fields.journals.notes': query }
-                  },
-                  score_mode: 'max'
-                }
-              }
+              public_journal_notes_query(query),
+              public_custom_fields_query(query)
             ],
             minimum_should_match: 1
           }
@@ -189,6 +191,44 @@ module Elasticsearch
         },
         pre_tags: ['<mark class="es-highlight">'],
         post_tags: ['</mark>']
+      }
+    end
+
+    def public_journal_notes_query(query)
+      {
+        nested: {
+          path: 'issue_fields.journals',
+          query: {
+            bool: {
+              must: [
+                { match: { 'issue_fields.journals.notes': query } }
+              ],
+              filter: [
+                { term: { 'issue_fields.journals.is_private': false } }
+              ]
+            }
+          },
+          score_mode: 'max'
+        }
+      }
+    end
+
+    def public_custom_fields_query(query)
+      {
+        nested: {
+          path: 'custom_fields',
+          query: {
+            bool: {
+              must: [
+                { match: { 'custom_fields.value': query } }
+              ],
+              filter: [
+                { term: { 'custom_fields.visible': true } }
+              ]
+            }
+          },
+          score_mode: 'max'
+        }
       }
     end
 

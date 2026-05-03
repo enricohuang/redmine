@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class SearchController < ApplicationController
-  before_action :find_optional_project_by_id, :authorize_global
+  before_action :find_optional_project_for_search, :authorize_global
   accept_api_auth :index
 
   def index
@@ -92,6 +92,11 @@ class SearchController < ApplicationController
   end
 
   private
+
+  def find_optional_project_for_search
+    project_id = params[:id].presence || params[:project_id].presence
+    find_project(project_id) if project_id
+  end
 
   def build_search_fetcher(projects_to_search)
     search_options = {

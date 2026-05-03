@@ -28,6 +28,9 @@ class RepositoriesController < ApplicationController
   menu_item :settings, :only => [:new, :create, :edit, :update, :destroy, :committers]
   default_search_scope :changesets
 
+  API_ENTRY_LIMIT = 500
+  API_FILECHANGE_LIMIT = 1000
+
   before_action :find_project_by_project_id, :only => [:new, :create]
   before_action :build_new_repository_from_params, :only => [:new, :create]
   before_action :find_repository, :only => [:edit, :update, :destroy, :committers]
@@ -35,7 +38,7 @@ class RepositoriesController < ApplicationController
   before_action :find_changeset, :only => [:revision, :add_related_issue, :remove_related_issue]
   before_action :authorize
   accept_atom_auth :revisions
-  accept_api_auth :add_related_issue, :remove_related_issue
+  accept_api_auth :show, :browse, :revisions, :revision, :add_related_issue, :remove_related_issue
 
   rescue_from Redmine::Scm::Adapters::CommandFailed, :with => :show_error_command_failed
 
@@ -92,14 +95,17 @@ class RepositoriesController < ApplicationController
 
     @entries = @repository.entries(@path, @rev)
     @changeset = @repository.find_changeset_by_name(@rev)
-    if request.xhr?
+    if request.xhr? && !api_request?
       @entries ? render(:partial => 'dir_list_content') : head(:ok)
     else
       (show_error_not_found; return) unless @entries
       @changesets = @repository.latest_changesets(@path, @rev)
       @properties = @repository.properties(@path, @rev)
       @repositories = @project.repositories
-      render :action => 'show'
+      respond_to do |format|
+        format.html {render :action => 'show'}
+        format.api {prepare_repository_show_api_response}
+      end
     end
   end
 
@@ -136,6 +142,7 @@ class RepositoriesController < ApplicationController
     respond_to do |format|
       format.html {render :layout => false if request.xhr?}
       format.atom {render_feed(@changesets, :title => "#{@project.name}: #{l(:label_revision_plural)}")}
+      format.api
     end
   end
 
@@ -236,6 +243,7 @@ class RepositoriesController < ApplicationController
     respond_to do |format|
       format.html
       format.js {render :layout => false}
+      format.api {prepare_changeset_api_response}
     end
   end
 
@@ -381,6 +389,45 @@ class RepositoriesController < ApplicationController
   # Handler for Redmine::Scm::Adapters::CommandFailed exception
   def show_error_command_failed(exception)
     render_error l(:error_scm_command_failed, exception.message)
+  end
+
+  def prepare_repository_show_api_response
+    if User.current.allowed_to?(:browse_repository, @project)
+      @entry_count = @entries.size
+      @entry_offset = [params[:offset].to_i, 0].max
+      @entry_limit = api_limit(API_ENTRY_LIMIT)
+      @entries = @entries.slice(@entry_offset, @entry_limit) || []
+    else
+      @entry_count = 0
+      @entry_offset = 0
+      @entry_limit = 0
+      @entries = []
+    end
+    @changesets =
+      if User.current.allowed_to?(:view_changesets, @project)
+        @repository.latest_changesets(@path, @rev)
+      else
+        []
+      end
+  end
+
+  def prepare_changeset_api_response
+    if User.current.allowed_to?(:browse_repository, @project)
+      filechanges = @changeset.filechanges
+      @filechange_count = filechanges.count
+      @filechange_limit = api_limit(API_FILECHANGE_LIMIT)
+      @filechanges = filechanges.limit(@filechange_limit).to_a
+    else
+      @filechange_count = 0
+      @filechange_limit = 0
+      @filechanges = []
+    end
+  end
+
+  def api_limit(maximum)
+    requested = params[:limit].to_i
+    requested = maximum if requested <= 0
+    [requested, maximum].min
   end
 
   def graph_commits_per_month(repository)

@@ -21,10 +21,11 @@ class QueriesController < ApplicationController
   menu_item :issues
   layout :query_layout
 
+  before_action :find_visible_query, :only => [:show]
   before_action :find_query, :only => [:edit, :update, :destroy]
   before_action :find_optional_project, :only => [:new, :create]
 
-  accept_api_auth :index
+  accept_api_auth :index, :show, :create, :update, :destroy, :filter
 
   include QueriesHelper
 
@@ -56,6 +57,13 @@ class QueriesController < ApplicationController
     @query.build_from_params(params)
   end
 
+  def show
+    respond_to do |format|
+      format.html {render_error :status => 406}
+      format.api
+    end
+  end
+
   def create
     @query = query_class.new
     @query.user = User.current
@@ -63,10 +71,18 @@ class QueriesController < ApplicationController
     update_query_from_params
 
     if @query.save
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to_items(:query_id => @query)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_create)
+          redirect_to_items(:query_id => @query)
+        end
+        format.api {render :action => 'show', :status => :created, :location => query_url(@query)}
+      end
     else
-      render :action => 'new', :layout => !request.xhr?
+      respond_to do |format|
+        format.html {render :action => 'new', :layout => !request.xhr?}
+        format.api {render_validation_errors(@query)}
+      end
     end
   end
 
@@ -77,16 +93,27 @@ class QueriesController < ApplicationController
     update_query_from_params
 
     if @query.save
-      flash[:notice] = l(:notice_successful_update)
-      redirect_to_items(:query_id => @query)
+      respond_to do |format|
+        format.html do
+          flash[:notice] = l(:notice_successful_update)
+          redirect_to_items(:query_id => @query)
+        end
+        format.api {render_api_ok}
+      end
     else
-      render :action => 'edit'
+      respond_to do |format|
+        format.html {render :action => 'edit'}
+        format.api {render_validation_errors(@query)}
+      end
     end
   end
 
   def destroy
     @query.destroy
-    redirect_to_items(:set_filter => 1)
+    respond_to do |format|
+      format.html {redirect_to_items(:set_filter => 1)}
+      format.api {render_api_ok}
+    end
   end
 
   # Returns the values for a query filter
@@ -120,6 +147,17 @@ class QueriesController < ApplicationController
   end
 
   private
+
+  def find_visible_query
+    @query = Query.find(params[:id])
+    unless @query.visible?(User.current)
+      render_404
+      return
+    end
+    @project = @query.project
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
 
   def find_query
     @query = Query.find(params[:id])

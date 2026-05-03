@@ -188,6 +188,31 @@ class Redmine::ApiTest::AttachmentFulltextTest < Redmine::ApiTest::Base
     assert_response :not_found
   end
 
+  test "GET content_url should allow indexer key to download protected indexable attachment" do
+    Issue.find(2).update_columns(:is_private => true)
+    attachment = Attachment.find(4)
+    attachment.update_columns(:content_type => 'text/plain', :filename => 'source.txt')
+
+    get "/attachments/download/#{attachment.id}/#{attachment.filename}"
+    assert_response :redirect
+
+    get "/attachments/download/#{attachment.id}/#{attachment.filename}", headers: indexer_headers
+    assert_response :success
+    assert_equal 'text/plain', response.media_type
+  end
+
+  test "GET content_url should not allow wrong indexer key to download protected attachment" do
+    Issue.find(2).update_columns(:is_private => true)
+    attachment = Attachment.find(4)
+    attachment.update_columns(:content_type => 'text/plain', :filename => 'source.txt')
+
+    get(
+      "/attachments/download/#{attachment.id}/#{attachment.filename}",
+      headers: { 'X-Redmine-Indexer-Key' => 'wrong-key' }
+    )
+    assert_response :redirect
+  end
+
   # Update tests
 
   test "PATCH /attachments/:id/fulltext.json should update fulltext as indexed" do

@@ -1,0 +1,10 @@
+api.array :custom_field_enumerations do
+  @values.each do |value|
+    api.custom_field_enumeration do
+      api.id value.id
+      api.name value.name
+      api.active value.active?
+      api.position value.position
+    end
+  end
+end

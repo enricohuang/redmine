@@ -107,7 +107,7 @@ def search(
         "per_page": limit,
     }
     if project:
-        params["project_id"] = project
+        params["project_ids[]"] = [project]
     if from_date:
         params["date_from"] = from_date
     if to_date:
@@ -117,8 +117,8 @@ def search(
     if types:
         params["types[]"] = list(types)
 
-    # Bypass the .get() kwargs path so that `types[]` (which isn't a valid
-    # Python identifier) is preserved as a query-string key.
+    # Bypass the .get() kwargs path so bracketed Rails array params are
+    # preserved as query-string keys.
     data = c.request("GET", "/elasticsearch_search.json", params=params)
 
     if json_mode:
@@ -166,8 +166,8 @@ def stats(
     c = _client(ctx)
     params: dict = {"q": query, "per_page": 1}
     if project:
-        params["project_id"] = project
-    data = c.get("/elasticsearch_search.json", **params)
+        params["project_ids[]"] = [project]
+    data = c.request("GET", "/elasticsearch_search.json", params=params)
 
     aggs = data.get("aggregations", {}) if isinstance(data, dict) else {}
     summary = {

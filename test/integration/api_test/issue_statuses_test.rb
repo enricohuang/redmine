@@ -31,4 +31,66 @@ class Redmine::ApiTest::IssueStatusesTest < Redmine::ApiTest::Base
       assert_select '~ description', :text => 'Description for Assigned issue status'
     end
   end
+
+  test "GET /issue_statuses/:id.json should return issue status" do
+    get '/issue_statuses/2.json'
+
+    assert_response :success
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 2, json['issue_status']['id']
+    assert_equal 'Assigned', json['issue_status']['name']
+  end
+
+  test "POST /issue_statuses.json should require admin API user" do
+    post(
+      '/issue_statuses.json',
+      :params => {:issue_status => {:name => 'QA Review'}},
+      :headers => credentials('jsmith')
+    )
+
+    assert_response :forbidden
+  end
+
+  test "POST /issue_statuses.json should create issue status" do
+    assert_difference 'IssueStatus.count' do
+      post(
+        '/issue_statuses.json',
+        :params => {:issue_status => {:name => 'QA Review', :default_done_ratio => 50}},
+        :headers => credentials('admin')
+      )
+    end
+
+    assert_response :created
+    json = ActiveSupport::JSON.decode(response.body)
+    assert_equal 'QA Review', json['issue_status']['name']
+  end
+
+  test "PUT /issue_statuses/:id.json should update issue status" do
+    put(
+      '/issue_statuses/2.json',
+      :params => {:issue_status => {:description => 'Updated through API'}},
+      :headers => credentials('admin')
+    )
+
+    assert_response :no_content
+    assert_equal 'Updated through API', IssueStatus.find(2).description
+  end
+
+  test "DELETE /issue_statuses/:id.json should delete unused issue status" do
+    status = IssueStatus.create!(:name => 'Unused')
+
+    assert_difference 'IssueStatus.count', -1 do
+      delete "/issue_statuses/#{status.id}.json", :headers => credentials('admin')
+    end
+
+    assert_response :no_content
+  end
+
+  test "POST /issue_statuses/update_issue_done_ratio.json should synchronize ratios" do
+    with_settings :issue_done_ratio => 'issue_status' do
+      post '/issue_statuses/update_issue_done_ratio.json', :headers => credentials('admin')
+    end
+
+    assert_response :no_content
+  end
 end
